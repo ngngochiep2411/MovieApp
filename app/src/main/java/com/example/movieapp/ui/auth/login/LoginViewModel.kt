@@ -1,4 +1,4 @@
-package com.example.movieapp.ui.login
+package com.example.movieapp.ui.auth.login
 
 import android.widget.Toast
 import androidx.lifecycle.LiveData

@@ -70,6 +70,10 @@ class ProfileFragment : Fragment() {
                         .placeholder(R.drawable.avatar_anonymous)
                         .into(binding.avatar)
                     binding.tvUserName.text = userDetail?.user?.name
+
+                    binding.info.visibility = if (userDetail != null) View.VISIBLE else View.GONE
+                    binding.tvSignInout.visibility =
+                        if (userDetail != null) View.GONE else View.VISIBLE
                 }
             }
         }

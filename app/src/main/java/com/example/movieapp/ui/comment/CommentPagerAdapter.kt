@@ -8,8 +8,8 @@ import com.example.movieapp.model.DetailMovie
 import com.example.movieapp.model.ServerData
 import com.example.movieapp.ui.comment.CommentFragment
 import com.example.movieapp.ui.listvideo.LIstVideoFragment
-import com.example.movieapp.ui.login.LoginFragment
-import com.example.movieapp.ui.signin.SignInFragment
+import com.example.movieapp.ui.auth.login.LoginFragment
+import com.example.movieapp.ui.auth.signin.SignInFragment
 
 class CommentPagerAdapter(
     fragmentActivity: FragmentActivity,

@@ -1,4 +1,4 @@
-package com.example.movieapp.ui.login
+package com.example.movieapp.ui.auth.login
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -51,6 +51,11 @@ class LoginFragment : Fragment() {
         binding.btnLogin.setOnClickListener {
             viewModel.login(binding.edtEmail.text.toString(), binding.edtPassword.text.toString())
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        binding.root.requestLayout()
     }
 
     companion object {

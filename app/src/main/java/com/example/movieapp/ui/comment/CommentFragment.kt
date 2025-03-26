@@ -13,13 +13,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.viewpager2.widget.ViewPager2
-import com.example.movieapp.R
 import com.example.movieapp.databinding.FragmentCommentBinding
-import com.example.movieapp.model.Comment
 import com.example.movieapp.model.CommentData
-import com.example.movieapp.model.Reply
 import com.example.movieapp.model.ReplyData
+import com.example.movieapp.ui.auth.BottomSheetAuthFragment
 import com.example.movieapp.ui.comment.logic.Reducer
 import com.example.movieapp.ui.comment.logic.impl.AddCommentReducer
 import com.example.movieapp.ui.comment.logic.impl.ExpandReducer
@@ -28,18 +25,12 @@ import com.example.movieapp.ui.comment.logic.impl.ReplyReducer
 import com.example.movieapp.ui.comment.logic.impl.StartExpandReducer
 import com.example.movieapp.ui.comment.logic.impl.StartLoadLv1Reducer
 import com.example.movieapp.ui.comment.logic.impl.convertComment
-import com.example.movieapp.ui.comment.logic.impl.convertReply
 import com.example.movieapp.ui.comment.ui.CommentAdapter
 import com.example.movieapp.ui.comment.ui.CommentItem
-import com.example.movieapp.ui.comment.ui.CommentItem.Folding.State
 import com.example.movieapp.util.DataStoreManager
 import com.example.movieapp.util.SharedViewModel
-import com.example.movieapp.util.Utils
 import com.example.movieapp.widgets.ReplyDialog
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -103,16 +94,6 @@ class CommentFragment : Fragment() {
         setOnClick()
         Log.d("testing", "videoName $videoName")
 
-//        commentAdapter.registerAdapterDataObserver(object :
-//            RecyclerView.AdapterDataObserver() {
-//            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-//                binding.rvComment.scrollToPosition(positionStart)
-//            }
-//
-//            override fun onItemRangeChanged(positionStart: Int, itemCount: Int, payload: Any?) {
-//                binding.rvComment.scrollToPosition(positionStart)
-//            }
-//        })
     }
 
     private fun fetchData() {
@@ -216,39 +197,12 @@ class CommentFragment : Fragment() {
         }
     }
 
-    @SuppressLint("MissingInflatedId")
     private fun showBottomSheetLogin() {
-        dialog = BottomSheetDialog(requireContext())
-        val bottomSheet = layoutInflater.inflate(R.layout.bottom_sheet_signin_out, null, false)
-        dialog.setContentView(bottomSheet)
-
-
-        val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet.parent as View)
-        bottomSheetBehavior.peekHeight = Utils.getScreenHeight(requireContext()) / 3
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-
-        val viewPager: ViewPager2 = bottomSheet.findViewById(R.id.viewPager)
-        val tabLayout: TabLayout = bottomSheet.findViewById(R.id.tabLayout)
-
-        viewPager.isUserInputEnabled = true
-        viewPager.adapter = CommentPagerAdapter(requireActivity())
-
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = when (position) {
-                0 -> "Đăng nhập"
-                1 -> "Đăng kí"
-                else -> ""
-            }
-        }.attach()
-
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                tabLayout.selectTab(tabLayout.getTabAt(position))
-            }
-        })
-
-
-        dialog.show()
+        val bottomSheetFragment = BottomSheetAuthFragment()
+        bottomSheetFragment.show(
+            requireActivity().supportFragmentManager,
+            BottomSheetAuthFragment.TAG
+        )
     }
 
     private fun initObserver() {

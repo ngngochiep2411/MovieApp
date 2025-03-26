@@ -15,22 +15,6 @@
         android:orientation="vertical">
 
 
-        <!--        <TextView-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:text="Lịch sử xem"-->
-        <!--            android:textColor="@color/white"-->
-        <!--            app:drawableStartCompat="@drawable/clock" />-->
-
-        <!--        <androidx.recyclerview.widget.RecyclerView-->
-        <!--            android:id="@+id/rvHistory"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_marginTop="10dp"-->
-        <!--            android:orientation="vertical"-->
-        <!--            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />-->
-
-
         <RelativeLayout
             android:id="@+id/info"
             android:layout_width="match_parent"
@@ -38,6 +22,7 @@
             android:layout_marginTop="@dimen/dp10"
             android:gravity="center_vertical"
             android:orientation="horizontal"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -80,6 +65,17 @@
                 android:textColor="@color/white"
                 android:textStyle="bold" />
         </RelativeLayout>
+
+        <TextView
+            android:id="@+id/tvSignInout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp10"
+            android:text="Đăng nhập/Đăng ký"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

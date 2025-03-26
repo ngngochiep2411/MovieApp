@@ -1,4 +1,4 @@
-package com.example.movieapp.ui.signin
+package com.example.movieapp.ui.auth.signin
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -12,7 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.movieapp.R
 import com.example.movieapp.databinding.FragmentLoginBinding
 import com.example.movieapp.databinding.FragmentSignInBinding
-import com.example.movieapp.ui.login.LoginViewModel
+import com.example.movieapp.ui.auth.login.LoginViewModel
 import com.example.movieapp.util.SharedViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -34,8 +34,27 @@ class SignInFragment : Fragment() {
     }
 
 
+    override fun onResume() {
+        super.onResume()
+        binding.root.requestLayout()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        lifecycleScope.launch {
+            launch {
+//                viewModel.register.observe(viewLifecycleOwner) {
+//                    Toast.makeText(requireContext(), it.toString(), Toast.LENGTH_SHORT).show()
+//                }
+
+                launch {
+                    viewModel.toastMessage.observe(viewLifecycleOwner) {
+                        Toast.makeText(requireContext(), it.toString(), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
 
         binding.btnSignIn.setOnClickListener {
             lifecycleScope.launch {
@@ -43,17 +62,12 @@ class SignInFragment : Fragment() {
                     binding.edtEmail.text.toString(),
                     binding.edtPassword.text.toString(),
                     binding.edtUserName.text.toString()
-                ).collect {
-                    if (it.success()) {
-                        Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
-                    }
-                }
+                )
             }
 
         }
     }
+
 
     companion object {
         fun newInstance(): SignInFragment {

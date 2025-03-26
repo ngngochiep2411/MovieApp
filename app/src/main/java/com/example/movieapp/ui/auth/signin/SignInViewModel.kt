@@ -1,5 +1,7 @@
-package com.example.movieapp.ui.signin
+package com.example.movieapp.ui.auth.signin
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.movieapp.model.BaseResponse
@@ -15,12 +17,23 @@ class SignInViewModel @Inject constructor(
     private val mainRepository: MainRepository
 ) : ViewModel() {
 
+    private val _message = MutableLiveData<String>()
+    val toastMessage: LiveData<String> get() = _message
+
+    private val _register = MutableLiveData<Boolean>()
+    val register: LiveData<Boolean> get() = _register
 
     fun register(email: String, password: String, userName: String) =
         flow {
             viewModelScope.launch {
                 mainRepository.register(email, password, userName).collect {
-                    emit(it)
+                    if (it.success()) {
+                        emit(true)
+                        _message.value = it.message
+                    } else {
+                        _message.value = it.message
+                    }
+
                 }
             }
         }
