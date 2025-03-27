@@ -130,13 +130,13 @@ class DetailMovieActivity : AppCompatActivity(), Player.Listener {
     @UnstableApi
     private fun initObserver() {
         lifecycleScope.launch {
-            val job1 = launch {
+            launch {
                 viewModel.videoUrls.filterNotNull().collect { urls ->
                     videos = urls
                     updateCurrentVideo(0)
                 }
             }
-            val job2 = launch {
+            launch {
                 viewModel.detailMovie.filterNotNull().collect { data ->
                     detailMovie = data
                     viewPagerAdapter.submitList(
@@ -151,7 +151,7 @@ class DetailMovieActivity : AppCompatActivity(), Player.Listener {
                 sharedViewModel.videoIndex.collect { current ->
                     if (current != -1) {
                         index = current
-//                        playVideo(videos[index])
+                        playVideo(videos[index])
                         btnNext.alpha = if (canPlayNextVideo()) 1F else 0.5F
                         btnPre.alpha = if (canPlayPreVideo()) 1F else 0.5F
                     }

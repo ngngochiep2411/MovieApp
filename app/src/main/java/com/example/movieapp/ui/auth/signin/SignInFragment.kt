@@ -57,14 +57,11 @@ class SignInFragment : Fragment() {
         }
 
         binding.btnSignIn.setOnClickListener {
-            lifecycleScope.launch {
-                viewModel.register(
-                    binding.edtEmail.text.toString(),
-                    binding.edtPassword.text.toString(),
-                    binding.edtUserName.text.toString()
-                )
-            }
-
+            viewModel.register(
+                binding.edtEmail.text.toString(),
+                binding.edtPassword.text.toString(),
+                binding.edtUserName.text.toString()
+            )
         }
     }
 

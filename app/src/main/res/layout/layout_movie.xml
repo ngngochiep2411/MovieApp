@@ -26,7 +26,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:text="Xem tất cả"
-            android:textColor="@color/textGray" />
+            android:textColor="@color/textGray"
+            android:visibility="gone" />
     </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView

@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.movieapp.R
 import com.example.movieapp.databinding.FragmentProfileBinding
+import com.example.movieapp.ui.auth.BottomSheetAuthFragment
 import com.example.movieapp.util.DataStoreManager
 import com.example.movieapp.util.Utils
 import com.example.movieapp.util.Utils.Companion.transparentStatusBar
@@ -58,6 +59,14 @@ class ProfileFragment : Fragment() {
             lifecycleScope.launch {
                 dataStoreManager.logout()
             }
+        }
+
+        binding.tvSignInout.setOnClickListener {
+            val bottomSheetFragment = BottomSheetAuthFragment()
+            bottomSheetFragment.show(
+                requireActivity().supportFragmentManager,
+                BottomSheetAuthFragment.TAG
+            )
         }
     }
 

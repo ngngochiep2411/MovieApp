@@ -41,7 +41,7 @@ object NetworkModule {
     @Named("retrofitComment")
     fun provideRetrofitComment(): Retrofit.Builder {
         return Retrofit.Builder()
-            .baseUrl("https://893e-116-96-47-36.ngrok-free.app/api/")
+            .baseUrl("https://c580-116-96-47-36.ngrok-free.app/api/")
             .addConverterFactory(GsonConverterFactory.create())
     }
 

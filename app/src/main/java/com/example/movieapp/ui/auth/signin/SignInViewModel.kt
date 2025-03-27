@@ -24,17 +24,14 @@ class SignInViewModel @Inject constructor(
     val register: LiveData<Boolean> get() = _register
 
     fun register(email: String, password: String, userName: String) =
-        flow {
-            viewModelScope.launch {
-                mainRepository.register(email, password, userName).collect {
-                    if (it.success()) {
-                        emit(true)
-                        _message.value = it.message
-                    } else {
-                        _message.value = it.message
-                    }
-
+        viewModelScope.launch {
+            mainRepository.register(email, password, userName).collect {
+                if (it.success()) {
+                    _message.value = it.message
+                } else {
+                    _message.value = it.message
                 }
+
             }
         }
 }
