@@ -27,9 +27,11 @@ class SignInViewModel @Inject constructor(
         viewModelScope.launch {
             mainRepository.register(email, password, userName).collect {
                 if (it.success()) {
+                    _register.value = true
                     _message.value = it.message
                 } else {
                     _message.value = it.message
+                    _register.value = false
                 }
 
             }

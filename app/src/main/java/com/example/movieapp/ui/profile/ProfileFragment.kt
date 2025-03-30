@@ -1,11 +1,15 @@
 package com.example.movieapp.ui.profile
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.adapters.ViewBindingAdapter.setOnClick
 import androidx.fragment.app.Fragment
@@ -30,6 +34,8 @@ class ProfileFragment : Fragment() {
     @Inject
     lateinit var dataStoreManager: DataStoreManager
 
+    private lateinit var pickImageLauncher: ActivityResultLauncher<String>
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -47,9 +53,26 @@ class ProfileFragment : Fragment() {
 
         setOnClick()
 
+        pickImageLauncher =
+            registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+                uri?.let {
+                    Glide.with(this)
+                        .load(uri)
+                        .into(binding.avatar)
+                }
+            }
+
     }
 
+
     private fun setOnClick() {
+
+        binding.avatar.setOnClickListener {
+            Log.d("testing", "pick image")
+            pickImageLauncher.launch("image/*")
+        }
+
+
         binding.info.setOnClickListener {
             val intent = Intent(context, DetailUserActivity::class.java)
             startActivity(intent)
@@ -74,7 +97,8 @@ class ProfileFragment : Fragment() {
         lifecycleScope.launch {
             launch {
                 dataStoreManager.userDetail.collect { userDetail ->
-                    Glide.with(binding.root.context).load(userDetail?.user?.avatarUrl)
+                    Log.d("testing", "avatarurl ${userDetail?.user?.avatar_url}")
+                    Glide.with(binding.root.context).load(userDetail?.user?.avatar_url)
                         .error(R.drawable.avatar_anonymous)
                         .placeholder(R.drawable.avatar_anonymous)
                         .into(binding.avatar)

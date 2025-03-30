@@ -159,7 +159,7 @@ class CommentFragment : Fragment() {
                             parentId = it.data.comment_id,
                             userName = it.data.user.name,
                             likeCount = 22,
-                            avatar_url = it.data.user.avatarUrl
+                            avatar_url = it.data.user.avatar_url
                         )
                     )
                 )
@@ -264,6 +264,7 @@ class CommentFragment : Fragment() {
                 ).collect {
                     if (it.success()) {
                         commentAdapter.reduceBlock.invoke(AddCommentReducer(it.data))
+                        binding.rvComment.smoothScrollToPosition(0)
                     }
                 }
             }

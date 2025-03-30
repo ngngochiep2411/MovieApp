@@ -7,6 +7,7 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -133,6 +134,7 @@ class DetailMovieActivity : AppCompatActivity(), Player.Listener {
             launch {
                 viewModel.videoUrls.filterNotNull().collect { urls ->
                     videos = urls
+                    Log.d("testing", "$videos")
                     updateCurrentVideo(0)
                 }
             }

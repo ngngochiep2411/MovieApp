@@ -1,5 +1,6 @@
 package com.example.movieapp.di
 
+import com.example.movieapp.Constant
 import com.example.movieapp.network.CommentAPIService
 import com.example.movieapp.network.MovieApiService
 import com.google.gson.Gson
@@ -41,7 +42,7 @@ object NetworkModule {
     @Named("retrofitComment")
     fun provideRetrofitComment(): Retrofit.Builder {
         return Retrofit.Builder()
-            .baseUrl("https://c580-116-96-47-36.ngrok-free.app/api/")
+            .baseUrl(Constant.BASE_API_URL)
             .addConverterFactory(GsonConverterFactory.create())
     }
 

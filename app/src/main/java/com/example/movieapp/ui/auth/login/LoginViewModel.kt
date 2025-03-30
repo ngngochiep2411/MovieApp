@@ -29,13 +29,9 @@ class LoginViewModel @Inject constructor(
     fun login(email: String, password: String) {
         viewModelScope.launch {
             mainRepository.login(email, password).collect {
-                if (it.success()) {
-                    _login.value = true
-                    dataStoreManager.saveUserDetail(Gson().toJson(it.data))
-                } else {
-                    _login.value = false
-                    _message.value = it.message
-                }
+                _message.value = it.message
+                _login.value = it.success()
+                dataStoreManager.saveUserDetail(Gson().toJson(it.data))
             }
         }
 

@@ -10,6 +10,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.example.movieapp.R
 import com.example.movieapp.databinding.FragmentLoginBinding
+import com.example.movieapp.ui.auth.BottomSheetAuthFragment
 import com.example.movieapp.ui.category.MovieSearchResultViewModel
 import com.example.movieapp.util.SharedViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,7 +44,17 @@ class LoginFragment : Fragment() {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
         }
         viewModel.login.observe(viewLifecycleOwner) {
-            sharedViewModel.setLoginSuccess()
+            if (it) {
+                dissmissBottomSheet()
+            }
+        }
+    }
+
+    private fun dissmissBottomSheet() {
+        val bottomSheet =
+            activity?.supportFragmentManager?.findFragmentByTag(BottomSheetAuthFragment.TAG)
+        if (bottomSheet != null) {
+            (bottomSheet as BottomSheetAuthFragment).dismiss()
         }
     }
 

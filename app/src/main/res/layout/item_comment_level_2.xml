@@ -9,6 +9,7 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/avatar"
+        android:scaleType="centerCrop"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginStart="12dp"

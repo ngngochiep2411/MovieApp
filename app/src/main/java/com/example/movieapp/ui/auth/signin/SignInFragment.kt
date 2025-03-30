@@ -1,18 +1,16 @@
 package com.example.movieapp.ui.auth.signin
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.example.movieapp.R
-import com.example.movieapp.databinding.FragmentLoginBinding
 import com.example.movieapp.databinding.FragmentSignInBinding
-import com.example.movieapp.ui.auth.login.LoginViewModel
+import com.example.movieapp.ui.auth.BottomSheetAuthFragment
 import com.example.movieapp.util.SharedViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -44,9 +42,20 @@ class SignInFragment : Fragment() {
 
         lifecycleScope.launch {
             launch {
-//                viewModel.register.observe(viewLifecycleOwner) {
-//                    Toast.makeText(requireContext(), it.toString(), Toast.LENGTH_SHORT).show()
-//                }
+                launch {
+
+                    viewModel.register.observe(viewLifecycleOwner) {
+                        if (it) {
+                            val email = binding.edtEmail.text.toString()
+                            val password = binding.edtPassword.text.toString()
+                            val name = binding.edtUserName.text.toString()
+                            binding.edtEmail.text.clear()
+                            binding.edtPassword.text.clear()
+                            binding.edtUserName.text.clear()
+                            switchPage(email, password, name)
+                        }
+                    }
+                }
 
                 launch {
                     viewModel.toastMessage.observe(viewLifecycleOwner) {
@@ -62,6 +71,15 @@ class SignInFragment : Fragment() {
                 binding.edtPassword.text.toString(),
                 binding.edtUserName.text.toString()
             )
+        }
+    }
+
+    private fun switchPage(email: String, password: String, name: String) {
+        val bottomSheet =
+            activity?.supportFragmentManager?.findFragmentByTag(BottomSheetAuthFragment.TAG)
+        if (bottomSheet != null) {
+            val viewPager2 = (bottomSheet as BottomSheetAuthFragment).getViewPager()
+            viewPager2.currentItem = 0
         }
     }
 

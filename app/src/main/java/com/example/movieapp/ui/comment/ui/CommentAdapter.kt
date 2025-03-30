@@ -33,21 +33,12 @@ class CommentAdapter(
     ) : ListAdapter<CommentItem, VH>(object : DiffUtil.ItemCallback<CommentItem>() {
 
     override fun areItemsTheSame(oldItem: CommentItem, newItem: CommentItem): Boolean {
-        if (oldItem is CommentItem.Level1 || oldItem is CommentItem.Level2) {
-            return oldItem.id == newItem.id
-        }
-        return (oldItem::class.java != newItem::class.java)
+        return oldItem.id == newItem.id
     }
 
 
-
-
     override fun areContentsTheSame(oldItem: CommentItem, newItem: CommentItem): Boolean {
-        if (oldItem::class.java != newItem::class.java) return false
-        return (oldItem as? CommentItem.Level1) == (newItem as? CommentItem.Level1) ||
-                (oldItem as? CommentItem.Level2) == (newItem as? CommentItem.Level2) ||
-                (oldItem as? CommentItem.Folding) == (newItem as? CommentItem.Folding) ||
-                (oldItem as? CommentItem.Loading) == (newItem as? CommentItem.Loading)
+        return oldItem == newItem
     }
 }) {
 

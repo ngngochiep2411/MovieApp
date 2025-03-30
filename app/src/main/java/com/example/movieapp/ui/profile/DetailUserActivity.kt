@@ -72,7 +72,7 @@ class DetailUserActivity : AppCompatActivity() {
 
            launch {
                 dataStoreManager.userDetail.collect { userDetail ->
-                    Glide.with(binding.root.context).load(userDetail?.user?.avatarUrl)
+                    Glide.with(binding.root.context).load(userDetail?.user?.avatar_url)
                         .error(R.drawable.avatar_anonymous).error(R.drawable.avatar_anonymous)
                         .into(binding.avatar)
                     binding.edUserName.setText(userDetail?.user?.name)

@@ -16,7 +16,7 @@ class AddCommentReducer(comment: CommentResponse) : Reducer {
                     userId = comment.user?.id,
                     userName = comment.user?.name.toString(),
                     level2Count = Random.nextInt(10000),
-                    avatar_url = comment.user?.avatarUrl
+                    avatar_url = comment.user?.avatar_url
                 )
             )
         }.toList()

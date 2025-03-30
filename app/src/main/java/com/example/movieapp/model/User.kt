@@ -1,5 +1,6 @@
 package com.example.movieapp.model
 
+import com.example.movieapp.Constant
 import com.google.gson.annotations.SerializedName
 
 data class User(
@@ -17,4 +18,7 @@ data class User(
     @field:SerializedName("id") val id: Int,
 
     @field:SerializedName("email") val email: String? = null
-)
+) {
+    val avatar_url: String?
+        get() = avatarUrl?.let { "${Constant.BASE_IMAGE_URL}$it" }
+}
