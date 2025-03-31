@@ -67,12 +67,6 @@ class ProfileFragment : Fragment() {
 
     private fun setOnClick() {
 
-        binding.avatar.setOnClickListener {
-            Log.d("testing", "pick image")
-            pickImageLauncher.launch("image/*")
-        }
-
-
         binding.info.setOnClickListener {
             val intent = Intent(context, DetailUserActivity::class.java)
             startActivity(intent)

@@ -33,6 +33,8 @@ import com.google.gson.Gson
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import javax.inject.Inject
 
 class MainRepository @Inject constructor(
@@ -245,4 +247,20 @@ class MainRepository @Inject constructor(
     }.catch { e ->
         Log.d("testing", "$e")
     }
+
+    fun updateUser(
+        user_id: RequestBody,
+        name: RequestBody,
+        avatar_url: MultipartBody.Part,
+        password: RequestBody
+    ) =
+        flow<BaseResponse<Any>> {
+            val response = movieApiService.updateUser(
+                user_id = user_id,
+                name = name,
+                password = password,
+                avatarUrl = avatar_url
+            )
+            emit(response)
+        }
 }

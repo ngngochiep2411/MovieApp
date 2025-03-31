@@ -1,6 +1,7 @@
 package com.example.movieapp.network
 
 
+import com.example.movieapp.model.BaseResponse
 import com.example.movieapp.model.CartoonMovie
 import com.example.movieapp.model.Category
 import com.example.movieapp.model.CategoryMovie
@@ -12,8 +13,15 @@ import com.example.movieapp.model.ResponseListMovie
 import com.example.movieapp.model.SearchMovie
 import com.example.movieapp.model.SeriesMovie
 import com.example.movieapp.model.TvShowsMovie
+import com.example.movieapp.model.UserUpdate
 import com.example.movieapp.util.NetworkResult
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Multipart
+import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -124,5 +132,15 @@ interface MovieApiService {
 
     @GET("quoc-gia")
     suspend fun getCountry(): List<CountryMovie>
+
+    @Multipart
+    @POST("user/update")
+    suspend fun updateUser(
+        @Part("user_id") user_id: RequestBody?,
+        @Part("name") name: RequestBody?,
+        @Part("password") password: RequestBody?,
+        @Part("avatar_url") avatarUrl: MultipartBody.Part?
+    ): BaseResponse<Any>
+
 
 }
