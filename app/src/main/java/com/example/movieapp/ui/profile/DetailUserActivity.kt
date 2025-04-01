@@ -1,11 +1,15 @@
 package com.example.movieapp.ui.profile
 
+import android.annotation.SuppressLint
+import android.app.ProgressDialog
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,11 +20,19 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.movieapp.R
 import com.example.movieapp.databinding.ActivityDetailUserBinding
+import com.example.movieapp.model.User
 import com.example.movieapp.model.UserDetail
 import com.example.movieapp.util.DataStoreManager
+import com.example.movieapp.util.LoadingDialog
 import com.example.movieapp.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 import javax.inject.Inject
 
 
@@ -29,7 +41,8 @@ class DetailUserActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailUserBinding
     private val viewModel: DetailUserViewModel by viewModels()
-    private lateinit var uri: Uri
+    private var uri: Uri? = null
+
 
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) {
         try {
@@ -68,7 +81,7 @@ class DetailUserActivity : AppCompatActivity() {
     @Inject
     lateinit var dataStoreManager: DataStoreManager
 
-    private var userDetai: UserDetail? = null
+    private var userDetai: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,15 +102,32 @@ class DetailUserActivity : AppCompatActivity() {
             }
         }
 
+        binding.toolBar.findViewById<ImageView>(R.id.back).setOnClickListener {
+            finish()
+        }
+
         binding.toolBar.findViewById<TextView>(R.id.save).setOnClickListener {
+
+            var path = ""
+            var body: MultipartBody.Part? = null
+            if (uri != null) {
+                path = Utils.getRealPathFromURI(uri, this)
+                val file = File(path)
+                val requestFile: RequestBody =
+                    file.asRequestBody("image/*".toMediaTypeOrNull())
+                body =
+                    MultipartBody.Part.createFormData("avatar_url", file.name, requestFile)
+            }
+
             viewModel.update(
-                user_id = userDetai?.user?.id.toString(),
+                user_id = userDetai?.id.toString(),
                 name = binding.edUserName.text.toString(),
-                file = Utils.uriToFile(uri, this),
+                file = body,
                 password = ""
             )
         }
     }
+
 
     private fun initView() {
         binding.edUserName.addTextChangedListener(object : TextWatcher {
@@ -116,8 +146,8 @@ class DetailUserActivity : AppCompatActivity() {
                 before: Int,
                 count: Int
             ) {
-                if (text.toString() != userDetai?.user?.name) {
-                    binding.toolBar.enabledSave()
+                if (text.toString() != userDetai?.name) {
+//                    binding.toolBar.enabledSave()
                 }
             }
 
@@ -131,12 +161,22 @@ class DetailUserActivity : AppCompatActivity() {
         lifecycleScope.launch {
 
             launch {
+                viewModel.isLoading.observe(this@DetailUserActivity) {
+//                    if (it) Utils.showDialog(activity = this@DetailUserActivity) else Utils.dismissDialog()
+                }
+
+            }
+
+            launch {
+                viewModel.toastMessage.observe(this@DetailUserActivity) {
+                    Toast.makeText(this@DetailUserActivity, it, Toast.LENGTH_SHORT).show()
+                }
+            }
+            launch {
                 dataStoreManager.userDetail.collect { userDetail ->
-                    Glide.with(binding.root.context).load(userDetail?.user?.avatar_url)
-                        .error(R.drawable.avatar_anonymous).error(R.drawable.avatar_anonymous)
-                        .into(binding.avatar)
-                    binding.edUserName.setText(userDetail?.user?.name)
-                    binding.tvEmail.text = userDetail?.user?.email
+                    Utils.loadImage(binding.root.context, userDetail?.avatar_url, binding.avatar)
+                    binding.edUserName.setText(userDetail?.name)
+                    binding.tvEmail.text = userDetail?.email
                     userDetai = userDetail
                 }
             }

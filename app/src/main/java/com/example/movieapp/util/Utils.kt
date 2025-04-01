@@ -1,18 +1,26 @@
 package com.example.movieapp.util
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.provider.MediaStore
 import android.util.DisplayMetrics
 import android.view.WindowManager
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
+import com.example.movieapp.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -20,28 +28,51 @@ import java.net.URL
 class Utils {
     companion object {
 
+        private var loadingDialog: AlertDialog? = null
 
-        fun uriToFile(uri: Uri, context: Context): File? {
-            val contentResolver = context.contentResolver
-            val inputStream: InputStream? = contentResolver.openInputStream(uri)
 
-            val file =
-                File(context.cacheDir, "temp_file") // Tạo file tạm trong bộ nhớ cache của ứng dụng
-            try {
-                val outputStream = FileOutputStream(file)
-                val buffer = ByteArray(1024)
-                var length: Int
-                while (inputStream?.read(buffer).also { length = it ?: -1 } != -1) {
-                    outputStream.write(buffer, 0, length)
-                }
-                outputStream.flush()
-                outputStream.close()
-                inputStream?.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-                return null
+        fun showDialog(activity: Activity) {
+            if (loadingDialog == null || !loadingDialog!!.isShowing) {
+                val builder = AlertDialog.Builder(activity)
+                builder.setView(R.layout.progress)
+                loadingDialog = builder.create()
+                loadingDialog?.show()
             }
-            return file
+        }
+
+        fun dismissDialog() {
+            if (loadingDialog != null && loadingDialog!!.isShowing) {
+                loadingDialog?.dismiss()
+                loadingDialog = null
+            }
+        }
+
+        @SuppressLint("Recycle")
+        fun getRealPathFromURI(uri: Uri?, context: Context): String {
+            val projection = arrayOf(MediaStore.Images.Media.DATA)
+            uri?.let {
+                val cursor = context.contentResolver.query(uri, projection, null, null, null)
+                if (cursor != null) {
+                    cursor.moveToFirst()
+                    val columnIndex = cursor.getColumnIndex(projection[0])
+                    return cursor.getString(columnIndex)
+                }
+            }
+
+            return ""
+        }
+
+
+        fun loadImage(context: Context, url: String?, imageView: ImageView) {
+            val drawable = CircularProgressDrawable(context)
+            drawable.setColorSchemeColors(
+                R.color.primaryColor,
+            )
+            drawable.centerRadius = 30f
+            drawable.strokeWidth = 5f
+            drawable.start()
+            Glide.with(context).load(url).placeholder(drawable)
+                .into(imageView)
         }
 
         fun AppCompatActivity.transparentStatusBar() {

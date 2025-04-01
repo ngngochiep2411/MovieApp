@@ -8,6 +8,7 @@ import com.example.movieapp.model.SearchResultMovie
 import com.example.movieapp.repository.MainRepository
 import com.example.movieapp.util.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -34,9 +35,11 @@ class MovieSearchResultViewModel @Inject constructor(
 
     private var isLoadMore = false
 
+    private var currentJob: Job? = null
+
 
     fun getData(type: Int?, category: String, country: String, year: String) {
-        viewModelScope.launch {
+        currentJob = viewModelScope.launch {
             _isLoading.value = true
             combine(
                 mainRepository.getCategory(),
@@ -57,6 +60,11 @@ class MovieSearchResultViewModel @Inject constructor(
         }
 
 
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        currentJob?.cancel()
     }
 
     fun getMoreData(type: Int?, category: String, country: String, year: String) {

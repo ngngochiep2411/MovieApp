@@ -11,7 +11,7 @@ data class CommentResponse(
     val userId: Int? = null,
 
     @field:SerializedName("created_at")
-    val createdAt: String? = null,
+    val createdAt: String,
 
     @field:SerializedName("id")
     val id: Int,

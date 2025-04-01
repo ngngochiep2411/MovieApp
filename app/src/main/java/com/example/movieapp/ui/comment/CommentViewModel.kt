@@ -12,10 +12,9 @@ import com.example.movieapp.model.GetReply
 import com.example.movieapp.model.Reply
 import com.example.movieapp.model.ReplyData
 import com.example.movieapp.model.ReplyResponse
+import com.example.movieapp.model.User
 import com.example.movieapp.model.UserDetail
 import com.example.movieapp.repository.MainRepository
-import com.example.movieapp.ui.comment.data.CommentLevel1
-import com.example.movieapp.ui.comment.data.CommentLevel2
 import com.example.movieapp.util.DataStoreManager
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,7 +40,7 @@ class CommentViewModel @Inject constructor(
     private var currentPage = 1
     var nextPage = false
 
-    var userDetail: UserDetail? = null
+    var userDetail: User? = null
 
     init {
         viewModelScope.launch {

@@ -17,7 +17,7 @@ data class Comment(
     val replys: List<Reply>,
 
     @field:SerializedName("created_at")
-    val createdAt: String? = null,
+    val createdAt: String,
 
     @field:SerializedName("id")
     val id: Int,

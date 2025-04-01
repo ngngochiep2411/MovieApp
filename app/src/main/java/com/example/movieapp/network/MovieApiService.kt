@@ -91,7 +91,13 @@ interface MovieApiService {
     ): TvShowsMovie
 
     @GET("danh-sach/phim-moi-cap-nhat")
-    suspend fun getNewMovie(@Query("page") page: Int, @Query("limit") limit: Int = 50): NewMovie
+    suspend fun getNewMovie(
+        @Query("page") page: Int,
+        @Query("limit") limit: Int = 50,
+        @Query("category") category: String = "",
+        @Query("country") country: String = "",
+        @Query("year") year: String = "",
+    ): NewMovie
 
     @GET("phim/{movieName}")
     suspend fun getDetailMovie(@Path("movieName") movieName: String): DetailMovie
@@ -132,15 +138,6 @@ interface MovieApiService {
 
     @GET("quoc-gia")
     suspend fun getCountry(): List<CountryMovie>
-
-    @Multipart
-    @POST("user/update")
-    suspend fun updateUser(
-        @Part("user_id") user_id: RequestBody?,
-        @Part("name") name: RequestBody?,
-        @Part("password") password: RequestBody?,
-        @Part("avatar_url") avatarUrl: MultipartBody.Part?
-    ): BaseResponse<Any>
 
 
 }

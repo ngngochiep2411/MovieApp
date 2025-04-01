@@ -54,7 +54,8 @@ sealed interface CommentItem {
         var like: Boolean = false,
         var unLike: Boolean = false,
         var likeCount: Int = 0,
-        val avatar_url: String? = ""
+        val avatar_url: String? = "",
+        val time: String
     ) : CommentItem
 
     data class Level2(
@@ -67,7 +68,7 @@ sealed interface CommentItem {
         var like: Boolean = false,
         var unLike: Boolean = false,
         var likeCount: Int = 0,
-        val time: String? = null,
+        val time: String,
         val avatar_url: String? = ""
     ) : CommentItem
 

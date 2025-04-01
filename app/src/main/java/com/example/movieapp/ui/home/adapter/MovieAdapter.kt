@@ -34,8 +34,8 @@ class MovieAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(movie: Movie) {
-            Glide.with(binding.root.context).load("https://phimimg.com/" + movie.thumbUrl)
-                .into(binding.imgThumb)
+
+            Utils.loadImage(binding.root.context, "https://phimimg.com/" + movie.thumbUrl, binding.imgThumb)
             binding.movieName.text = movie.name
             if (isSeriesMovie) {
                 binding.tvEpisodeCurrent.visibility = View.VISIBLE

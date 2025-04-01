@@ -1,12 +1,10 @@
 package com.example.movieapp.ui.comment.logic.impl
 
-import com.example.movieapp.ui.comment.data.FakeApi
 import com.example.movieapp.ui.comment.logic.Reducer
 import com.example.movieapp.ui.comment.ui.CommentItem
 import kotlinx.coroutines.delay
 
 class LoadDataReducer : Reducer {
-    private val mapper by lazy { Entity2ItemMapper() }
 
     override val reduce: suspend List<CommentItem>.() -> List<CommentItem> = {
         val loading = get(size - 1) as CommentItem.FirstLoading

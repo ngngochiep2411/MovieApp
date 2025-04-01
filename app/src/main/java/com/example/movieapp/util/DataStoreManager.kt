@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.movieapp.model.User
 import com.example.movieapp.model.UserDetail
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -37,20 +38,22 @@ class DataStoreManager @Inject constructor(@ApplicationContext private val conte
 
     val gson = Gson()
 
-    suspend fun saveUserDetail(userDetail: String) {
+
+     suspend fun saveUser(user: String) {
         dataStore.edit { preferences ->
-            preferences[stringPreferencesKey("userData")] = userDetail
+            preferences[stringPreferencesKey("user")] = user
         }
     }
 
     suspend fun logout() {
-        saveUserDetail("")
+        saveUser("")
     }
 
-    val userDetail: Flow<UserDetail?> = dataStore.data
+
+    val userDetail: Flow<User?> = dataStore.data
         .map { preferences ->
-            preferences[stringPreferencesKey("userData")]?.let { json ->
-                gson.fromJson(json, UserDetail::class.java)
+            preferences[stringPreferencesKey("user")]?.let { json ->
+                gson.fromJson(json, User::class.java)
             }
         }
 

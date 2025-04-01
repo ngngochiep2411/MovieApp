@@ -13,9 +13,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.movieapp.Constant
 import com.example.movieapp.databinding.FragmentCommentBinding
 import com.example.movieapp.model.CommentData
 import com.example.movieapp.model.ReplyData
+import com.example.movieapp.model.User
 import com.example.movieapp.ui.auth.BottomSheetAuthFragment
 import com.example.movieapp.ui.comment.logic.Reducer
 import com.example.movieapp.ui.comment.logic.impl.AddCommentReducer
@@ -29,6 +31,7 @@ import com.example.movieapp.ui.comment.ui.CommentAdapter
 import com.example.movieapp.ui.comment.ui.CommentItem
 import com.example.movieapp.util.DataStoreManager
 import com.example.movieapp.util.SharedViewModel
+import com.example.movieapp.util.Utils
 import com.example.movieapp.widgets.ReplyDialog
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,6 +44,8 @@ import kotlin.coroutines.suspendCoroutine
 
 @AndroidEntryPoint
 class CommentFragment : Fragment() {
+
+    private var user: User? = null
 
     @Inject
     lateinit var dataStoreManager: DataStoreManager
@@ -72,7 +77,7 @@ class CommentFragment : Fragment() {
         return binding.root
     }
 
-    @SuppressLint("UnsafeRepeatOnLifecycleDetector")
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -86,7 +91,7 @@ class CommentFragment : Fragment() {
             reduceBlock = reducerBlock(),
             reply = ::reply,
             loadMore = ::getComment,
-            userId = viewModel.userDetail?.user?.id,
+            userId = viewModel.userDetail?.id,
             loadMoreReply = ::getReply
         )
         binding.rvComment.adapter = commentAdapter
@@ -108,9 +113,7 @@ class CommentFragment : Fragment() {
         commentAdapter.reduceBlock.invoke(StartExpandReducer(commentItem as CommentItem.Folding))
         lifecycleScope.launch {
             viewModel.getReply(
-                comment_id = commentItem.parentId,
-                video_id = videoName,
-                page = commentItem.page + 1
+                comment_id = commentItem.parentId, video_id = videoName, page = commentItem.page + 1
             ).collect { response ->
                 val folding = commentAdapter.currentList.find {
                     (it is CommentItem.Folding) && it.parentId == commentItem.parentId
@@ -118,8 +121,7 @@ class CommentFragment : Fragment() {
 
                 commentAdapter.reduceBlock.invoke(
                     ExpandReducer(
-                        folding,
-                        response.data, response.pagination
+                        folding, response.data, response.pagination
                     )
                 )
             }
@@ -141,7 +143,7 @@ class CommentFragment : Fragment() {
                 comment_id = if (commentItem is CommentItem.Level1) commentItem.id
                 else (commentItem as CommentItem.Level2).parentId,
                 reply_user_id = commentItem.userId,
-                user_id = viewModel.userDetail?.user?.id
+                user_id = viewModel.userDetail?.id
             )
             viewModel.repComment(
                 replyData
@@ -150,7 +152,7 @@ class CommentFragment : Fragment() {
                     ReplyReducer(
                         commentItem, requireContext(), CommentItem.Level2(
                             id = it.data.id,
-                            time = "",
+                            time = it.data.created_at,
                             userId = it.data.user.id,
                             userReply = if (it.data.user.id == it.data.reply_user?.id) null else it.data.reply_user?.name,
                             content = it.data.content,
@@ -184,24 +186,18 @@ class CommentFragment : Fragment() {
 
     private fun setOnClick() {
         binding.rlComment.setOnClickListener {
-            lifecycleScope.launch {
-                dataStoreManager.userDetail.collect { userDetail ->
-                    if (userDetail == null) {
-                        showBottomSheetLogin()
-                    } else {
-                        showCommentDialog()
-                    }
-                }
+            if (user == null) {
+                showBottomSheetLogin()
+            } else {
+                showCommentDialog()
             }
-
         }
     }
 
     private fun showBottomSheetLogin() {
         val bottomSheetFragment = BottomSheetAuthFragment()
         bottomSheetFragment.show(
-            requireActivity().supportFragmentManager,
-            BottomSheetAuthFragment.TAG
+            requireActivity().supportFragmentManager, BottomSheetAuthFragment.TAG
         )
     }
 
@@ -226,8 +222,13 @@ class CommentFragment : Fragment() {
 
             launch {
                 dataStoreManager.userDetail.collect { userDetail ->
+                    user = userDetail
                     userDetail?.let {
-
+                        Utils.loadImage(
+                            requireContext(),
+                            "${Constant.BASE_IMAGE_URL}${userDetail.avatarUrl}",
+                            binding.avatar
+                        )
                     }
                 }
             }
@@ -238,8 +239,7 @@ class CommentFragment : Fragment() {
                         commentAdapter.reduceBlock.invoke(StartLoadLv1Reducer())
                         commentAdapter.reduceBlock.invoke(
                             LoadLv1Reducer(
-                                it,
-                                viewModel.userDetail?.user?.id
+                                it, viewModel.userDetail?.id
                             )
                         )
                     }
@@ -258,7 +258,7 @@ class CommentFragment : Fragment() {
                 viewModel.comment(
                     CommentData(
                         content = content,
-                        userId = viewModel.userDetail?.user?.id,
+                        userId = viewModel.userDetail?.id,
                         videoName = videoName!!
                     )
                 ).collect {

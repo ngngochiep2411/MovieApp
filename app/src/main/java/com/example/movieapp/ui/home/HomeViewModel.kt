@@ -1,5 +1,6 @@
 package com.example.movieapp.ui.home
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -28,16 +29,17 @@ class HomeViewModel @Inject constructor(
 
 
     fun getData() {
+        Log.d("testing", "getData")
         viewModelScope.launch {
             val flows = listOf(
-                mainRepository.getMovies(1),
-                mainRepository.getTvShows(1),
-                mainRepository.getSeriesMovie(1),
-                mainRepository.getCartoonMovie(1),
-                mainRepository.getNewMovie(1),
-                mainRepository.getVietSub(1),
-                mainRepository.getThuyetMinh(1),
-                mainRepository.getLongTieng(1)
+                mainRepository.getMovies(),
+                mainRepository.getTvShows(),
+                mainRepository.getSeriesMovie(),
+                mainRepository.getCartoonMovie(),
+                mainRepository.getNewMovie(),
+                mainRepository.getVietSub(),
+                mainRepository.getThuyetMinh(),
+                mainRepository.getLongTieng()
             )
 
             combine(flows) { results ->

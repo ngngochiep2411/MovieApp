@@ -1,5 +1,6 @@
 package com.example.movieapp.ui.home
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -54,8 +55,18 @@ class HomeFragment : Fragment(), OnItemClickListener, ToolbarHome.OnItemClickLis
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
-        fetchData()
         initObserver()
+        fetchData()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+    }
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Log.d("testing", "onDestroyView")
     }
 
     private fun initView() {
@@ -102,8 +113,10 @@ class HomeFragment : Fragment(), OnItemClickListener, ToolbarHome.OnItemClickLis
     }
 
     private fun fetchData() {
-        binding.refreshLayout.isRefreshing = true
-        viewModel.getData()
+        if (viewModel.movieResponse.value == null) {
+            binding.refreshLayout.isRefreshing = true
+            viewModel.getData()
+        }
     }
 
     private fun hideToolBar() {

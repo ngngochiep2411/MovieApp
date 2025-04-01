@@ -19,7 +19,7 @@ class BannerAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(position: Int) {
-            Glide.with(binding.root.context).load(banners[position].image).into(binding.image)
+            Utils.loadImage(binding.root.context, banners[position].image, binding.image)
             binding.image.layoutParams = RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 Utils.getScreenHeight(binding.root.context) * 2 / 3

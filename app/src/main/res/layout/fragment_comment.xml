@@ -43,7 +43,7 @@
             android:layout_below="@id/view"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:background="@drawable/avatar_anonymous"
+            tools:background="@drawable/avatar_anonymous"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"

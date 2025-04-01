@@ -11,6 +11,7 @@ import com.example.movieapp.databinding.LayoutItemMovieBinding
 import com.example.movieapp.databinding.LayoutItemMovieSearchBinding
 import com.example.movieapp.model.Movie
 import com.example.movieapp.ui.home.adapter.OnItemClickListener
+import com.example.movieapp.util.Utils
 
 class SearchAdapter(
 ) : ListAdapter<Movie, RecyclerView.ViewHolder>(object : DiffUtil.ItemCallback<Movie>() {
@@ -28,8 +29,11 @@ class SearchAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(movie: Movie) {
-            Glide.with(binding.root.context).load("https://phimimg.com/" + movie.thumbUrl)
-                .into(binding.imgThumb)
+            Utils.loadImage(
+                binding.root.context,
+                "https://phimimg.com/" + movie.thumbUrl,
+                binding.imgThumb
+            )
             binding.movieName.text = movie.name
             if (movie.episodeCurrent.toString() != "Full") {
                 binding.tvEpisodeCurrent.visibility = View.VISIBLE

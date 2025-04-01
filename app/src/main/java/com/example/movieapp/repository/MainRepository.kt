@@ -25,8 +25,6 @@ import com.example.movieapp.model.TvShowsMovie
 import com.example.movieapp.model.UserDetail
 import com.example.movieapp.network.CommentAPIService
 import com.example.movieapp.network.MovieApiService
-import com.example.movieapp.ui.comment.data.CommentLevel1
-import com.example.movieapp.ui.comment.data.CommentLevel2
 import com.example.movieapp.util.NetworkResult
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
@@ -45,7 +43,7 @@ class MainRepository @Inject constructor(
 
 
     fun getMovies(
-        page: Int,
+        page: Int = 1,
         category: String = "",
         country: String = "",
         year: String = ""
@@ -62,7 +60,7 @@ class MainRepository @Inject constructor(
     }
 
     fun getVietSub(
-        page: Int,
+        page: Int = 1,
         category: String = "",
         country: String = "",
         year: String = ""
@@ -79,7 +77,7 @@ class MainRepository @Inject constructor(
     }
 
     fun getThuyetMinh(
-        page: Int,
+        page: Int = 1,
         category: String = "",
         country: String = "",
         year: String = ""
@@ -96,71 +94,85 @@ class MainRepository @Inject constructor(
     }
 
     fun getLongTieng(
-        page: Int,
+        page: Int = 1,
         category: String = "",
         country: String = "",
         year: String = ""
     ) = flow<NetworkResult<Movies>> {
-        val movies = movieApiService.getPhimLongTieng(
+        val response = movieApiService.getPhimLongTieng(
             page = page,
             category = category,
             country = country,
             year = year
         )
-        emit(NetworkResult.Success(movies))
+        emit(NetworkResult.Success(response))
+        Log.d("testing", Gson().toJson(response))
     }.catch { e ->
         emit(NetworkResult.Failure(e.message))
+
     }
 
     fun getSeriesMovie(
-        page: Int, category: String = "",
+        page: Int = 1, category: String = "",
         country: String = "",
         year: String = ""
     ) = flow<NetworkResult<SeriesMovie>> {
-        val seriesMovie = movieApiService.getMovieSeries(
+        val response = movieApiService.getMovieSeries(
             page = page, country = country,
             category = category,
             year = year
         )
-        emit(NetworkResult.Success(seriesMovie))
+        emit(NetworkResult.Success(response))
+        Log.d("testing", Gson().toJson(response))
     }.catch { e ->
         emit(NetworkResult.Failure(e.message))
     }
 
     fun getCartoonMovie(
-        page: Int, category: String = "",
+        page: Int = 1, category: String = "",
         country: String = "",
         year: String = ""
     ) = flow<NetworkResult<CartoonMovie>> {
-        val cartoonMovie = movieApiService.getCartoonMovies(
+        val response = movieApiService.getCartoonMovies(
             page = page,
             country = country,
             category = category,
             year = year
         )
-        emit(NetworkResult.Success(cartoonMovie))
+        emit(NetworkResult.Success(response))
+        Log.d("testing", Gson().toJson(response))
     }.catch { e ->
         emit(NetworkResult.Failure(e.message))
     }
 
     fun getTvShows(
-        page: Int, category: String = "",
+        page: Int = 1, category: String = "",
         country: String = "",
         year: String = ""
     ) = flow<NetworkResult<TvShowsMovie>> {
-        val tvShows = movieApiService.getTvShows(
+        val response = movieApiService.getTvShows(
             page = page,
             category = category,
             year = year,
             country = country
         )
-        emit(NetworkResult.Success(tvShows))
+        emit(NetworkResult.Success(response))
+        Log.d("testing", Gson().toJson(response))
     }.catch { e ->
         emit(NetworkResult.Failure(e.message))
     }
 
-    fun getNewMovie(page: Int) = flow<NetworkResult<NewMovie>> {
-        val tvShows = movieApiService.getNewMovie(page = page)
+    fun getNewMovie(
+        page: Int = 1, category: String = "",
+        country: String = "",
+        year: String = ""
+    ) = flow<NetworkResult<NewMovie>> {
+        val tvShows = movieApiService.getNewMovie(
+            page = page,
+            category = category,
+            year = year,
+            country = country
+        )
         emit(NetworkResult.Success(tvShows))
     }.catch { e ->
         emit(NetworkResult.Failure(e.message))
@@ -248,19 +260,40 @@ class MainRepository @Inject constructor(
         Log.d("testing", "$e")
     }
 
+//    fun updateUser(
+//        user_id: RequestBody,
+//        name: RequestBody,
+//        avatar_url: MultipartBody.Part,
+//        password: RequestBody
+//    ) =
+//        flow<BaseResponse<Any>> {
+//            val response = commentApiService.updateUser(
+//                user_id = user_id,
+//                name = name,
+////                password = password,
+//                avatar_url = avatar_url
+//            )
+//            emit(response)
+//            Log.d("testing", Gson().toJson(response))
+//
+//        }.catch { e ->
+//            Log.d("testing", "$e")
+//        }
+
     fun updateUser(
         user_id: RequestBody,
         name: RequestBody,
-        avatar_url: MultipartBody.Part,
-        password: RequestBody
-    ) =
-        flow<BaseResponse<Any>> {
-            val response = movieApiService.updateUser(
-                user_id = user_id,
-                name = name,
-                password = password,
-                avatarUrl = avatar_url
-            )
-            emit(response)
-        }
+        avatar_url: MultipartBody.Part?,
+        password: RequestBody,
+    ) = flow<BaseResponse<Any>> {
+        val response = commentApiService.updateUser(
+            user_id = user_id,
+            avatar_url = avatar_url,
+            password = password,
+            name = name
+        )
+        emit(response)
+    }.catch { e ->
+        Log.d("testing", "$e")
+    }
 }

@@ -15,7 +15,7 @@ data class Reply(
     val userId: Int,
 
     @field:SerializedName("created_at")
-    val createdAt: String? = null,
+    val createdAt: String,
 
     @field:SerializedName("id")
     val id: Int,

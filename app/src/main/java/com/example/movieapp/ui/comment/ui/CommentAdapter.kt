@@ -1,15 +1,16 @@
 package com.example.movieapp.ui.comment.ui
 
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
 import android.view.View.INVISIBLE
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView.VISIBLE
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import com.bumptech.glide.Glide
 import com.example.movieapp.R
 import com.example.movieapp.databinding.ItemCommentFoldingBinding
 import com.example.movieapp.databinding.ItemCommentLevel1Binding
@@ -18,10 +19,14 @@ import com.example.movieapp.databinding.ItemCommentLoadingBinding
 import com.example.movieapp.databinding.LayoutCommentEmptyBinding
 import com.example.movieapp.databinding.LayoutLoadingFullBinding
 import com.example.movieapp.ui.comment.logic.Reducer
-import com.example.movieapp.ui.comment.logic.impl.ExpandReducer
 import com.example.movieapp.ui.comment.logic.impl.ExpandReplyLoadedReducer
 import com.example.movieapp.ui.comment.logic.impl.FoldReducer
 import com.example.movieapp.ui.comment.ui.CommentItem.Folding.State
+import com.example.movieapp.util.TimeAGO
+import com.example.movieapp.util.Utils
+
+
+
 
 class CommentAdapter(
     val reduceBlock: Reducer.() -> Unit,
@@ -128,10 +133,15 @@ class Level1VH(
     val callBack: (CommentItem) -> Unit
 ) : VH(binding.root, reduceBlock) {
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBind(item: CommentItem) {
         val data = item as CommentItem.Level1
-        Glide.with(binding.root.context).load(data.avatar_url).error(R.drawable.avatar_anonymous)
-            .into(binding.avatar)
+        Utils.loadImage(
+            binding.root.context,
+            data.avatar_url,
+            binding.avatar
+        )
+        binding.timeComment.text = TimeAGO.convertString(data.time)
         binding.unLike.setImageResource(if (data.unLike) R.drawable.ic_unlike_selected else R.drawable.ic_unlike)
         binding.imgLike.setImageResource(if (data.like) R.drawable.ic_favorite_selected else R.drawable.ic_favorite)
         binding.tvLike.text = data.likeCount.toString()
@@ -186,11 +196,15 @@ class Level2VH(
     reduceBlock: Reducer.() -> Unit,
     val callBack: (CommentItem) -> Unit
 ) : VH(binding.root, reduceBlock) {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBind(item: CommentItem) {
         val data = item as CommentItem.Level2
-        Glide.with(binding.root.context).load(data.avatar_url).error(R.drawable.avatar_anonymous)
-            .into(binding.avatar)
-
+        binding.timeComment.text = TimeAGO.convertString(data.time)
+        Utils.loadImage(
+            binding.root.context,
+            data.avatar_url,
+            binding.avatar
+        )
         binding.unLike.setImageResource(if (data.unLike) R.drawable.ic_unlike_selected else R.drawable.ic_unlike)
         binding.imgLike.setImageResource(if (data.like) R.drawable.ic_favorite_selected else R.drawable.ic_favorite)
         binding.tvLike.text = data.likeCount.toString()

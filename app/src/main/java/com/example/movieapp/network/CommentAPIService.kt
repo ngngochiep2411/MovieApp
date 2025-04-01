@@ -11,9 +11,13 @@ import com.example.movieapp.model.Reply
 import com.example.movieapp.model.ReplyData
 import com.example.movieapp.model.ReplyResponse
 import com.example.movieapp.model.UserDetail
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Query
 
 interface CommentAPIService {
@@ -50,4 +54,13 @@ interface CommentAPIService {
         @Query("comment_id") comment_id: Int?,
         @Query("page") page: Int
     ): BaseResponse<List<Reply>>
+
+    @Multipart
+    @POST("user/update")
+    suspend fun updateUser(
+        @Part("user_id") user_id: RequestBody,
+        @Part("name") name: RequestBody,
+        @Part("password") password: RequestBody,
+        @Part avatar_url: MultipartBody.Part?
+    ): BaseResponse<Any>
 }

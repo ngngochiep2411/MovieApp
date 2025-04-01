@@ -11,7 +11,7 @@ data class ExpandReducer(
     val replys: List<Reply> = emptyList(),
     val pagination: PaginationV2? = null
 ) : Reducer {
-    private val mapper by lazy { Entity2ItemMapper() }
+
     override val reduce: suspend List<CommentItem>.() -> List<CommentItem> = {
         val foldingIndex = indexOf(folding)
 //        val loaded =
@@ -36,7 +36,7 @@ data class ExpandReducer(
                         userName = reply.getUserName(),
                         likeCount = 22,
                         userReply = if (reply.user?.id == reply.user?.id || reply.user?.id == reply.reply_user?.id) null else reply.reply_user?.name,
-                        time = "",
+                        time = reply.createdAt,
                         parentId = reply.commentId,
                         avatar_url = reply.user?.avatar_url
                     )

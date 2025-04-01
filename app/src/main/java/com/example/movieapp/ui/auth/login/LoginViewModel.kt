@@ -31,7 +31,7 @@ class LoginViewModel @Inject constructor(
             mainRepository.login(email, password).collect {
                 _message.value = it.message
                 _login.value = it.success()
-                dataStoreManager.saveUserDetail(Gson().toJson(it.data))
+                dataStoreManager.saveUser(Gson().toJson(it.data.user))
             }
         }
 

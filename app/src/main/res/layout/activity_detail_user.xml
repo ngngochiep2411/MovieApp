@@ -9,6 +9,7 @@
     android:orientation="vertical"
     tools:context=".ui.profile.DetailUserActivity">
 
+
     <com.example.movieapp.widgets.ToolbarDetailUser
         android:id="@+id/toolBar"
         android:layout_width="match_parent"
@@ -40,14 +41,13 @@
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/avatar"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:scaleType="centerCrop"
+                android:layout_width="@dimen/dp50"
+                android:layout_height="@dimen/dp50"
                 android:layout_alignParentEnd="true"
                 android:layout_centerInParent="true"
                 android:layout_marginEnd="20dp"
-                tools:background="@drawable/avatar"
                 android:gravity="center"
+                android:scaleType="centerCrop"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -55,6 +55,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/textView"
                 app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+                tools:background="@drawable/avatar"
                 tools:text="S" />
 
         </RelativeLayout>

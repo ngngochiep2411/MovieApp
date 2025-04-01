@@ -1,7 +1,6 @@
 package com.example.movieapp.ui.comment.logic.impl
 
 import android.content.Context
-import com.example.movieapp.ui.comment.data.FakeApi
 import com.example.movieapp.ui.comment.logic.Reducer
 import com.example.movieapp.ui.comment.ui.CommentItem
 import com.example.movieapp.widgets.ReplyDialog
@@ -15,7 +14,7 @@ class ReplyReducer(
     private val context: Context,
     addComment: CommentItem
 ) : Reducer {
-    private val mapper: Entity2ItemMapper by lazy { Entity2ItemMapper() }
+
     override val reduce: suspend List<CommentItem>.() -> List<CommentItem> = {
 
 //        val content = withContext(Dispatchers.Main) {

@@ -22,7 +22,8 @@ fun List<Comment>.convertComment(
                 userName = comment.getUserName(),
                 likeCount = 22,
                 level2Count = 2,
-                avatar_url = comment.user?.avatar_url
+                avatar_url = comment.user?.avatar_url,
+                time = comment.createdAt
             )
         )
 
@@ -38,7 +39,7 @@ fun List<Comment>.convertComment(
                         userName = reply.getUserName(),
                         likeCount = 22,
                         userReply = if (comment.user?.id == reply.user?.id || reply.user?.id == reply.reply_user?.id) null else reply.reply_user?.name,
-                        time = "",
+                        time = comment.createdAt,
                         parentId = comment.id,
                         avatar_url = reply.user?.avatar_url
                     )
@@ -80,7 +81,7 @@ fun List<Reply>.convertReply(): List<CommentItem> {
                 userName = reply.getUserName(),
                 likeCount = 22,
                 userReply = if (reply.user?.id == reply.user?.id || reply.user?.id == reply.reply_user?.id) null else reply.reply_user?.name,
-                time = "",
+                time = reply.createdAt,
                 parentId = reply.commentId,
                 avatar_url = reply.user?.avatar_url
             )

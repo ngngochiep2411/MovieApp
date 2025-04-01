@@ -14,7 +14,7 @@ class ToolbarDetailUser(context: Context, attrs: AttributeSet) : LinearLayout(co
         orientation = HORIZONTAL
         LayoutInflater.from(context).inflate(R.layout.layout_toolbar_detail_user, this, true)
 
-        disableSave()
+//        disableSave()
 
     }
 
