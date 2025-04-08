@@ -16,7 +16,7 @@ fun List<Comment>.convertComment(
             CommentItem.Level1(
                 id = comment.id,
                 content = comment.content,
-                userId = comment.userId,
+                userId = comment.user?.id,
                 unLike = false,
                 like = false,
                 userName = comment.getUserName(),
