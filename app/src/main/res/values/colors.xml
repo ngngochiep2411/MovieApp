@@ -8,4 +8,6 @@
     <color name="textGray2">#24252a</color>
     <color name="primaryColor">#27c153</color>
     <color name="gray82">#828387</color>
+
+    <color name="colorGrey">#dddddd</color>
 </resources>

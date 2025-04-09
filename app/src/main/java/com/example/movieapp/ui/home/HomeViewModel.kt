@@ -14,6 +14,7 @@ import com.example.movieapp.model.TvShowsMovie
 import com.example.movieapp.repository.MainRepository
 import com.example.movieapp.util.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,10 +28,15 @@ class HomeViewModel @Inject constructor(
     val movieResponse: LiveData<NetworkResult<HomeData>>
         get() = _movieResponse
 
+    private val _isLoading: MutableLiveData<Boolean> = MutableLiveData()
+    val isLoading: LiveData<Boolean>
+        get() = _isLoading
 
     fun getData() {
         Log.d("testing", "getData")
+        _isLoading.value = true
         viewModelScope.launch {
+//            delay(10000L)
             val flows = listOf(
                 mainRepository.getMovies(),
                 mainRepository.getTvShows(),
@@ -55,6 +61,7 @@ class HomeViewModel @Inject constructor(
                 )
             }.collect { homeData ->
                 _movieResponse.postValue(NetworkResult.Success(homeData))
+                _isLoading.value = false
             }
         }
     }

@@ -147,11 +147,11 @@ class MovieSearchResultViewModel @Inject constructor(
             0 -> {
                 mainRepository.getSeriesMovie(currentPage, category, country, year).collect {
                     val response = it as? NetworkResult.Success
-                    currentPage = response?.data?.data?.params?.pagination?.currentPage!!
+                    val currentPage = response?.data?.data?.params?.pagination?.currentPage ?: 1
+                    val lastPage = response?.data?.data?.params?.pagination?.totalPages ?: 1
                     val list =
-                        response.data.data.items
-                    nextPage =
-                        response.data.data.params.pagination.currentPage < response.data.data.params.pagination.totalPages
+                        response?.data?.data?.items ?: ArrayList()
+                    nextPage = currentPage < lastPage
                     emit(list)
                     _isLoading.value = false
                 }
@@ -160,11 +160,11 @@ class MovieSearchResultViewModel @Inject constructor(
             1 -> {
                 mainRepository.getMovies(currentPage, category, country, year).collect {
                     val response = it as? NetworkResult.Success
-                    currentPage = response?.data?.data?.params?.pagination?.currentPage!!
+                    val currentPage = response?.data?.data?.params?.pagination?.currentPage ?: 1
+                    val lastPage = response?.data?.data?.params?.pagination?.totalPages ?: 1
                     val list =
-                        response.data.data.items
-                    nextPage =
-                        response.data.data.params.pagination.currentPage < response.data.data.params.pagination.totalPages
+                        response?.data?.data?.items ?: ArrayList()
+                    nextPage = currentPage < lastPage
                     emit(list)
                     _isLoading.value = false
                 }
@@ -173,11 +173,11 @@ class MovieSearchResultViewModel @Inject constructor(
             2 -> {
                 mainRepository.getTvShows(currentPage, category, country, year).collect {
                     val response = it as? NetworkResult.Success
-                    currentPage = response?.data?.data?.params?.pagination?.currentPage!!
+                    val currentPage = response?.data?.data?.params?.pagination?.currentPage ?: 1
+                    val lastPage = response?.data?.data?.params?.pagination?.totalPages ?: 1
                     val list =
-                        response.data.data.items
-                    nextPage =
-                        response.data.data.params.pagination.currentPage < response.data.data.params.pagination.totalPages
+                        response?.data?.data?.items ?: ArrayList()
+                    nextPage = currentPage < lastPage
                     emit(list)
                     _isLoading.value = false
                 }
@@ -186,11 +186,11 @@ class MovieSearchResultViewModel @Inject constructor(
             3 -> {
                 mainRepository.getCartoonMovie(currentPage, category, country, year).collect {
                     val response = it as? NetworkResult.Success
-                    currentPage = response?.data?.data?.params?.pagination?.currentPage!!
+                    val currentPage = response?.data?.data?.params?.pagination?.currentPage ?: 1
+                    val lastPage = response?.data?.data?.params?.pagination?.totalPages ?: 1
                     val list =
-                        response.data.data.items
-                    nextPage =
-                        response.data.data.params.pagination.currentPage < response.data.data.params.pagination.totalPages
+                        response?.data?.data?.items ?: ArrayList()
+                    nextPage = currentPage < lastPage
                     emit(list)
                     _isLoading.value = false
                 }
@@ -199,11 +199,11 @@ class MovieSearchResultViewModel @Inject constructor(
             4 -> {
                 mainRepository.getVietSub(currentPage, category, country, year).collect {
                     val response = it as? NetworkResult.Success
-                    currentPage = response?.data?.data?.params?.pagination?.currentPage!!
+                    val currentPage = response?.data?.data?.params?.pagination?.currentPage ?: 1
+                    val lastPage = response?.data?.data?.params?.pagination?.totalPages ?: 1
                     val list =
-                        response.data.data.items
-                    nextPage =
-                        response.data.data.params.pagination.currentPage < response.data.data.params.pagination.totalPages
+                        response?.data?.data?.items ?: ArrayList()
+                    nextPage = currentPage < lastPage
                     emit(list)
                     _isLoading.value = false
                 }
@@ -212,11 +212,11 @@ class MovieSearchResultViewModel @Inject constructor(
             5 -> {
                 mainRepository.getThuyetMinh(currentPage, category, country, year).collect {
                     val response = it as? NetworkResult.Success
-                    currentPage = response?.data?.data?.params?.pagination?.currentPage!!
+                    val currentPage = response?.data?.data?.params?.pagination?.currentPage ?: 1
+                    val lastPage = response?.data?.data?.params?.pagination?.totalPages ?: 1
                     val list =
-                        response.data.data.items
-                    nextPage =
-                        response.data.data.params.pagination.currentPage < response.data.data.params.pagination.totalPages
+                        response?.data?.data?.items ?: ArrayList()
+                    nextPage = currentPage < lastPage
                     emit(list)
                     _isLoading.value = false
                 }
@@ -225,11 +225,11 @@ class MovieSearchResultViewModel @Inject constructor(
             6 -> {
                 mainRepository.getLongTieng(currentPage, category, country, year).collect {
                     val response = it as? NetworkResult.Success
-                    currentPage = response?.data?.data?.params?.pagination?.currentPage!!
+                    val currentPage = response?.data?.data?.params?.pagination?.currentPage ?: 1
+                    val lastPage = response?.data?.data?.params?.pagination?.totalPages ?: 1
                     val list =
-                        response.data.data.items
-                    nextPage =
-                        response.data.data.params.pagination.currentPage < response.data.data.params.pagination.totalPages
+                        response?.data?.data?.items ?: ArrayList()
+                    nextPage = currentPage < lastPage
                     emit(list)
                     _isLoading.value = false
                 }
