@@ -14,5 +14,5 @@ data class Pagination(
     val totalItemsPerPage: Int,
 
     @field:SerializedName("currentPage")
-    val currentPage: Int
+    val currentPage: Int = 1
 )

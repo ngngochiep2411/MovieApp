@@ -99,13 +99,27 @@ class HomeFragment : Fragment(), OnItemClickListener, ToolbarHome.OnItemClickLis
     }
 
     private fun initObserver() {
+
+        viewModel.isLoading.observe(viewLifecycleOwner) {
+            if (it) {
+//                binding.shimmerLayout.startShimmerAnimation()
+//                binding.shimmerLayout.showSkeleton()
+//                binding.shimmerLayout.visibility = View.VISIBLE
+
+                binding.refreshLayout.isRefreshing = true
+            } else {
+//                binding.shimmerLayout.stopShimmerAnimation()
+//                binding.shimmerLayout.showOriginal()
+//                binding.shimmerLayout.visibility = View.GONE
+                binding.refreshLayout.isRefreshing = false
+            }
+        }
         viewModel.movieResponse.observe(viewLifecycleOwner) {
             when (it) {
                 is NetworkResult.Failure -> {
                 }
 
                 is NetworkResult.Success -> {
-                    binding.refreshLayout.isRefreshing = false
                     homeAdapter.submitList(it.data)
                 }
             }
@@ -113,10 +127,7 @@ class HomeFragment : Fragment(), OnItemClickListener, ToolbarHome.OnItemClickLis
     }
 
     private fun fetchData() {
-        if (viewModel.movieResponse.value == null) {
-            binding.refreshLayout.isRefreshing = true
-            viewModel.getData()
-        }
+        viewModel.getData()
     }
 
     private fun hideToolBar() {

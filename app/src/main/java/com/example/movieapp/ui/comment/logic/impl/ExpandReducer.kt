@@ -14,12 +14,9 @@ data class ExpandReducer(
 
     override val reduce: suspend List<CommentItem>.() -> List<CommentItem> = {
         val foldingIndex = indexOf(folding)
-//        val loaded =
-//            FakeApi.getLevel2Comments(folding.parentId, folding.page, folding.pageSize).getOrNull()
-//                ?.map(mapper::invoke) ?: emptyList()
 
         pagination?.nextPage =
-            (getCurrentReply(folding.parentId, this) + replys.size < (pagination?.total ?: 0))
+            (getCurrentReply(folding.parentId, this) + replys.size < pagination.total)
 
         val loaded = mutableListOf<CommentItem>()
         if (folding.state == State.COLLAPSE) {
@@ -50,7 +47,7 @@ data class ExpandReducer(
             if (it is CommentItem.Folding && it == folding) {
                 val state =
                     if (pagination?.nextPage != true
-                    ) CommentItem.Folding.State.LOADED_ALL else CommentItem.Folding.State.IDLE
+                    ) State.LOADED_ALL else State.IDLE
                 val count =
                     (pagination?.total ?: 0) - getCurrentReply(folding.parentId, this) - replys.size
                 it.copy(

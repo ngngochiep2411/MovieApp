@@ -120,7 +120,6 @@ class MovieSearchResultFragment : Fragment(), OnItemClickListener {
 
     private fun loadMoreData() {
         viewModel.getMoreData(type, category, country, year)
-
     }
 
 
