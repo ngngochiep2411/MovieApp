@@ -38,4 +38,12 @@
   <img src="https://raw.githubusercontent.com/ngngochiep2411/MovieApp/master/assets/screenshots/9.jpg" alt="Screenshot" width="400"/>
 </a>
 
+<a href="https://raw.githubusercontent.com/ngngochiep2411/MovieApp/master/assets/screenshots/10.jpg">
+  <img src="https://raw.githubusercontent.com/ngngochiep2411/MovieApp/master/assets/screenshots/10.jpg" alt="Screenshot" width="400"/>
+</a>
+
+<a href="https://raw.githubusercontent.com/ngngochiep2411/MovieApp/master/assets/screenshots/11.jpg">
+  <img src="https://raw.githubusercontent.com/ngngochiep2411/MovieApp/master/assets/screenshots/11.jpg" alt="Screenshot" width="400"/>
+</a>
+
 
