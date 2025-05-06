@@ -95,4 +95,5 @@ dependencies {
     implementation ("androidx.datastore:datastore-preferences:1.1.2")
     implementation ("androidx.datastore:datastore:1.1.2")
     implementation ("io.github.glailton.expandabletextview:expandabletextview:1.0.4")
+    implementation ("com.android.support:multidex:1.0.3")
 }

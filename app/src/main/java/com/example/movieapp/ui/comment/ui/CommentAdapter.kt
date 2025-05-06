@@ -26,14 +26,11 @@ import com.example.movieapp.util.TimeAGO
 import com.example.movieapp.util.Utils
 
 
-
-
 class CommentAdapter(
     val reduceBlock: Reducer.() -> Unit,
     private val reply: (item: CommentItem) -> Unit,
     private val loadMore: (item: CommentItem) -> Unit,
     private val loadMoreReply: (item: CommentItem) -> Unit,
-    userId: Int?,
 
     ) : ListAdapter<CommentItem, VH>(object : DiffUtil.ItemCallback<CommentItem>() {
 
@@ -133,7 +130,7 @@ class Level1VH(
     val callBack: (CommentItem) -> Unit
 ) : VH(binding.root, reduceBlock) {
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
     override fun onBind(item: CommentItem) {
         val data = item as CommentItem.Level1
         Utils.loadImage(

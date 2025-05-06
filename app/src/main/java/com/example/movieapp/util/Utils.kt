@@ -21,6 +21,8 @@ import com.bumptech.glide.request.target.Target
 import com.example.movieapp.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -62,6 +64,21 @@ class Utils {
             return ""
         }
 
+        fun getFileFromUri(context: Context, uri: Uri): File? {
+            val inputStream = context.contentResolver.openInputStream(uri) ?: return null
+            val fileName = "temp_file_${System.currentTimeMillis()}"
+            val file = File(context.cacheDir, fileName)
+            val outputStream = FileOutputStream(file)
+
+            inputStream.use { input ->
+                outputStream.use { output ->
+                    input.copyTo(output)
+                }
+            }
+
+            return file
+        }
+
 
         fun loadImage(context: Context, url: String?, imageView: ImageView) {
             val drawable = CircularProgressDrawable(context)
@@ -71,7 +88,9 @@ class Utils {
             drawable.centerRadius = 30f
             drawable.strokeWidth = 5f
             drawable.start()
-            Glide.with(context).load(url).placeholder(drawable)
+            Glide.with(context).load(url)
+                .placeholder(drawable)
+                .error(R.drawable.avatar_anonymous)
                 .into(imageView)
         }
 

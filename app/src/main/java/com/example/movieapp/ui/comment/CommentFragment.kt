@@ -1,12 +1,12 @@
 package com.example.movieapp.ui.comment
 
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -91,7 +91,6 @@ class CommentFragment : Fragment() {
             reduceBlock = reducerBlock(),
             reply = ::reply,
             loadMore = ::getComment,
-            userId = viewModel.userDetail?.id,
             loadMoreReply = ::getReply
         )
         binding.rvComment.adapter = commentAdapter
@@ -189,7 +188,13 @@ class CommentFragment : Fragment() {
             if (user == null) {
                 showBottomSheetLogin()
             } else {
-                showCommentDialog()
+                if (commentAdapter.currentList.size == 1 && commentAdapter.currentList[0] is CommentItem.FirstLoading) {
+                    Toast.makeText(context, "Hãy đợi bình luận được tải xong", Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    showCommentDialog()
+                }
+
             }
         }
     }
@@ -223,13 +228,11 @@ class CommentFragment : Fragment() {
             launch {
                 dataStoreManager.userDetail.collect { userDetail ->
                     user = userDetail
-                    userDetail?.let {
-                        Utils.loadImage(
-                            requireContext(),
-                            "${Constant.BASE_IMAGE_URL}${userDetail.avatarUrl}",
-                            binding.avatar
-                        )
-                    }
+                    Utils.loadImage(
+                        requireContext(),
+                        "${Constant.BASE_IMAGE_URL}${userDetail?.avatarUrl}",
+                        binding.avatar
+                    )
                 }
             }
 

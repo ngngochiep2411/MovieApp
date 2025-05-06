@@ -111,10 +111,10 @@ class DetailUserActivity : AppCompatActivity() {
             var path = ""
             var body: MultipartBody.Part? = null
             if (uri != null) {
-                path = Utils.getRealPathFromURI(uri, this)
-                val file = File(path)
+//                path = Utils.getRealPathFromURI(uri, this)
+                val file = Utils.getFileFromUri(context = this, uri = uri!!)
                 val requestFile: RequestBody =
-                    file.asRequestBody("image/*".toMediaTypeOrNull())
+                    file!!.asRequestBody("image/*".toMediaTypeOrNull())
                 body =
                     MultipartBody.Part.createFormData("avatar_url", file.name, requestFile)
             }

@@ -1,41 +1,35 @@
 package com.example.movieapp.util
 
+import android.icu.text.SimpleDateFormat
+import android.icu.util.TimeZone
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.google.type.DateTime
 import java.time.Duration
 import java.time.Instant
+import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 
 object TimeAGO {
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
     fun convertString(dateTime: String): String {
-        if (dateTime.isNotEmpty()) {
-            val text = Instant.parse(dateTime)
-            val now = Instant.now()
-            val duration = Duration.between(text, now)
+        val now = Date()
+        val cleanedString = dateTime.replace(".000000Z", "+0000")
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault())
+        sdf.timeZone = TimeZone.getTimeZone("UTC")
+        val date: Date = sdf.parse(cleanedString)
+        val seconds = (now.time - date.time) / 1000
 
-            val seconds = duration.seconds
-            val minutes = duration.toMinutes()
-            val hours = duration.toHours()
-            val days = duration.toDays()
-            val months = days / 30
-            val years = days / 365
-
-
-            val result = when {
-                seconds < 60 -> "$seconds giây trước"
-                minutes < 60 -> "$minutes phút trước"
-                hours < 24 -> "$hours giờ trước"
-                days < 30 -> "$days ngày trước"
-                months == 1L -> "1 tháng trước"
-                months < 12 -> "$months tháng trước"
-                years == 1L -> "1 năm trước"
-                years > 1 -> "$years năm trước"
-                else -> "Hơn một năm trước"
-            }
-            return result
+        return when {
+            seconds < 60 -> "${seconds} giây trước"
+            seconds < 60 * 60 -> "${seconds / 60} phút trước"
+            seconds < 60 * 60 * 24 -> "${seconds / 3600} giờ trước"
+            seconds < 60 * 60 * 24 * 30 -> "${seconds / 86400} ngày trước"
+            seconds < 60 * 60 * 24 * 30 * 12 -> "${seconds / 2592000} tháng trước"
+            else -> "${seconds / 60 * 60 * 24 * 30 * 12} năm trước"
         }
-        return ""
 
     }
 
