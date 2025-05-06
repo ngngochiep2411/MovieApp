@@ -1,6 +1,7 @@
 package com.example.movieapp.ui.profile
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.app.ProgressDialog
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -44,6 +45,8 @@ class DetailUserActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDetailUserBinding
     private val viewModel: DetailUserViewModel by viewModels()
     private var uri: Uri? = null
+
+    private lateinit var loadingDialog: Dialog
 
 
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) {
@@ -89,6 +92,11 @@ class DetailUserActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityDetailUserBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        loadingDialog = Dialog(this)
+        loadingDialog.setContentView(R.layout.loading_dialog)
+        loadingDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        loadingDialog.setCancelable(true)
 
         val layoutParams = binding.toolBar.layoutParams as ConstraintLayout.LayoutParams
         layoutParams.topMargin = Utils.getStatusBarHeight(this)
@@ -169,7 +177,11 @@ class DetailUserActivity : AppCompatActivity() {
 
             launch {
                 viewModel.isLoading.observe(this@DetailUserActivity) {
-//                    if (it) Utils.showDialog(activity = this@DetailUserActivity) else Utils.dismissDialog()
+                    if (it) {
+                        loadingDialog.show()
+                    } else {
+                        loadingDialog.dismiss()
+                    }
                 }
 
             }

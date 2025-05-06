@@ -36,6 +36,7 @@ class DetailUserViewModel @Inject constructor(
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
+
     fun update(user_id: String, file: MultipartBody.Part?, name: String, password: String) {
         viewModelScope.launch {
             _isLoading.value = true
