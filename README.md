@@ -1,0 +1,1 @@
+Ảnh chụp màn hình
