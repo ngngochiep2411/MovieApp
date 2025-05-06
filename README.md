@@ -1,5 +1,7 @@
 Ảnh chụp màn hình
 
-![Mô tả ảnh](https://raw.githubusercontent.com/ngngochiep2411/MovieApp/master/assets/screenshots/Screenshot_20250506_211513_MovieApp.jpg)
+<a href="https://raw.githubusercontent.com/maxrave-dev/SimpMusic/refs/heads/jetpack_compose/asset/screenshot/2.png">
+  <img src="https://raw.githubusercontent.com/maxrave-dev/SimpMusic/refs/heads/jetpack_compose/asset/screenshot/2.png" alt="Screenshot" width="400"/>
+</a>
 
 
