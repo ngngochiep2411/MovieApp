@@ -1,4 +1,6 @@
-Ảnh chụp màn hình
+<strong>Link apk</strong>
+
+<strong>Ảnh chụp màn hình</strong>
 
 <a href="https://raw.githubusercontent.com/ngngochiep2411/MovieApp/master/assets/screenshots/1.jpg">
   <img src="https://raw.githubusercontent.com/ngngochiep2411/MovieApp/master/assets/screenshots/1.jpg" alt="Screenshot" width="400"/>
