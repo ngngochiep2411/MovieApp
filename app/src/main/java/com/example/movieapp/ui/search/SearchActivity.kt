@@ -9,6 +9,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
+import android.widget.LinearLayout
 import androidx.activity.viewModels
 import androidx.annotation.CheckResult
 import androidx.appcompat.app.AppCompatActivity
@@ -21,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.movieapp.databinding.ActivitySearchBinding
 import com.example.movieapp.ui.detailmovie.DetailMovieActivity
 import com.example.movieapp.ui.home.adapter.OnItemClickListener
+import com.example.movieapp.util.Utils
 import com.example.movieapp.widgets.CustomItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -43,6 +45,10 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val layoutParams = binding.search.layoutParams as LinearLayout.LayoutParams
+        layoutParams.topMargin = Utils.getStatusBarHeight(this) + 20
+        binding.search.layoutParams = layoutParams
 
         setOnClick()
         initView()

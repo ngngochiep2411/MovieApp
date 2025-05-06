@@ -50,14 +50,14 @@ class HomeViewModel @Inject constructor(
 
             combine(flows) { results ->
                 HomeData(
-                    movies = (results[0] as? NetworkResult.Success)?.data as Movies,
-                    tvShowsMovie = (results[1] as? NetworkResult.Success)?.data as TvShowsMovie,
-                    seriesMovie = (results[2] as? NetworkResult.Success)?.data as SeriesMovie,
-                    cartoonMovie = (results[3] as? NetworkResult.Success)?.data as CartoonMovie,
-                    newMovie = (results[4] as? NetworkResult.Success)?.data as NewMovie,
-                    viet_sub = (results[5] as? NetworkResult.Success)?.data as Movies,
-                    thuyet_minh = (results[6] as? NetworkResult.Success)?.data as Movies,
-                    long_tieng = (results[7] as? NetworkResult.Success)?.data as Movies
+                    movies = (results[0] as? NetworkResult.Success)?.data as? Movies,
+                    tvShowsMovie = (results[1] as? NetworkResult.Success)?.data as? TvShowsMovie,
+                    seriesMovie = (results[2] as? NetworkResult.Success)?.data as? SeriesMovie,
+                    cartoonMovie = (results[3] as? NetworkResult.Success)?.data as? CartoonMovie,
+                    newMovie = (results[4] as? NetworkResult.Success)?.data as? NewMovie,
+                    viet_sub = (results[5] as? NetworkResult.Success)?.data as? Movies,
+                    thuyet_minh = (results[6] as? NetworkResult.Success)?.data as? Movies,
+                    long_tieng = (results[7] as? NetworkResult.Success)?.data as? Movies
                 )
             }.collect { homeData ->
                 _movieResponse.postValue(NetworkResult.Success(homeData))

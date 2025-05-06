@@ -26,7 +26,9 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch {
             repository.searchMovie(keyword).collect {
                 _movies.value =
-                    if (it is NetworkResult.Success) it.data.data?.items!! else ArrayList()
+                    if (it is NetworkResult.Success) {
+                        it.data.data?.items ?: ArrayList()
+                    } else ArrayList()
             }
         }
 

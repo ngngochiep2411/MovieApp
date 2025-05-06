@@ -19,6 +19,8 @@ import com.example.movieapp.widgets.CustomItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import androidx.core.view.isVisible
+import androidx.core.view.isInvisible
 
 
 @AndroidEntryPoint
@@ -257,12 +259,12 @@ class MovieSearchResultFragment : Fragment(), OnItemClickListener {
     }
 
     private fun showFilter() {
-        if (binding.textFilter.visibility == View.INVISIBLE) binding.textFilter.visibility =
+        if (binding.textFilter.isInvisible) binding.textFilter.visibility =
             View.VISIBLE
     }
 
     private fun hideFilter() {
-        if (binding.textFilter.visibility == View.VISIBLE) binding.textFilter.visibility =
+        if (binding.textFilter.isVisible) binding.textFilter.visibility =
             View.INVISIBLE
     }
 

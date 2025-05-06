@@ -10,11 +10,13 @@ import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -88,8 +90,13 @@ class DetailUserActivity : AppCompatActivity() {
         binding = ActivityDetailUserBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val layoutParams = binding.toolBar.layoutParams as ConstraintLayout.LayoutParams
+        layoutParams.topMargin = Utils.getStatusBarHeight(this)
+        binding.toolBar.layoutParams = layoutParams
+
         initObserver()
         setOnClick()
+
 
     }
 
