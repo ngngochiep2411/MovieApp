@@ -96,4 +96,11 @@ dependencies {
     implementation ("androidx.datastore:datastore:1.1.2")
     implementation ("io.github.glailton.expandabletextview:expandabletextview:1.0.4")
     implementation ("com.android.support:multidex:1.0.3")
+    //完整版引入
+
+    implementation ("com.github.CarGuo.GSYVideoPlayer:gsyvideoplayer:v10.2.0")
+
+
+    //是否需要AliPlayer模式
+    implementation ("com.github.CarGuo.GSYVideoPlayer:gsyvideoplayer-aliplay:v10.2.0")
 }
