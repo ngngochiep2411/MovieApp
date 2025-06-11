@@ -1,15 +1,11 @@
 package com.example.movieapp.ui.detailmovie
 
 
-import android.R
 import android.annotation.SuppressLint
-import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.ImageView
-import android.widget.LinearLayout
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -22,6 +18,7 @@ import com.example.movieapp.util.SharedViewModel
 import com.example.movieapp.util.Utils
 import com.google.android.material.tabs.TabLayoutMediator
 import com.shuyu.gsyvideoplayer.GSYVideoManager
+import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filterNotNull
@@ -81,6 +78,13 @@ class DetailMovieActivity : AppCompatActivity(), Player.Listener {
     }
 
     private fun setOnClick() {
+        binding.playerView.fullscreenButton.setOnClickListener {
+            Log.d("testing","hehe")
+            //直接横屏
+            orientationUtils?.resolveByClick();
+            //第一个true是否需要隐藏actionbar，第二个true是否需要隐藏statusbar
+            binding.playerView.startWindowFullscreen(this, true, true);
+        }
     }
 
 
@@ -120,8 +124,21 @@ class DetailMovieActivity : AppCompatActivity(), Player.Listener {
 
     @UnstableApi
     private fun playVideo(url: String?) {
-        binding.playerView.setUp(url, true, "");
-        binding.playerView.startPlayLogic()
+//        val gsyVideoOptionBuilder = GSYVideoOptionBuilder()
+//
+//        gsyVideoOptionBuilder
+//            .setIsTouchWiget(true)
+//            .setRotateViewAuto(false)
+//            .setLockLand(false)
+//            .setAutoFullWithSize(true)
+//            .setShowFullAnimation(false)
+//            .setNeedLockFull(true)
+//            .setUrl(url)
+//            .setCacheWithPlay(false)
+//            .setVideoTitle("测试视频")
+//            .build(binding.playerView)
+//
+//        binding.playerView.startPlayLogic()
     }
 
 
@@ -131,9 +148,10 @@ class DetailMovieActivity : AppCompatActivity(), Player.Listener {
 
     private fun initView() {
         orientationUtils = OrientationUtils(this, binding.playerView)
+        orientationUtils?.setEnable(false)
         binding.playerView.layoutParams.height =
-            Resources.getSystem().displayMetrics.heightPixels / 3
-        binding.playerView.isNeedOrientationUtils = true
+            Resources.getSystem().displayMetrics.heightPixels / 4
+
     }
 
     private fun updateCurrentVideo(position: Int) {
@@ -144,5 +162,20 @@ class DetailMovieActivity : AppCompatActivity(), Player.Listener {
         super.onDestroy()
         GSYVideoManager.releaseAllVideos()
     }
-
+    override fun onBackPressed() {
+        if (orientationUtils != null) {
+            orientationUtils!!.backToProtVideo()
+        }
+        if (GSYVideoManager.backFromWindowFull(this)) {
+            return
+        }
+        super.onBackPressed()
+    }
+    public override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        //如果旋转了就全屏
+        if (isPlay && !isPause) {
+            binding.playerView.onConfigurationChanged(this, newConfig, orientationUtils, true, true)
+        }
+    }
 }

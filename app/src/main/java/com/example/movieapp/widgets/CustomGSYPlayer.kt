@@ -1,14 +1,18 @@
 package com.example.movieapp.widgets
 
+import android.app.Activity
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.util.AttributeSet
 import android.view.MotionEvent
+import android.widget.ImageView
 import com.example.movieapp.R
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 
 class CustomGSYPlayer(context: Context, attrs: AttributeSet? = null) :
     StandardGSYVideoPlayer(context, attrs) {
 
+    private lateinit var imgFullScreen: ImageView
 
     override fun init(context: Context?) {
         super.init(context)
@@ -22,7 +26,5 @@ class CustomGSYPlayer(context: Context, attrs: AttributeSet? = null) :
         return super.setUp(url, cacheWithPlay, title)
     }
 
-    override fun onClickUiToggle(e: MotionEvent?) {
-        super.onClickUiToggle(e)
-    }
+
 }
