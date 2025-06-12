@@ -11,7 +11,9 @@ import com.example.movieapp.databinding.FragmentLIstVideoBinding
 import com.example.movieapp.model.Category
 import com.example.movieapp.model.DetailMovie
 import com.example.movieapp.model.ServerData
+import com.example.movieapp.ui.listvideo.adapter.FlexboxAdapter
 import com.example.movieapp.ui.listvideo.adapter.ListVideoAdapter
+import com.example.movieapp.ui.listvideo.adapter.ListVideoAdapter2
 import com.example.movieapp.util.Extension.parcelable
 import com.example.movieapp.util.Extension.parcelableArrayList
 import com.example.movieapp.util.SharedViewModel
@@ -22,11 +24,12 @@ import kotlinx.coroutines.launch
 class LIstVideoFragment : Fragment() {
 
     private lateinit var binding: FragmentLIstVideoBinding
-    private lateinit var adapter: ListVideoAdapter
+    private lateinit var adapter: ListVideoAdapter2
     var list: ArrayList<ServerData> = ArrayList()
     private var thumb: String = ""
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private var detailMovie: DetailMovie? = null
+    private lateinit var flexboxAdapter: FlexboxAdapter
 
     companion object {
         fun newInstance(
@@ -62,7 +65,7 @@ class LIstVideoFragment : Fragment() {
             setData(detailMovie!!)
         }
         arguments?.getString("thumb")
-        adapter = ListVideoAdapter(list, thumb) { position ->
+        adapter = ListVideoAdapter2(list, thumb) { position ->
             sharedViewModel.changeVideoIndex(position)
         }
         binding.recyclerView.adapter = adapter
@@ -99,7 +102,6 @@ class LIstVideoFragment : Fragment() {
             sharedViewModel.videoIndex.collect {
                 if (it != -1) {
                     adapter.updateCurrentVideo(it)
-                    binding.recyclerView.layoutManager?.scrollToPosition(5)
                 }
             }
         }
@@ -111,6 +113,15 @@ class LIstVideoFragment : Fragment() {
         if (detailMovie != null) {
             setData(detailMovie)
         }
+    }
+
+    private fun getListString(data: ArrayList<ServerData>): List<String> {
+        val list = ArrayList<String>()
+        for (i in data.indices) {
+            list.add("Tập ${i + 1}")
+        }
+
+        return list
     }
 
     override fun onResume() {

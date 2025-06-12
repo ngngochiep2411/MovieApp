@@ -9,7 +9,7 @@
     android:orientation="vertical">
 
 
-    <com.example.movieapp.widgets.CustomGSYPlayer
+    <com.example.movieapp.widgets.SampleControlVideo
         android:id="@+id/playerView"
         android:layout_width="match_parent"
         android:layout_height="250dp" />

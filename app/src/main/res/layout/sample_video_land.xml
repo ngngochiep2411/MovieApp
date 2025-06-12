@@ -8,10 +8,7 @@
         android:id="@+id/surface_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center">
-
-    </FrameLayout>
-
+        android:gravity="center"></FrameLayout>
 
     <RelativeLayout
         android:id="@+id/thumb"
@@ -35,6 +32,16 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:visibility="invisible">
+
+        <ImageView
+            android:id="@+id/start"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/video_click_play_selector" />
 
         <TextView
             android:id="@+id/current"
@@ -65,16 +72,6 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="16dp"
             android:text="00:00"
-            android:textColor="#ffffff" />
-
-        <TextView
-            android:id="@+id/switchSize"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginRight="16dp"
-            android:gravity="center"
-            android:minEms="2"
-            android:text="标准"
             android:textColor="#ffffff" />
 
         <ImageView
@@ -110,14 +107,6 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:visibility="invisible" />
-
-    <moe.codeest.enviews.ENPlayView
-        android:id="@+id/start"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_gravity="center_vertical" />
 
 
     <ImageView
@@ -167,8 +156,8 @@
             android:paddingLeft="10dp"
             android:textColor="@android:color/white"
             android:textSize="18sp" />
-
     </LinearLayout>
+
 
     <RelativeLayout
         android:id="@+id/preview_layout"
