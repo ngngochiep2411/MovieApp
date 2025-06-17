@@ -1,6 +1,7 @@
 package com.example.movieapp.repository
 
 import android.util.Log
+import com.example.movieapp.database.MovieDao
 import com.example.movieapp.model.BaseResponse
 import com.example.movieapp.model.CartoonMovie
 import com.example.movieapp.model.CategoryMovie
@@ -38,8 +39,8 @@ import javax.inject.Inject
 class MainRepository @Inject constructor(
     private val movieApiService: MovieApiService,
     private val commentApiService: CommentAPIService,
-
-    ) {
+    private val movieDao: MovieDao
+) {
 
 
     fun getMovies(

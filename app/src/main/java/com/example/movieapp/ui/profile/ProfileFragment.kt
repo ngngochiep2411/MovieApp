@@ -1,7 +1,6 @@
 package com.example.movieapp.ui.profile
 
 import android.content.Intent
-import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -12,20 +11,19 @@ import android.widget.FrameLayout
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
-import com.example.movieapp.R
 import com.example.movieapp.databinding.FragmentProfileBinding
 import com.example.movieapp.ui.auth.BottomSheetAuthFragment
-import com.example.movieapp.util.DataStoreManager
+import com.example.movieapp.database.DatabaseManager
 import com.example.movieapp.util.Utils
 import com.example.movieapp.util.Utils.Companion.transparentStatusBar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.getValue
 
 
 @AndroidEntryPoint
@@ -34,9 +32,11 @@ class ProfileFragment : Fragment() {
     private lateinit var binding: FragmentProfileBinding
 
     @Inject
-    lateinit var dataStoreManager: DataStoreManager
+    lateinit var databaseManager: DatabaseManager
 
     private lateinit var pickImageLauncher: ActivityResultLauncher<String>
+
+    private val viewModel: ProfileViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -76,7 +76,7 @@ class ProfileFragment : Fragment() {
 
         binding.tvLogOut.setOnClickListener {
             lifecycleScope.launch {
-                dataStoreManager.logout()
+                databaseManager.logout()
             }
         }
 
@@ -92,11 +92,10 @@ class ProfileFragment : Fragment() {
     private fun initObserver() {
         lifecycleScope.launch {
             launch {
-                dataStoreManager.userDetail.collect { userDetail ->
+                viewModel.userDetail.collect { userDetail ->
                     Log.d("testing", "avatarurl ${userDetail?.avatar_url}")
                     Utils.loadImage(requireContext(), userDetail?.avatar_url, binding.avatar)
                     binding.tvUserName.text = userDetail?.name
-
                     binding.info.visibility = if (userDetail != null) View.VISIBLE else View.GONE
                     binding.tvSignInout.visibility =
                         if (userDetail != null) View.GONE else View.VISIBLE

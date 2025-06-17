@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.example.movieapp.model.Movie
 import com.example.movieapp.model.SearchResultMovie
 import com.example.movieapp.repository.MainRepository
-import com.example.movieapp.util.DataStoreManager
+import com.example.movieapp.database.DatabaseManager
 import com.example.movieapp.util.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailCategoryViewModel @Inject constructor(
     private val mainRepository: MainRepository,
-    private val dataStoreManager: DataStoreManager,
+    private val databaseManager: DatabaseManager,
 ) : ViewModel() {
 
     private var currentPage: Int = 1

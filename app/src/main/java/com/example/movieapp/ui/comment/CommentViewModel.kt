@@ -1,21 +1,18 @@
 package com.example.movieapp.ui.comment
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.movieapp.model.BaseResponse
 import com.example.movieapp.model.Comment
 import com.example.movieapp.model.CommentData
 import com.example.movieapp.model.CommentResponse
-import com.example.movieapp.model.GetReply
 import com.example.movieapp.model.Reply
 import com.example.movieapp.model.ReplyData
 import com.example.movieapp.model.ReplyResponse
 import com.example.movieapp.model.User
-import com.example.movieapp.model.UserDetail
 import com.example.movieapp.repository.MainRepository
-import com.example.movieapp.util.DataStoreManager
+import com.example.movieapp.database.DatabaseManager
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -28,7 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CommentViewModel @Inject constructor(
     private val mainRepository: MainRepository,
-    private val dataStoreManager: DataStoreManager
+    private val databaseManager: DatabaseManager
 ) : ViewModel() {
 
     private val _comments = MutableStateFlow<List<Comment>?>(null)
@@ -44,7 +41,7 @@ class CommentViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            dataStoreManager.userDetail.collect {
+            databaseManager.userDetail.collect {
                 userDetail = it
             }
         }
@@ -99,6 +96,6 @@ class CommentViewModel @Inject constructor(
         }
     }
 
-    val isLoggedIn: Flow<Boolean> = dataStoreManager.isLogin
+    val isLoggedIn: Flow<Boolean> = databaseManager.isLogin
 
 }

@@ -1,12 +1,9 @@
 package com.example.movieapp.util
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.movieapp.model.UserDetail
+import com.example.movieapp.database.DatabaseManager
 import com.example.movieapp.repository.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
@@ -14,7 +11,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SharedViewModel @Inject constructor(
     private val mainRepository: MainRepository,
-    private val dataStoreManager: DataStoreManager
+    private val databaseManager: DatabaseManager
 ) : ViewModel() {
 
     private var _videoIndex = MutableStateFlow(-1)

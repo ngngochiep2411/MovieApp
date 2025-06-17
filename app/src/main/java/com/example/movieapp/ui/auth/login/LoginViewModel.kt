@@ -1,12 +1,11 @@
 package com.example.movieapp.ui.auth.login
 
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.movieapp.repository.MainRepository
-import com.example.movieapp.util.DataStoreManager
+import com.example.movieapp.database.DatabaseManager
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -15,7 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val mainRepository: MainRepository,
-    private val dataStoreManager: DataStoreManager,
+    private val databaseManager: DatabaseManager,
 
 
     ) : ViewModel() {
@@ -31,7 +30,7 @@ class LoginViewModel @Inject constructor(
             mainRepository.login(email, password).collect {
                 _message.value = it.message
                 _login.value = it.success()
-                dataStoreManager.saveUser(Gson().toJson(it.data.user))
+                databaseManager.saveUser(Gson().toJson(it.data.user))
             }
         }
 

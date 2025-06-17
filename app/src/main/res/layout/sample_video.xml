@@ -58,6 +58,7 @@
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
             android:progressDrawable="@drawable/video_seek_progress"
+            android:progressTint="@color/primaryColor"
             android:thumb="@drawable/video_seek_thumb" />
 
         <TextView
@@ -85,8 +86,7 @@
             android:layout_height="@dimen/dp30"
             android:paddingHorizontal="@dimen/dp10"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_full_screen"
-             />
+            android:src="@drawable/ic_full_screen" />
     </LinearLayout>
 
     <ProgressBar

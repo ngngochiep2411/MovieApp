@@ -23,13 +23,6 @@ class DetailMovieViewModel @Inject constructor(
     private val _videoUrls = MutableStateFlow<List<String?>?>(null)
     val videoUrls: StateFlow<List<String?>?> = _videoUrls
 
-    private val _videoUrl = MutableStateFlow<String?>(null)
-    val videoUrl: StateFlow<String?> = _videoUrl
-
-
-    private val _currentVideoIndex = MutableLiveData<Int>(0)
-    val currentVideoIndex: LiveData<Int> = _currentVideoIndex
-
     private val _detailMovie = MutableStateFlow<DetailMovie?>(null)
     val detailMovie: StateFlow<DetailMovie?> = _detailMovie
 
@@ -42,7 +35,6 @@ class DetailMovieViewModel @Inject constructor(
                         it.linkM3u8
                     } ?: emptyList()
                     _videoUrls.value = urls
-                    _videoUrl.value = urls[0]
                 }
             }
         }

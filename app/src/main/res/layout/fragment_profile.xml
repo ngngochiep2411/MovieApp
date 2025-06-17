@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
+    android:orientation="vertical"
     tools:context=".ui.profile.ProfileFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginHorizontal="10dp"
         android:orientation="vertical">
 
@@ -30,10 +31,10 @@
                 android:id="@+id/avatar"
                 android:layout_width="@dimen/dp50"
                 android:layout_height="@dimen/dp50"
-                android:scaleType="centerCrop"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="12dp"
                 android:gravity="center"
+                android:scaleType="centerCrop"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -82,4 +83,53 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-</FrameLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/dp10"
+        android:layout_marginTop="@dimen/dp10"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="Phim đã xem gần đây"
+            android:textColor="@color/white" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_delete"
+            app:tint="@color/white" />
+    </RelativeLayout>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvHistory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp10"
+        android:layout_marginTop="@dimen/dp10"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/dp10"
+        android:layout_marginTop="@dimen/dp10"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Danh sách yêu thích"
+            android:textColor="@color/white" />
+
+    </RelativeLayout>
+
+
+</LinearLayout>

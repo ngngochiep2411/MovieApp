@@ -29,7 +29,7 @@ import com.example.movieapp.ui.comment.logic.impl.StartLoadLv1Reducer
 import com.example.movieapp.ui.comment.logic.impl.convertComment
 import com.example.movieapp.ui.comment.ui.CommentAdapter
 import com.example.movieapp.ui.comment.ui.CommentItem
-import com.example.movieapp.util.DataStoreManager
+import com.example.movieapp.database.DatabaseManager
 import com.example.movieapp.util.SharedViewModel
 import com.example.movieapp.util.Utils
 import com.example.movieapp.widgets.ReplyDialog
@@ -48,7 +48,7 @@ class CommentFragment : Fragment() {
     private var user: User? = null
 
     @Inject
-    lateinit var dataStoreManager: DataStoreManager
+    lateinit var databaseManager: DatabaseManager
     private var videoName: String? = ""
     private lateinit var binding: FragmentCommentBinding
     private lateinit var commentAdapter: CommentAdapter
@@ -81,7 +81,7 @@ class CommentFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        dataStoreManager = DataStoreManager(requireContext())
+        databaseManager = DatabaseManager(requireContext())
         videoName = arguments?.getString("videoName", null)
         if (videoName != null) {
             fetchData()
@@ -226,7 +226,7 @@ class CommentFragment : Fragment() {
             }
 
             launch {
-                dataStoreManager.userDetail.collect { userDetail ->
+                databaseManager.userDetail.collect { userDetail ->
                     user = userDetail
                     Utils.loadImage(
                         requireContext(),

@@ -23,6 +23,8 @@ import com.shuyu.gsyvideoplayer.listener.VideoAllCallBack
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
@@ -44,6 +46,9 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
     var orientationUtils: OrientationUtils? = null
     var isPlay: Boolean = false
     var isPause: Boolean = false
+
+    private val isVideoLoaded = MutableStateFlow(false)
+    private val isApiLoaded = MutableStateFlow(false)
 
     @UnstableApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,13 +113,25 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
                     )
                     viewPagerAdapter.notifyItemChanged(0, "change")
                     viewPagerAdapter.notifyItemChanged(1, "change")
+                    isApiLoaded.value = true
                 }
             }
             launch {
                 sharedViewModel.videoIndex.collect { current ->
-                    if (current != -1) {
+                    if (current != -1 && videos.isNotEmpty()) {
                         index = current
                         playVideo(videos[index])
+                    }
+                }
+            }
+
+            launch {
+                combine(isVideoLoaded, isApiLoaded) { video, api ->
+                    video && api
+                }.collect { isReady ->
+                    if (isReady) {
+                        binding.content.visibility = View.VISIBLE
+                        binding.loadingView.visibility = View.GONE
                     }
                 }
             }
@@ -224,6 +241,7 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
         //开始播放了才能旋转和全屏
         orientationUtils?.setEnable(true && !isAutoFullWithSize())
         isPlay = true
+        isVideoLoaded.value = true
     }
 
     @UnstableApi

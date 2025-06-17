@@ -2,7 +2,10 @@ package com.example.movieapp.di
 
 import android.app.Application
 import android.content.Context
-import com.example.movieapp.util.DataStoreManager
+import androidx.room.Room
+import com.example.movieapp.database.AppDatabase
+import com.example.movieapp.database.DatabaseManager
+import com.example.movieapp.database.MovieDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,7 +25,22 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDataStoreManager(@ApplicationContext context: Context): DataStoreManager {
-        return DataStoreManager(context)
+    fun provideDataStoreManager(@ApplicationContext context: Context): DatabaseManager {
+        return DatabaseManager(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
+        return Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            "kkphim_database"
+        ).build()
+    }
+
+    @Provides
+    fun provideMovieDao(database: AppDatabase): MovieDao {
+        return database.movieDao()
     }
 }

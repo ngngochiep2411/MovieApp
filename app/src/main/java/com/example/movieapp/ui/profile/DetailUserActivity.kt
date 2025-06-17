@@ -1,17 +1,13 @@
 package com.example.movieapp.ui.profile
 
-import android.annotation.SuppressLint
 import android.app.Dialog
-import android.app.ProgressDialog
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,18 +20,14 @@ import com.bumptech.glide.Glide
 import com.example.movieapp.R
 import com.example.movieapp.databinding.ActivityDetailUserBinding
 import com.example.movieapp.model.User
-import com.example.movieapp.model.UserDetail
-import com.example.movieapp.util.DataStoreManager
-import com.example.movieapp.util.LoadingDialog
+import com.example.movieapp.database.DatabaseManager
 import com.example.movieapp.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import java.io.File
 import javax.inject.Inject
 
 
@@ -84,7 +76,7 @@ class DetailUserActivity : AppCompatActivity() {
 
 
     @Inject
-    lateinit var dataStoreManager: DataStoreManager
+    lateinit var databaseManager: DatabaseManager
 
     private var userDetai: User? = null
 
@@ -192,7 +184,7 @@ class DetailUserActivity : AppCompatActivity() {
                 }
             }
             launch {
-                dataStoreManager.userDetail.collect { userDetail ->
+                databaseManager.userDetail.collect { userDetail ->
                     Utils.loadImage(binding.root.context, userDetail?.avatar_url, binding.avatar)
                     binding.edUserName.setText(userDetail?.name)
                     binding.tvEmail.text = userDetail?.email

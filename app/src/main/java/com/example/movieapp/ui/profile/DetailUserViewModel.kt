@@ -5,29 +5,22 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.movieapp.model.BaseResponse
 import com.example.movieapp.repository.MainRepository
-import com.example.movieapp.util.DataStoreManager
+import com.example.movieapp.database.DatabaseManager
 
 import com.google.gson.Gson
-import com.google.protobuf.Any
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
 class DetailUserViewModel @Inject constructor(
     private val mainRepository: MainRepository,
-    private val dataStoreManager: DataStoreManager,
+    private val databaseManager: DatabaseManager,
 ) : ViewModel(
 ) {
 
@@ -50,7 +43,7 @@ class DetailUserViewModel @Inject constructor(
                 Log.d("testing", Gson().toJson(it))
                 _message.value = it.message
                 if (it.success()) {
-                    dataStoreManager.saveUser(Gson().toJson(it.user))
+                    databaseManager.saveUser(Gson().toJson(it.user))
                 }
             }
         }

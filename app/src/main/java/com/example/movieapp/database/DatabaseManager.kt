@@ -1,4 +1,4 @@
-package com.example.movieapp.util
+package com.example.movieapp.database
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -8,17 +8,19 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.movieapp.model.User
-import com.example.movieapp.model.UserDetail
+
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-private val Context.dataStore by preferencesDataStore("user_preferences")
+class DatabaseManager @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val movieDao: MovieDao
+) {
 
-class DataStoreManager @Inject constructor(@ApplicationContext private val context: Context) {
-
+    internal val Context.dataStore by preferencesDataStore("user_preferences")
 
     private var dataStore: DataStore<Preferences> = context.dataStore
 
@@ -39,7 +41,7 @@ class DataStoreManager @Inject constructor(@ApplicationContext private val conte
     val gson = Gson()
 
 
-     suspend fun saveUser(user: String) {
+    suspend fun saveUser(user: String) {
         dataStore.edit { preferences ->
             preferences[stringPreferencesKey("user")] = user
         }
