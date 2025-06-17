@@ -46,9 +46,6 @@ import kotlin.coroutines.suspendCoroutine
 class CommentFragment : Fragment() {
 
     private var user: User? = null
-
-    @Inject
-    lateinit var databaseManager: DatabaseManager
     private var videoName: String? = ""
     private lateinit var binding: FragmentCommentBinding
     private lateinit var commentAdapter: CommentAdapter
@@ -81,7 +78,6 @@ class CommentFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        databaseManager = DatabaseManager(requireContext())
         videoName = arguments?.getString("videoName", null)
         if (videoName != null) {
             fetchData()
@@ -142,7 +138,7 @@ class CommentFragment : Fragment() {
                 comment_id = if (commentItem is CommentItem.Level1) commentItem.id
                 else (commentItem as CommentItem.Level2).parentId,
                 reply_user_id = commentItem.userId,
-                user_id = viewModel.userDetail?.id
+                user_id = viewModel.userDetail.value?.id
             )
             viewModel.repComment(
                 replyData
@@ -226,7 +222,7 @@ class CommentFragment : Fragment() {
             }
 
             launch {
-                databaseManager.userDetail.collect { userDetail ->
+                viewModel.userDetail.collect { userDetail ->
                     user = userDetail
                     Utils.loadImage(
                         requireContext(),
@@ -242,7 +238,7 @@ class CommentFragment : Fragment() {
                         commentAdapter.reduceBlock.invoke(StartLoadLv1Reducer())
                         commentAdapter.reduceBlock.invoke(
                             LoadLv1Reducer(
-                                it, viewModel.userDetail?.id
+                                it, viewModel.userDetail.value?.id
                             )
                         )
                     }
@@ -261,7 +257,7 @@ class CommentFragment : Fragment() {
                 viewModel.comment(
                     CommentData(
                         content = content,
-                        userId = viewModel.userDetail?.id,
+                        userId = viewModel.userDetail.value?.id,
                         videoName = videoName!!
                     )
                 ).collect {

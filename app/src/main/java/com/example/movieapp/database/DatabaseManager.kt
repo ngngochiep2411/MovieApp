@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.movieapp.model.MovieHistory
 import com.example.movieapp.model.User
 
 import com.google.gson.Gson
@@ -58,6 +59,11 @@ class DatabaseManager @Inject constructor(
                 gson.fromJson(json, User::class.java)
             }
         }
+
+    fun getAllHistory(): Flow<List<MovieHistory>> {
+        return movieDao.getAllMovies()
+
+    }
 
 
 }

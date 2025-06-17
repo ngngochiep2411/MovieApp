@@ -10,9 +10,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface MovieDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(movie: MovieHistory)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertHistory(movie: MovieHistory)
 
-    @Query("SELECT * FROM movie_table")
+    @Query("SELECT * FROM movie_view_history")
     fun getAllMovies(): Flow<List<MovieHistory>>
 }

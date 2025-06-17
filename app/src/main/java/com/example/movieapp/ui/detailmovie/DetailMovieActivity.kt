@@ -242,6 +242,12 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
         orientationUtils?.setEnable(true && !isAutoFullWithSize())
         isPlay = true
         isVideoLoaded.value = true
+
+        viewModel.saveMovieWatched(
+            detailMovie.movie?.thumbUrl,
+            detailMovie.movie?.slug,
+            detailMovie.movie?.name
+        )
     }
 
     @UnstableApi

@@ -31,18 +31,20 @@ class CommentViewModel @Inject constructor(
     private val _comments = MutableStateFlow<List<Comment>?>(null)
     val comments: StateFlow<List<Comment>?> = _comments
 
+
     private val _moreComments = MutableStateFlow<List<Comment>?>(null)
     val moreComments: StateFlow<List<Comment>?> = _moreComments
 
     private var currentPage = 1
     var nextPage = false
 
-    var userDetail: User? = null
+    private val _userDetail = MutableStateFlow<User?>(null)
+    val userDetail: StateFlow<User?> = _userDetail
 
     init {
         viewModelScope.launch {
             databaseManager.userDetail.collect {
-                userDetail = it
+                _userDetail.value = it
             }
         }
 

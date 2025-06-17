@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +19,10 @@ import com.bumptech.glide.Glide
 import com.example.movieapp.databinding.FragmentProfileBinding
 import com.example.movieapp.ui.auth.BottomSheetAuthFragment
 import com.example.movieapp.database.DatabaseManager
+import com.example.movieapp.model.MovieHistory
+import com.example.movieapp.ui.detailmovie.DetailMovieActivity
+import com.example.movieapp.ui.home.adapter.OnItemClickListener
+import com.example.movieapp.ui.profile.adapter.MovieViewHistoryAdapter
 import com.example.movieapp.util.Utils
 import com.example.movieapp.util.Utils.Companion.transparentStatusBar
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,16 +32,12 @@ import kotlin.getValue
 
 
 @AndroidEntryPoint
-class ProfileFragment : Fragment() {
+class ProfileFragment : Fragment(), OnItemClickListener {
 
     private lateinit var binding: FragmentProfileBinding
-
-    @Inject
-    lateinit var databaseManager: DatabaseManager
-
     private lateinit var pickImageLauncher: ActivityResultLauncher<String>
-
     private val viewModel: ProfileViewModel by viewModels()
+    private lateinit var historyAdapter: MovieViewHistoryAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -48,13 +49,8 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val layoutParams = binding.main.layoutParams as FrameLayout.LayoutParams
+        val layoutParams = binding.main.layoutParams as LinearLayout.LayoutParams
         layoutParams.topMargin = Utils.getStatusBarHeight(requireContext()) + 20
-
-        initObserver()
-
-        setOnClick()
-
         pickImageLauncher =
             registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
                 uri?.let {
@@ -63,7 +59,14 @@ class ProfileFragment : Fragment() {
                         .into(binding.avatar)
                 }
             }
-
+        historyAdapter = MovieViewHistoryAdapter()
+        historyAdapter.setOnItemClickListener(this)
+        binding.rvHistory.apply {
+            adapter = historyAdapter
+            setHasFixedSize(true)
+        }
+        setOnClick()
+        initObserver()
     }
 
 
@@ -76,7 +79,7 @@ class ProfileFragment : Fragment() {
 
         binding.tvLogOut.setOnClickListener {
             lifecycleScope.launch {
-                databaseManager.logout()
+                viewModel.logOut()
             }
         }
 
@@ -101,13 +104,30 @@ class ProfileFragment : Fragment() {
                         if (userDetail != null) View.GONE else View.VISIBLE
                 }
             }
+
+            launch {
+                viewModel.history.collect {
+                    historyAdapter.submitList(it)
+                }
+            }
         }
 
     }
 
+    private fun openActivity(movieName: String, type: Int) {
+        val intent = Intent(context, DetailMovieActivity::class.java)
+        intent.putExtra("name", movieName)
+        intent.putExtra("type", type)
+        startActivity(intent)
+    }
 
     override fun onResume() {
         super.onResume()
         (activity as? AppCompatActivity)?.transparentStatusBar()
+    }
+
+    override fun onItemClick(position: Int, type: Int?, name: String?) {
+        val name = (historyAdapter.currentList[position] as MovieHistory).slug
+        openActivity(movieName = name.toString(), type = 0)
     }
 }

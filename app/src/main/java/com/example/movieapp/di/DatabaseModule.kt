@@ -25,8 +25,11 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDataStoreManager(@ApplicationContext context: Context): DatabaseManager {
-        return DatabaseManager(context)
+    fun provideDataStoreManager(
+        @ApplicationContext context: Context,
+        movieDao: MovieDao
+    ): DatabaseManager {
+        return DatabaseManager(context, movieDao)
     }
 
     @Provides

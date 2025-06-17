@@ -103,6 +103,7 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_delete"
+            android:visibility="invisible"
             app:tint="@color/white" />
     </RelativeLayout>
 
