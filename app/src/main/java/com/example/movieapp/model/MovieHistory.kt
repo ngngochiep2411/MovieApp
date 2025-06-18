@@ -9,10 +9,9 @@ data class MovieHistory(
 //    @PrimaryKey(autoGenerate = true)
 //    val id: Int = 0,
     @PrimaryKey
-    @field:SerializedName("slug")
     val slug: String = "",
-    @field:SerializedName("thumb_url")
     val thumbUrl: String? = "",
-    @field:SerializedName("name")
     val name: String? = "",
+    val episode: Int = 0,
+    val watchedAt: Long = 0
 )

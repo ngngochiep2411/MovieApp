@@ -12,7 +12,6 @@ import com.example.movieapp.model.Category
 import com.example.movieapp.model.DetailMovie
 import com.example.movieapp.model.ServerData
 import com.example.movieapp.ui.listvideo.adapter.FlexboxAdapter
-import com.example.movieapp.ui.listvideo.adapter.ListVideoAdapter
 import com.example.movieapp.ui.listvideo.adapter.ListVideoAdapter2
 import com.example.movieapp.util.Extension.parcelable
 import com.example.movieapp.util.Extension.parcelableArrayList
@@ -30,6 +29,7 @@ class LIstVideoFragment : Fragment() {
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private var detailMovie: DetailMovie? = null
     private lateinit var flexboxAdapter: FlexboxAdapter
+    private var slug: String = ""
 
     companion object {
         fun newInstance(
@@ -66,13 +66,21 @@ class LIstVideoFragment : Fragment() {
         }
         arguments?.getString("thumb")
         adapter = ListVideoAdapter2(list, thumb) { position ->
-            sharedViewModel.changeVideoIndex(position)
+            updateCurrentVideo(position, slug)
+            updateEpisode(slug, position)
         }
         binding.recyclerView.adapter = adapter
         binding.recyclerView.setHasFixedSize(true)
         initObserver()
 
+    }
 
+    private fun updateCurrentVideo(position: Int, slug: String) {
+        sharedViewModel.changeVideoIndex(position)
+    }
+
+    fun updateEpisode(slug: String, position: Int) {
+        sharedViewModel.updateEpisode(slug, position)
     }
 
     private fun setData(detailMovie: DetailMovie) {
@@ -108,8 +116,14 @@ class LIstVideoFragment : Fragment() {
 
     }
 
-    fun updateList(list: ArrayList<ServerData>, thumb: String?, detailMovie: DetailMovie?) {
+    fun updateList(
+        list: ArrayList<ServerData>,
+        thumb: String?,
+        detailMovie: DetailMovie?,
+        slug: String
+    ) {
         adapter.submitList(list, thumb)
+        this.slug = slug
         if (detailMovie != null) {
             setData(detailMovie)
         }

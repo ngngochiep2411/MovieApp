@@ -29,6 +29,7 @@ import com.example.movieapp.network.MovieApiService
 import com.example.movieapp.util.NetworkResult
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
@@ -297,4 +298,8 @@ class MainRepository @Inject constructor(
     }.catch { e ->
         Log.d("testing", "$e")
     }
+
+//    fun getWatchedEpisodes(string: String): Flow<List<Int>> {
+//
+//    }
 }

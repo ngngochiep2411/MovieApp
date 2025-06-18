@@ -23,9 +23,14 @@ import com.shuyu.gsyvideoplayer.listener.VideoAllCallBack
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 
@@ -91,16 +96,38 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
     private fun setOnClick() {
     }
 
+    var watchedAt: Long = 0
 
     @SuppressLint("NotifyDataSetChanged")
     @UnstableApi
     private fun initObserver() {
         lifecycleScope.launch {
+
             launch {
                 viewModel.videoUrls.filterNotNull().collect { urls ->
                     videos = urls
                     Log.d("testing", "$videos")
-                    updateCurrentVideo(0)
+                    updateCurrentVideo(index)
+                    Log.d("testing1", "updateCurrentVideo")
+                }
+            }
+
+            launch {
+                viewModel.lastWatchedEpisode.collect { episode ->
+                    episode?.let {
+                        index = episode
+//                        updateCurrentVideo(index)
+//                        Log.d("testing1", "getWatchedEpisodes $episode")
+                    }
+
+                }
+            }
+
+            launch {
+                viewModel.watchedAt.collect {
+                    it?.let {
+                        watchedAt = it
+                    }
                 }
             }
             launch {
@@ -124,7 +151,6 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
                     }
                 }
             }
-
             launch {
                 combine(isVideoLoaded, isApiLoaded) { video, api ->
                     video && api
@@ -135,6 +161,7 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
                     }
                 }
             }
+
         }
     }
 
@@ -143,6 +170,11 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
     private fun playVideo(url: String?) {
         binding.playerView.setUp(url, true, "")
         binding.playerView.startPlayLogic()
+    }
+
+
+    private fun updateCurrentVideo(position: Int) {
+        sharedViewModel.changeVideoIndex(position)
     }
 
 
@@ -171,8 +203,27 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
                 this@DetailMovieActivity.onBackPressed()
             }
         })
-
     }
+
+    private var updateJob: Job? = null
+
+    fun startTrackingPlayPosition() {
+        updateJob?.cancel()
+        updateJob = CoroutineScope(Dispatchers.IO).launch {
+            while (isActive) {
+                if (binding.playerView.isInPlayingState) {
+                    val current = binding.playerView.currentPositionWhenPlaying
+                    viewModel.updateWatchedAt(movieName, current)
+                }
+                delay(1000) // đợi 1 giây rồi kiểm tra lại
+            }
+        }
+    }
+
+    private fun stopTracking() {
+        updateJob?.cancel()
+    }
+
 
     private fun initVideoBuilderMode() {
         //外部辅助的旋转，帮助全屏
@@ -216,6 +267,7 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
             true,
             true
         )
+
     }
 
 
@@ -225,9 +277,6 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
         binding.playerView.backButton.setVisibility(View.GONE)
     }
 
-    private fun updateCurrentVideo(position: Int) {
-        sharedViewModel.changeVideoIndex(position)
-    }
 
     override fun onStartPrepared(url: String?, vararg objects: Any?) {
 
@@ -248,16 +297,18 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
             detailMovie.movie?.slug,
             detailMovie.movie?.name
         )
+        startTrackingPlayPosition()
+        binding.playerView.seekTo(watchedAt)
     }
 
     @UnstableApi
     override fun onAutoComplete(url: String?, vararg objects: Any?) {
         if (index < videos.size - 1) {
             index++
-            playVideo(videos[index])
             updateCurrentVideo(index)
         }
     }
+
 
     private fun isAutoFullWithSize(): Boolean = false
 
@@ -307,9 +358,7 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
 
         // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
         // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
-        if (orientationUtils != null) {
-            orientationUtils!!.backToProtVideo()
-        }
+        orientationUtils?.backToProtVideo()
     }
 
     override fun onQuitSmallWidget(url: String?, vararg objects: Any?) {
@@ -336,6 +385,7 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
 
     }
 
+
     override fun onClickStartThumb(url: String?, vararg objects: Any?) {
 
     }
@@ -351,10 +401,7 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
     override fun onBackPressed() {
         // ------- ！！！如果不需要旋转屏幕，可以不调用！！！-------
         // 不需要屏幕旋转，还需要设置 setNeedOrientationUtils(false)
-
-        if (orientationUtils != null) {
-            orientationUtils!!.backToProtVideo()
-        }
+        orientationUtils?.backToProtVideo()
         if (GSYVideoManager.backFromWindowFull(this)) {
             return
         }
@@ -386,6 +433,7 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
             binding.playerView.getCurrentPlayer().release()
         }
         if (orientationUtils != null) orientationUtils!!.releaseListener()
+        stopTracking()
     }
 
     /**

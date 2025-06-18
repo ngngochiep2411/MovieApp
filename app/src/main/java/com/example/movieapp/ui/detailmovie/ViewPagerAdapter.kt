@@ -35,7 +35,7 @@ class ViewPagerAdapter(
             if (fragment != null && (fragment is LIstVideoFragment || fragment is CommentFragment)) {
                 when (fragment) {
                     is LIstVideoFragment -> {
-                        fragment.updateList(list, thumb, detailMovie)
+                        fragment.updateList(list, thumb, detailMovie,detailMovie?.movie?.slug!!)
                     }
                     is CommentFragment -> {
                         fragment.updateVideoName(detailMovie?.movie?.slug)
