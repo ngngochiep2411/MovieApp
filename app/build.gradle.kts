@@ -104,4 +104,6 @@ dependencies {
     implementation ("androidx.room:room-runtime:2.7.1")
     kapt ("androidx.room:room-compiler:2.7.1")
     implementation ("androidx.room:room-ktx:2.7.1")
+    implementation ("com.mikhaellopez:circularprogressbar:3.1.0")
+    implementation ("com.github.animsh:AnimatedCheckBox:1.0.0")
 }
