@@ -45,11 +45,6 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        val layoutParams = binding.search.layoutParams as LinearLayout.LayoutParams
-        layoutParams.topMargin = Utils.getStatusBarHeight(this) + 20
-        binding.search.layoutParams = layoutParams
-
         setOnClick()
         initView()
         initObserver()

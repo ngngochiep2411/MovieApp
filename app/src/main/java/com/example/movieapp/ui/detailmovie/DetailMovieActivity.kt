@@ -63,7 +63,6 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
         super.onCreate(savedInstanceState)
         binding = ActivityDetailMovieBinding.inflate(layoutInflater)
         setContentView(binding.root)
-//        binding.main.setPadding(0, Utils.getStatusBarHeight(this), 0, 0)
         movieName = intent.getStringExtra("name").toString()
         type = intent.getIntExtra("type", -1)
         fetchData()

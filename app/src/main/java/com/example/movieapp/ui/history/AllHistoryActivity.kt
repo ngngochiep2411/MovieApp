@@ -32,6 +32,13 @@ class AllHistoryActivity : AppCompatActivity() {
         binding.back.setOnClickListener {
             finish()
         }
+        binding.checkAll.setOnClickListener {
+            checkAll()
+        }
+
+        binding.delete.setOnClickListener {
+            delete()
+        }
         binding.edit.setOnClickListener {
             if (binding.edit.text == "Chỉnh sửa") {
                 binding.edit.text = "Hủy"
@@ -54,6 +61,14 @@ class AllHistoryActivity : AppCompatActivity() {
         binding.recyclerView.adapter = historyAdapter
 
         initObserver()
+    }
+
+    fun checkAll() {
+
+    }
+
+    fun delete() {
+
     }
 
     private fun initObserver() {

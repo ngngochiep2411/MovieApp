@@ -1,20 +1,12 @@
 package com.example.movieapp.ui.category
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
-import com.example.movieapp.R
 import com.example.movieapp.databinding.FragmentMovieCategoryBinding
-import com.example.movieapp.ui.detailmovie.ViewPagerAdapter
-import com.example.movieapp.util.Utils
-import com.example.movieapp.util.Utils.Companion.changeStatusBarColor
-import com.example.movieapp.util.Utils.Companion.transparentStatusBar
 import com.google.android.material.tabs.TabLayoutMediator
 
 
@@ -34,8 +26,7 @@ class MovieCategoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initViewPager()
-        val layoutParams = binding.tabLayout.layoutParams as LinearLayout.LayoutParams
-        layoutParams.topMargin = Utils.getStatusBarHeight(requireContext())
+
     }
 
     private fun initViewPager() {
@@ -68,6 +59,5 @@ class MovieCategoryFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        (activity as? AppCompatActivity)?.transparentStatusBar()
     }
 }

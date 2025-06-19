@@ -7,14 +7,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RelativeLayout
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
-import com.example.movieapp.R
 import com.example.movieapp.databinding.FragmentHomeBinding
 import com.example.movieapp.model.Banner
 import com.example.movieapp.ui.detailmovie.DetailMovieActivity
@@ -27,8 +23,6 @@ import com.example.movieapp.ui.home.adapter.HomeAdapter.Companion.VIEW_TYPE_TV_S
 import com.example.movieapp.ui.home.adapter.OnItemClickListener
 import com.example.movieapp.ui.search.SearchActivity
 import com.example.movieapp.util.NetworkResult
-import com.example.movieapp.util.Utils
-import com.example.movieapp.util.Utils.Companion.transparentStatusBar
 import com.example.movieapp.widgets.ToolbarHome
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -70,8 +64,6 @@ class HomeFragment : Fragment(), OnItemClickListener, ToolbarHome.OnItemClickLis
     }
 
     private fun initView() {
-        val layoutParams = binding.toolBar.layoutParams as RelativeLayout.LayoutParams
-        layoutParams.topMargin = Utils.getStatusBarHeight(requireContext())
         homeAdapter.setOnItemClickListener(this)
         binding.rvList.adapter = homeAdapter
         binding.rvList.addOnScrollListener(object : OnScrollListener() {
@@ -191,6 +183,5 @@ class HomeFragment : Fragment(), OnItemClickListener, ToolbarHome.OnItemClickLis
 
     override fun onResume() {
         super.onResume()
-        (activity as? AppCompatActivity)?.transparentStatusBar()
     }
 }

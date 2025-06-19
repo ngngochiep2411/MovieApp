@@ -58,10 +58,10 @@ class HistoryAdapter(
                 binding.imgThumb
             )
             if (canDelete) {
-                binding.checkbox.visibility = View.VISIBLE
+                binding.rlCheckBox.visibility = View.VISIBLE
                 binding.checkbox.isChecked = false
             } else {
-                binding.checkbox.visibility = View.GONE
+                binding.rlCheckBox.visibility = View.GONE
                 binding.checkbox.isChecked = false
             }
 

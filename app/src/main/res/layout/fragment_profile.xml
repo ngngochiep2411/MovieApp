@@ -132,16 +132,29 @@
             android:visibility="invisible"
             app:tint="@color/white" />
 
-        <TextView
+        <LinearLayout
             android:id="@+id/tvMore"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:drawableEnd="@drawable/arrow_right"
-            android:drawableTint="@color/textGray"
-            android:text="Xem thêm"
-            android:textAlignment="center"
-            android:textColor="@color/textGray" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="Xem thêm"
+                android:textColor="@color/textGray" />
+
+            <ImageView
+                android:layout_width="@dimen/dp20"
+                android:layout_height="@dimen/dp20"
+                android:layout_gravity="center_vertical"
+                android:drawableTint="@color/textGray"
+                android:src="@drawable/arrow_right" />
+        </LinearLayout>
+
+
     </RelativeLayout>
 
 

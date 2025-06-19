@@ -90,9 +90,7 @@ class DetailUserActivity : AppCompatActivity() {
         loadingDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         loadingDialog.setCancelable(true)
 
-        val layoutParams = binding.toolBar.layoutParams as ConstraintLayout.LayoutParams
-        layoutParams.topMargin = Utils.getStatusBarHeight(this)
-        binding.toolBar.layoutParams = layoutParams
+
 
         initObserver()
         setOnClick()

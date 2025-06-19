@@ -7,29 +7,22 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.LinearLayout
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.movieapp.databinding.FragmentProfileBinding
-import com.example.movieapp.ui.auth.BottomSheetAuthFragment
-import com.example.movieapp.database.DatabaseManager
 import com.example.movieapp.model.MovieHistory
+import com.example.movieapp.ui.auth.BottomSheetAuthFragment
 import com.example.movieapp.ui.detailmovie.DetailMovieActivity
 import com.example.movieapp.ui.history.AllHistoryActivity
 import com.example.movieapp.ui.home.adapter.OnItemClickListener
 import com.example.movieapp.ui.profile.adapter.MovieViewHistoryAdapter
 import com.example.movieapp.util.Utils
-import com.example.movieapp.util.Utils.Companion.transparentStatusBar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import kotlin.getValue
 
 
 @AndroidEntryPoint
@@ -50,8 +43,7 @@ class ProfileFragment : Fragment(), OnItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val layoutParams = binding.main.layoutParams as LinearLayout.LayoutParams
-        layoutParams.topMargin = Utils.getStatusBarHeight(requireContext()) + 20
+
         pickImageLauncher =
             registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
                 uri?.let {
@@ -129,7 +121,6 @@ class ProfileFragment : Fragment(), OnItemClickListener {
 
     override fun onResume() {
         super.onResume()
-        (activity as? AppCompatActivity)?.transparentStatusBar()
     }
 
     override fun onItemClick(position: Int, type: Int?, name: String?) {
