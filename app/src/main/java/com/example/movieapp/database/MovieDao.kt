@@ -20,7 +20,7 @@ interface MovieDao {
     fun getWatchedEpisodes(slug: String): Flow<Int>
 
     @Query("SELECT watchedAt FROM movie_view_history WHERE slug = :slug")
-    fun getWatchedAt(slug: String): Flow<Long>
+    fun getWatchedAt(slug: String): Flow<Long?>
 
     @Query("UPDATE movie_view_history SET episode = :episode WHERE slug = :slug")
     suspend fun updateEpisode(slug: String, episode: Int)

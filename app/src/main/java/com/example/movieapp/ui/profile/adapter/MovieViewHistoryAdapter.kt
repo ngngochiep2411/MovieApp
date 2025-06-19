@@ -1,5 +1,6 @@
 package com.example.movieapp.ui.profile.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -41,7 +42,14 @@ class MovieViewHistoryAdapter() : ListAdapter<MovieHistory, RecyclerView.ViewHol
             )
             binding.movieName.text = movie?.name
 
+            binding.tvTotalTime.text = movie?.total
+                ?: "00:00"
 
+            val progress =
+                (movie?.watchedAt ?: 0).toDouble() / (movie?.duration ?: 0).toDouble() * 100
+            Log.d("testing", "progress $progress")
+            binding.progressBar.progress = (progress).toInt()
+            binding.episode.text = "Xem đến tập ${(movie?.episode)?.plus(1)}"
             binding.root.layoutParams.width =
                 (Utils.getScreenWidth(binding.root.context) / (2.5) - 20).toInt()
 

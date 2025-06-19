@@ -8,10 +8,14 @@ import com.example.movieapp.model.MovieHistory
 import com.example.movieapp.repository.MainRepository
 import com.example.movieapp.util.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,32 +36,55 @@ class DetailMovieViewModel @Inject constructor(
     private val _watchedAt = MutableStateFlow<Long?>(null)
     val watchedAt: StateFlow<Long?> = _watchedAt
 
+
     fun getData(slug: String) {
         viewModelScope.launch {
-            val lastWatchedEpisode = movieDao.getWatchedEpisodes(slug).firstOrNull()
-            _lastWatchedEpisode.value = lastWatchedEpisode
+            getLastWatchedEpisode(slug)
+            getWatchedAt(slug)
+            getMovie(slug)
+        }
+    }
 
-            val watchedAt = movieDao.getWatchedAt(slug).firstOrNull()
-            _watchedAt.value = watchedAt
+    suspend fun getWatchedAt(slug: String) {
+        val watchedAt = withContext(Dispatchers.IO) {
+            movieDao.getWatchedAt(slug).firstOrNull()
+        }
+        _watchedAt.value = watchedAt
+    }
 
-            mainRepository.getDetailMovie(name = slug).collect { response ->
-                if (response is NetworkResult.Success) {
-                    _detailMovie.value = response.data
-                    val urls = response.data.episodes?.get(0)?.serverData?.map {
-                        it.linkM3u8
-                    } ?: emptyList()
-                    _videoUrls.value = urls
-                }
+    suspend fun getLastWatchedEpisode(slug: String) {
+        val episode = withContext(Dispatchers.IO) {
+            movieDao.getWatchedEpisodes(slug).firstOrNull()
+        }
+        _lastWatchedEpisode.value = episode
+    }
+
+    suspend fun getMovie(slug: String) {
+        mainRepository.getDetailMovie(name = slug).collect { response ->
+            if (response is NetworkResult.Success) {
+                _detailMovie.value = response.data
+                val urls = response.data.episodes?.get(0)?.serverData?.map {
+                    it.linkM3u8
+                } ?: emptyList()
+                _videoUrls.value = urls
             }
         }
     }
 
-    fun saveMovieWatched(thumbUrl: String?, slug: String?, name: String?) {
+    fun saveMovieWatched(
+        thumbUrl: String?,
+        slug: String?,
+        name: String?,
+        duration: Long,
+        total: String
+    ) {
         viewModelScope.launch {
             val movie = MovieHistory(
                 thumbUrl = thumbUrl,
                 name = name,
-                slug = slug.toString()
+                slug = slug.toString(),
+                duration = duration,
+                total = total
             )
             movieDao.insertHistory(movie)
         }

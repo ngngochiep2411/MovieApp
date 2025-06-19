@@ -16,30 +16,41 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+
             <ImageView
                 android:id="@+id/imgThumb"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp170"
+                android:layout_height="@dimen/dp100"
                 android:scaleType="centerCrop"
                 android:src="@drawable/thumb2"
                 app:layout_constraintTop_toTopOf="parent" />
-
 
             <TextView
                 android:id="@+id/tvTotalTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:background="@drawable/bg_movie_item"
-                android:padding="1dp"
+                android:layout_marginEnd="@dimen/dp4"
+                android:layout_marginBottom="@dimen/dp4"
+                android:background="#191d1b"
+                android:padding="3dp"
                 android:textColor="@color/white"
                 android:textSize="10sp"
-                android:visibility="invisible"
+                app:layout_constraintBottom_toTopOf="@+id/progressBar"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 tools:text="15 phút" />
 
-
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginTop="1dp"
+                android:layout_marginBottom="-3dp"
+                android:backgroundTint="@color/primaryColor"
+                android:max="100"
+                android:progressTint="@color/primaryColor"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:progress="50" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
@@ -50,10 +61,21 @@
         android:layout_marginHorizontal="@dimen/dp4"
         android:layout_marginTop="@dimen/dp4"
         android:ellipsize="end"
-        android:maxLines="2"
-        android:minLines="2"
-        android:text="Người Học Việc"
-        android:textColor="@color/textGray"
-        android:textSize="12sp" />
+        android:maxLines="1"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        tools:text="Người Học Việc" />
 
+
+    <TextView
+        android:id="@+id/episode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/dp4"
+        android:layout_marginTop="@dimen/dp4"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/textGray"
+        android:textSize="12sp"
+        tools:text="Xem đến tập 1" />
 </LinearLayout>

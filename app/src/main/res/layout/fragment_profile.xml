@@ -23,7 +23,7 @@
             android:layout_marginTop="@dimen/dp10"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -68,16 +68,41 @@
                 android:textStyle="bold" />
         </RelativeLayout>
 
-        <TextView
+        <LinearLayout
             android:id="@+id/tvSignInout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dp10"
-            android:text="Đăng nhập/Đăng ký"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:orientation="horizontal"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:layout_width="@dimen/dp70"
+                android:layout_height="@dimen/dp70"
+                android:layout_centerVertical="true"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/avatar"
+                android:gravity="center"
+                android:scaleType="centerCrop"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+                tools:text="S" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="@dimen/dp10"
+                android:text="Đăng nhập/ Đăng ký"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent" />
+        </LinearLayout>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -87,7 +112,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/dp10"
-        android:layout_marginTop="@dimen/dp10"
+        android:layout_marginTop="@dimen/dp20"
         android:orientation="horizontal">
 
         <TextView
@@ -95,7 +120,8 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:text="Phim đã xem gần đây"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            android:textStyle="bold" />
 
         <ImageView
             android:layout_width="wrap_content"
@@ -105,6 +131,17 @@
             android:src="@drawable/ic_delete"
             android:visibility="invisible"
             app:tint="@color/white" />
+
+        <TextView
+            android:id="@+id/tvMore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:drawableEnd="@drawable/arrow_right"
+            android:drawableTint="@color/textGray"
+            android:text="Xem thêm"
+            android:textAlignment="center"
+            android:textColor="@color/textGray" />
     </RelativeLayout>
 
 
@@ -112,25 +149,11 @@
         android:id="@+id/rvHistory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/dp10"
-        android:layout_marginTop="@dimen/dp10"
-        android:orientation="horizontal"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/dp10"
-        android:layout_marginTop="@dimen/dp10"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Danh sách yêu thích"
-            android:textColor="@color/white" />
-
-    </RelativeLayout>
+        android:layout_marginTop="@dimen/dp5"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/layout_item_movie_history" />
 
 
 </LinearLayout>

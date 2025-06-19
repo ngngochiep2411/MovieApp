@@ -7,11 +7,13 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.util.UnstableApi
 import androidx.viewpager2.widget.ViewPager2
+import com.example.movieapp.R
 import com.example.movieapp.databinding.ActivityDetailMovieBinding
 import com.example.movieapp.model.DetailMovie
 import com.example.movieapp.util.SharedViewModel
@@ -54,6 +56,7 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
 
     private val isVideoLoaded = MutableStateFlow(false)
     private val isApiLoaded = MutableStateFlow(false)
+    var seekTo = true
 
     @UnstableApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -215,7 +218,7 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
                     val current = binding.playerView.currentPositionWhenPlaying
                     viewModel.updateWatchedAt(movieName, current)
                 }
-                delay(1000) // đợi 1 giây rồi kiểm tra lại
+                delay(1000)
             }
         }
     }
@@ -295,10 +298,15 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
         viewModel.saveMovieWatched(
             detailMovie.movie?.thumbUrl,
             detailMovie.movie?.slug,
-            detailMovie.movie?.name
+            detailMovie.movie?.name,
+            duration = binding.playerView.duration,
+            total = binding.playerView.findViewById<TextView>(R.id.total).text.toString()
         )
         startTrackingPlayPosition()
-        binding.playerView.seekTo(watchedAt)
+
+        if (seekTo) {
+            binding.playerView.seekTo(watchedAt)
+        }
     }
 
     @UnstableApi
@@ -452,4 +460,9 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
             )
         }
     }
+
+    fun updateChangVideo(seekTo: Boolean) {
+        this.seekTo = seekTo
+    }
+
 }

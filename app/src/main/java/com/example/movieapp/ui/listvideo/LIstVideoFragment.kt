@@ -7,10 +7,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.viewpager2.widget.ViewPager2
+import com.example.movieapp.R
 import com.example.movieapp.databinding.FragmentLIstVideoBinding
 import com.example.movieapp.model.Category
 import com.example.movieapp.model.DetailMovie
 import com.example.movieapp.model.ServerData
+import com.example.movieapp.ui.detailmovie.DetailMovieActivity
 import com.example.movieapp.ui.listvideo.adapter.FlexboxAdapter
 import com.example.movieapp.ui.listvideo.adapter.ListVideoAdapter2
 import com.example.movieapp.util.Extension.parcelable
@@ -68,6 +71,7 @@ class LIstVideoFragment : Fragment() {
         adapter = ListVideoAdapter2(list, thumb) { position ->
             updateCurrentVideo(position, slug)
             updateEpisode(slug, position)
+            updateWatchedAt()
         }
         binding.recyclerView.adapter = adapter
         binding.recyclerView.setHasFixedSize(true)
@@ -81,6 +85,11 @@ class LIstVideoFragment : Fragment() {
 
     fun updateEpisode(slug: String, position: Int) {
         sharedViewModel.updateEpisode(slug, position)
+    }
+
+    fun updateWatchedAt() {
+        val activity = activity as DetailMovieActivity
+        activity.updateChangVideo(false)
     }
 
     private fun setData(detailMovie: DetailMovie) {

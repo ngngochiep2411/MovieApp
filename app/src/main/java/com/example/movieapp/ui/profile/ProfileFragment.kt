@@ -21,6 +21,7 @@ import com.example.movieapp.ui.auth.BottomSheetAuthFragment
 import com.example.movieapp.database.DatabaseManager
 import com.example.movieapp.model.MovieHistory
 import com.example.movieapp.ui.detailmovie.DetailMovieActivity
+import com.example.movieapp.ui.history.AllHistoryActivity
 import com.example.movieapp.ui.home.adapter.OnItemClickListener
 import com.example.movieapp.ui.profile.adapter.MovieViewHistoryAdapter
 import com.example.movieapp.util.Utils
@@ -89,6 +90,11 @@ class ProfileFragment : Fragment(), OnItemClickListener {
                 requireActivity().supportFragmentManager,
                 BottomSheetAuthFragment.TAG
             )
+        }
+
+        binding.tvMore.setOnClickListener {
+            val intent = Intent(context, AllHistoryActivity::class.java)
+            startActivity(intent)
         }
     }
 

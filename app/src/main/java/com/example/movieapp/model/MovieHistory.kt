@@ -13,5 +13,7 @@ data class MovieHistory(
     val thumbUrl: String? = "",
     val name: String? = "",
     val episode: Int = 0,
-    val watchedAt: Long = 0
+    val watchedAt: Long = 0,
+    val duration: Long = 0,
+    val total: String = ""
 )

@@ -44,5 +44,10 @@ class SharedViewModel @Inject constructor(
         }
     }
 
+    fun updateWatchedAt(slug: String, current: Long) {
+        viewModelScope.launch {
+            movieDao.updateWatchedAt(current, slug)
+        }
+    }
 
 }
