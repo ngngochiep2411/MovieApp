@@ -65,6 +65,24 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
         mChangeRotate = (TextView) findViewById(R.id.change_rotate);
         mChangeTransform = (TextView) findViewById(R.id.change_transform);
 
+        findViewById(R.id.next).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (videoControlListener != null) {
+                    videoControlListener.onNextVideo();
+                }
+            }
+        });
+
+        findViewById(R.id.previous).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (videoControlListener != null) {
+                    videoControlListener.onPreviousVideo();
+                }
+            }
+        });
+
         //切换清晰度
         mMoreScale.setOnClickListener(new OnClickListener() {
             @Override
@@ -262,5 +280,15 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
             mTextureView.requestLayout();
     }
 
+    public interface OnVideoControlListener {
+        void onNextVideo();
 
+        void onPreviousVideo();
+    }
+
+    private OnVideoControlListener videoControlListener;
+
+    public void setVideoControlListener(OnVideoControlListener listener) {
+        this.videoControlListener = listener;
+    }
 }

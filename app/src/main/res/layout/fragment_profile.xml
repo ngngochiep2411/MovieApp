@@ -81,7 +81,7 @@
                 android:layout_height="@dimen/dp70"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center_vertical"
-                android:background="@drawable/avatar"
+                android:background="@drawable/ic_logo"
                 android:gravity="center"
                 android:scaleType="centerCrop"
                 android:textColor="@color/black"

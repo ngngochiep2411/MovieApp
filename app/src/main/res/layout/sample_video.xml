@@ -106,6 +106,24 @@
         android:layout_marginTop="6dp"
         android:visibility="gone" />
 
+    <ImageView
+        android:id="@+id/previous"
+        android:layout_width="@dimen/dp40"
+        android:layout_height="@dimen/dp40"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="60dp"
+        android:layout_toStartOf="@id/loading"
+        android:src="@drawable/media3_icon_previous" />
+
+    <ImageView
+        android:id="@+id/next"
+        android:layout_width="@dimen/dp40"
+        android:layout_height="@dimen/dp40"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="60dp"
+        android:layout_toEndOf="@id/loading"
+        android:src="@drawable/media3_icon_next" />
+
     <moe.codeest.enviews.ENDownloadView
         android:id="@+id/loading"
         android:layout_width="28dp"

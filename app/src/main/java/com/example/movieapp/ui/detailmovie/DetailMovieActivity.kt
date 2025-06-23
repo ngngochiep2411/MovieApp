@@ -17,6 +17,7 @@ import com.example.movieapp.R
 import com.example.movieapp.databinding.ActivityDetailMovieBinding
 import com.example.movieapp.model.DetailMovie
 import com.example.movieapp.util.SharedViewModel
+import com.example.movieapp.widgets.SampleControlVideo
 import com.google.android.material.tabs.TabLayoutMediator
 import com.shuyu.gsyvideoplayer.GSYVideoManager
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder
@@ -108,9 +109,7 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
             launch {
                 viewModel.videoUrls.filterNotNull().collect { urls ->
                     videos = urls
-                    Log.d("testing", "$videos")
                     updateCurrentVideo(index)
-                    Log.d("testing1", "updateCurrentVideo")
                 }
             }
 
@@ -118,8 +117,6 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
                 viewModel.lastWatchedEpisode.collect { episode ->
                     episode?.let {
                         index = episode
-//                        updateCurrentVideo(index)
-//                        Log.d("testing1", "getWatchedEpisodes $episode")
                     }
 
                 }
@@ -205,6 +202,18 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
                 this@DetailMovieActivity.onBackPressed()
             }
         })
+
+        binding.playerView.setVideoControlListener(object :
+            SampleControlVideo.OnVideoControlListener {
+            override fun onNextVideo() {
+                nextVideo()
+            }
+
+            override fun onPreviousVideo() {
+                previousVideo()
+            }
+
+        })
     }
 
     private var updateJob: Job? = null
@@ -255,6 +264,19 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
 
     }
 
+    fun nextVideo() {
+        if (index < videos.size - 1) {
+            index++
+            updateCurrentVideo(index)
+        }
+    }
+
+    fun previousVideo() {
+        if (index > 0) {
+            index--
+            updateCurrentVideo(index)
+        }
+    }
 
     fun showFull() {
         if (orientationUtils!!.isLand != 1) {
@@ -310,12 +332,8 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
 
     @UnstableApi
     override fun onAutoComplete(url: String?, vararg objects: Any?) {
-        if (index < videos.size - 1) {
-            index++
-            updateCurrentVideo(index)
-        }
+        nextVideo()
     }
-
 
     private fun isAutoFullWithSize(): Boolean = false
 
