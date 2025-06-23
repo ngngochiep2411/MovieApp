@@ -148,6 +148,44 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
         resolveTransform();
     }
 
+    @Override
+    protected void hideAllWidget() {
+        super.hideAllWidget();
+        findViewById(R.id.next).setVisibility(INVISIBLE);
+        findViewById(R.id.previous).setVisibility(INVISIBLE);
+    }
+
+    @Override
+    protected void lockTouchLogic() {
+        super.lockTouchLogic();
+        updateNextPrevVisibility();
+    }
+
+
+    @Override
+    protected void changeUiToPlayingShow() {
+        super.changeUiToPlayingShow();
+        updateNextPrevVisibility();
+    }
+
+    @Override
+    protected void changeUiToPauseShow() {
+        super.changeUiToPauseShow();
+        updateNextPrevVisibility();
+    }
+
+    private void updateNextPrevVisibility() {
+        if (mLockCurScreen) {
+            findViewById(R.id.next).setVisibility(View.INVISIBLE);
+            findViewById(R.id.previous).setVisibility(View.INVISIBLE);
+            findViewById(R.id.start).setVisibility(View.INVISIBLE);
+        } else {
+            findViewById(R.id.next).setVisibility(View.VISIBLE);
+            findViewById(R.id.previous).setVisibility(View.VISIBLE);
+            findViewById(R.id.start).setVisibility(View.VISIBLE);
+        }
+    }
+
     /**
      * 处理显示逻辑
      */

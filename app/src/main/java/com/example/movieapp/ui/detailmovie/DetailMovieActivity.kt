@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import androidx.core.view.isVisible
 
 
 @AndroidEntryPoint
@@ -416,11 +417,23 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
     }
 
     override fun onClickBlank(url: String?, vararg objects: Any?) {
+        Log.d("testing", "aaa")
+        updateView()
+    }
 
+    fun updateView() {
+        Log.d("testing", "${binding.playerView.startButton.isVisible}")
+        if (binding.playerView.startButton.isVisible) {
+            binding.playerView.findViewById<View>(R.id.next).visibility = View.INVISIBLE
+            binding.playerView.findViewById<View>(R.id.previous).visibility = View.INVISIBLE
+        } else {
+            binding.playerView.findViewById<View>(R.id.next).visibility = View.VISIBLE
+            binding.playerView.findViewById<View>(R.id.previous).visibility = View.VISIBLE
+        }
     }
 
     override fun onClickBlankFullscreen(url: String?, vararg objects: Any?) {
-
+        updateView()
     }
 
     override fun onBackPressed() {

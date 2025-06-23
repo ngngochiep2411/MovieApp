@@ -24,6 +24,12 @@ import com.example.movieapp.ui.comment.logic.impl.FoldReducer
 import com.example.movieapp.ui.comment.ui.CommentItem.Folding.State
 import com.example.movieapp.util.TimeAGO
 import com.example.movieapp.util.Utils
+import org.ocpsoft.prettytime.PrettyTime
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 
 class CommentAdapter(
@@ -119,6 +125,20 @@ class CommentAdapter(
     }
 }
 
+fun getTimeAgoWithPrettyTime(isoTime: String): String {
+
+    return try {
+        val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
+        isoFormat.timeZone = TimeZone.getTimeZone("UTC")
+
+        val date = isoFormat.parse(isoTime) ?: return ""
+        val prettyTime = PrettyTime(Locale("vi"))
+        prettyTime.format(date)
+    } catch (e: Exception) {
+        ""
+    }
+}
+
 abstract class VH(itemView: View, protected val reduceBlock: Reducer.() -> Unit) :
     ViewHolder(itemView) {
     abstract fun onBind(item: CommentItem)
@@ -138,7 +158,7 @@ class Level1VH(
             data.avatar_url,
             binding.avatar
         )
-        binding.timeComment.text = TimeAGO.convertString(data.time)
+        binding.timeComment.text = getTimeAgoWithPrettyTime(data.time)
         binding.unLike.setImageResource(if (data.unLike) R.drawable.ic_unlike_selected else R.drawable.ic_unlike)
         binding.imgLike.setImageResource(if (data.like) R.drawable.ic_favorite_selected else R.drawable.ic_favorite)
         binding.tvLike.text = data.likeCount.toString()
@@ -196,7 +216,7 @@ class Level2VH(
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBind(item: CommentItem) {
         val data = item as CommentItem.Level2
-        binding.timeComment.text = TimeAGO.convertString(data.time)
+        binding.timeComment.text = getTimeAgoWithPrettyTime(data.time)
         Utils.loadImage(
             binding.root.context,
             data.avatar_url,

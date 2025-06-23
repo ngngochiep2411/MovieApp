@@ -7,30 +7,36 @@ import androidx.annotation.RequiresApi
 import com.google.type.DateTime
 import java.time.Duration
 import java.time.Instant
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.Date
 import java.util.Locale
 
 object TimeAGO {
 
 
-    fun convertString(dateTime: String): String {
-        val now = Date()
-        val cleanedString = dateTime.replace(".000000Z", "+0000")
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault())
-        sdf.timeZone = TimeZone.getTimeZone("UTC")
-        val date: Date = sdf.parse(cleanedString)
-        val seconds = (now.time - date.time) / 1000
+    fun getTimeAgo(isoTime: String): String {
+        val formatter = DateTimeFormatter.ISO_DATE_TIME
+        val inputTime = ZonedDateTime.parse(isoTime, formatter)
+        val now = ZonedDateTime.now(ZoneOffset.UTC)
+
+        val seconds = ChronoUnit.SECONDS.between(inputTime, now)
+        val minutes = ChronoUnit.MINUTES.between(inputTime, now)
+        val hours = ChronoUnit.HOURS.between(inputTime, now)
+        val days = ChronoUnit.DAYS.between(inputTime, now)
+        val months = ChronoUnit.MONTHS.between(inputTime, now)
+        val years = ChronoUnit.YEARS.between(inputTime, now)
 
         return when {
-            seconds < 60 -> "${seconds} giây trước"
-            seconds < 60 * 60 -> "${seconds / 60} phút trước"
-            seconds < 60 * 60 * 24 -> "${seconds / 3600} giờ trước"
-            seconds < 60 * 60 * 24 * 30 -> "${seconds / 86400} ngày trước"
-            seconds < 60 * 60 * 24 * 30 * 12 -> "${seconds / 2592000} tháng trước"
-            else -> "${seconds / 60 * 60 * 24 * 30 * 12} năm trước"
+            seconds < 60 -> "$seconds giây trước"
+            minutes < 60 -> "$minutes phút trước"
+            hours < 24 -> "$hours giờ trước"
+            days < 30 -> "$days ngày trước"
+            months < 12 -> "$months tháng trước"
+            else -> "$years năm trước"
         }
-
     }
 
 }
