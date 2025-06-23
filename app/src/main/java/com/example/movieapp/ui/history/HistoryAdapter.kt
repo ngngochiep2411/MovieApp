@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.animsh.animatedcheckbox.AnimatedCheckBox
+import com.animsh.animatedcheckbox.AnimatedCheckBox.OnCheckedChangeListener
 import com.example.movieapp.databinding.LayoutItemHistoryBinding
 import com.example.movieapp.model.MovieHistory
 import com.example.movieapp.ui.home.adapter.OnItemClickListener
@@ -13,7 +15,9 @@ import com.example.movieapp.util.Utils
 
 
 class HistoryAdapter(
-    private var canDelete: Boolean = false
+    private var canDelete: Boolean = false,
+    private var listCheck: ArrayList<Boolean>,
+    private var lastCanDelete: Boolean = false
 ) : ListAdapter<MovieHistory, HistoryAdapter.HistoryViewHolder>(object :
     DiffUtil.ItemCallback<MovieHistory>() {
     override fun areItemsTheSame(
@@ -25,7 +29,7 @@ class HistoryAdapter(
     override fun areContentsTheSame(
         oldItem: MovieHistory, newItem: MovieHistory
     ): Boolean {
-        return oldItem == newItem
+        return oldItem == newItem && lastCanDelete == canDelete
     }
 
 
@@ -73,6 +77,16 @@ class HistoryAdapter(
             binding.tvWatchedAt.text = "Đã xem ${progression.toInt()}%"
             binding.progressBar.progress = progression.toFloat()
 
+            binding.checkbox.isChecked = listCheck[position]
+            binding.checkbox.setOnCheckedChangeListener(object : OnCheckedChangeListener {
+                override fun onCheckedChanged(
+                    checkBox: AnimatedCheckBox?,
+                    isChecked: Boolean
+                ) {
+                    listCheck[position] = isChecked
+                }
+
+            })
 
             binding.root.setOnClickListener {
                 onItemClickListener?.onItemClick(position)
@@ -80,7 +94,9 @@ class HistoryAdapter(
         }
     }
 
+
     fun setCanEdit(canDelete: Boolean) {
+        lastCanDelete = canDelete
         this.canDelete = canDelete
     }
 
@@ -89,5 +105,11 @@ class HistoryAdapter(
 
     fun setOnItemClickListener(onItemClickListener: OnItemClickListener) {
         this.onItemClickListener = onItemClickListener
+    }
+
+    fun resetListChecked() {
+        for (i in listCheck.indices) {
+            listCheck[i] = false
+        }
     }
 }

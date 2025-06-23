@@ -21,6 +21,7 @@ class AllHistoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAllHistoryBinding
     private lateinit var historyAdapter: HistoryAdapter
     private val viewModel by viewModels<HistoryViewModel>()
+    private var listCheck = ArrayList<Boolean>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,16 +44,20 @@ class AllHistoryActivity : AppCompatActivity() {
             if (binding.edit.text == "Chỉnh sửa") {
                 binding.edit.text = "Hủy"
                 historyAdapter.setCanEdit(true)
+                historyAdapter.resetListChecked()
                 historyAdapter.notifyDataSetChanged()
             } else if (binding.edit.text == "Hủy") {
                 binding.edit.text = "Chỉnh sửa"
+                historyAdapter.resetListChecked()
                 historyAdapter.setCanEdit(false)
                 historyAdapter.notifyDataSetChanged()
             }
         }
 
 
-        historyAdapter = HistoryAdapter()
+
+
+        historyAdapter = HistoryAdapter(listCheck = listCheck)
         historyAdapter.setOnItemClickListener(object : OnItemClickListener {
             override fun onItemClick(position: Int, type: Int?, name: String?) {
                 openActivity(historyAdapter.currentList[position].slug, -1)
@@ -64,17 +69,41 @@ class AllHistoryActivity : AppCompatActivity() {
     }
 
     fun checkAll() {
+        for (i in listCheck.indices) {
+            listCheck[i] = true
+        }
+        val newList = historyAdapter.currentList.toMutableList()
+        historyAdapter.setCanEdit(true)
 
+//        historyAdapter.submitList(newList)
+        historyAdapter.notifyDataSetChanged()
     }
 
     fun delete() {
-
+        val listDelete = ArrayList<String>()
+        for (i in listCheck.indices) {
+            if (listCheck[i]) {
+                listDelete.add(historyAdapter.currentList[i].slug)
+            }
+        }
+        listCheck.clear()
+        viewModel.deleteMovies(listDelete)
     }
 
     private fun initObserver() {
         lifecycleScope.launchWhenResumed {
             viewModel.history.collect {
+                if (listCheck.isNotEmpty()) {
+                    listCheck.clear()
+                }
+                for (i in it.indices) {
+                    listCheck.add(false)
+                }
                 historyAdapter.submitList(it)
+            }
+
+            viewModel.movieList.collect { updatedList ->
+                historyAdapter.submitList(updatedList)
             }
         }
     }

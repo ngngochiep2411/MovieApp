@@ -6,10 +6,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
+import androidx.viewpager2.widget.ViewPager2
 import com.example.movieapp.R
 import com.example.movieapp.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.core.view.get
 
 
 @AndroidEntryPoint
@@ -29,11 +31,32 @@ class MainActivity : AppCompatActivity() {
 
     private fun setUpBottomNavigation() {
 
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val navController: NavController = navHostFragment.navController
-        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        NavigationUI.setupWithNavController(bottomNavigationView, navController)
+//        val navHostFragment =
+//            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+//        val navController: NavController = navHostFragment.navController
+//        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+//        NavigationUI.setupWithNavController(bottomNavigationView, navController)
+
+        binding.viewPager2.adapter = MainAdapter(this)
+        binding.viewPager2.isUserInputEnabled = false
+
+        // BottomNav -> ViewPager
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.home -> binding.viewPager2.currentItem = 0
+                R.id.category -> binding.viewPager2.currentItem = 1
+                R.id.profile -> binding.viewPager2.currentItem = 2
+            }
+            true
+        }
+
+        // ViewPager -> BottomNav (optional, if swipe is enabled)
+        binding.viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                binding.bottomNavigation.menu[position].isChecked = true
+            }
+        })
 
     }
 

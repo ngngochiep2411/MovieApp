@@ -27,4 +27,7 @@ interface MovieDao {
 
     @Query("UPDATE movie_view_history SET watchedAt = :watchedAt WHERE slug = :slug")
     suspend fun updateWatchedAt(watchedAt: Long, slug: String)
+
+    @Query("DELETE FROM movie_view_history WHERE slug IN (:slugs)")
+    suspend fun deleteMovies(slugs: List<String>)
 }

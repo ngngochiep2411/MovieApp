@@ -13,6 +13,7 @@
     <dimen name="dp10">10dp</dimen>
     <dimen name="dp11">11dp</dimen>
     <dimen name="dp12">12dp</dimen>
+    <dimen name="dp15">15dp</dimen>
     <dimen name="dp30">30dp</dimen>
     <dimen name="dp50">50dp</dimen>
     <dimen name="dp70">70dp</dimen>
