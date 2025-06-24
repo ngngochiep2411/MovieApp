@@ -1,5 +1,6 @@
 package com.example.movieapp.ui.comment.ui
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
@@ -22,11 +23,9 @@ import com.example.movieapp.ui.comment.logic.Reducer
 import com.example.movieapp.ui.comment.logic.impl.ExpandReplyLoadedReducer
 import com.example.movieapp.ui.comment.logic.impl.FoldReducer
 import com.example.movieapp.ui.comment.ui.CommentItem.Folding.State
-import com.example.movieapp.util.TimeAGO
 import com.example.movieapp.util.Utils
 import org.ocpsoft.prettytime.PrettyTime
 import java.text.SimpleDateFormat
-import java.time.Instant
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -126,18 +125,30 @@ class CommentAdapter(
 }
 
 fun getTimeAgoWithPrettyTime(isoTime: String): String {
-
     return try {
-        val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
-        isoFormat.timeZone = TimeZone.getTimeZone("UTC")
+        // Chuẩn hóa định dạng: chỉ lấy 3 chữ số millis để tránh lỗi parse
+        val normalizedIsoTime = isoTime.replace(Regex("\\.(\\d{3})\\d*Z$"), ".$1Z")
 
-        val date = isoFormat.parse(isoTime) ?: return ""
+        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
+        formatter.timeZone = TimeZone.getTimeZone("UTC")
+        val parsedDate: Date = formatter.parse(normalizedIsoTime)
+
+        val now = Date()
+        val diffMillis = now.time - parsedDate.time
+
+        // 🔁 Làm tròn lên giây
+        val roundedDiffMillis = ((diffMillis + 999) / 1000) * 1000
+        val roundedDate = Date(now.time - roundedDiffMillis)
+
         val prettyTime = PrettyTime(Locale("vi"))
-        prettyTime.format(date)
-    } catch (e: Exception) {
+        prettyTime.removeUnit(org.ocpsoft.prettytime.units.JustNow::class.java)
+
+        prettyTime.format(roundedDate)
+    } catch (_: Exception) {
         ""
     }
 }
+
 
 abstract class VH(itemView: View, protected val reduceBlock: Reducer.() -> Unit) :
     ViewHolder(itemView) {
