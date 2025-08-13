@@ -24,6 +24,15 @@
         android:theme="@style/Theme.MovieApp"
         tools:targetApi="31">
         <activity
+            android:name=".ui.authen.RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.authen.LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.authen.LoginActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.history.AllHistoryActivity"
             android:exported="false" />
         <activity

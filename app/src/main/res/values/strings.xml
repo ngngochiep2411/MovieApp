@@ -21,5 +21,6 @@
     <string name="time_ago_year">1 năm</string>
     <string name="time_ago_years">%1$d năm</string>
 
+    <string name="dang_ky_text">Nếu chưa có tài khoản vui lòng <font color='#27c153'> Đăng ký</font></string>
 
 </resources>

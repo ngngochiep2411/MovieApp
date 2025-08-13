@@ -1,11 +1,16 @@
 package com.example.movieapp.ui.comment
 
 
+import android.app.Dialog
+import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -14,6 +19,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.movieapp.Constant
+import com.example.movieapp.R
 import com.example.movieapp.databinding.FragmentCommentBinding
 import com.example.movieapp.model.CommentData
 import com.example.movieapp.model.ReplyData
@@ -41,6 +47,8 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import androidx.core.graphics.drawable.toDrawable
+import com.example.movieapp.ui.authen.LoginActivity
 
 @AndroidEntryPoint
 class CommentFragment : Fragment() {
@@ -196,10 +204,18 @@ class CommentFragment : Fragment() {
     }
 
     private fun showBottomSheetLogin() {
-        val bottomSheetFragment = BottomSheetAuthFragment()
-        bottomSheetFragment.show(
-            requireActivity().supportFragmentManager, BottomSheetAuthFragment.TAG
-        )
+        val dialog = Dialog(requireContext())
+        dialog.setContentView(R.layout.layout_dialog_required_login)
+        dialog.setCancelable(false)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.findViewById<TextView>(R.id.cancel).setOnClickListener {
+            dialog.dismiss()
+        }
+        dialog.findViewById<TextView>(R.id.login).setOnClickListener {
+            startActivity(Intent(requireContext(), LoginActivity::class.java))
+        }
+        dialog.show()
+
     }
 
     private fun initObserver() {
