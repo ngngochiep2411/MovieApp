@@ -1,4 +1,4 @@
-package com.example.movieapp.ui.auth.login
+package com.example.movieapp.ui.authen
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -25,14 +25,9 @@ class LoginViewModel @Inject constructor(
     private val _login = MutableLiveData<Boolean>()
     val login: LiveData<Boolean> get() = _login
 
-    private val _loading = MutableLiveData<Boolean>()
-    val loading: LiveData<Boolean> get() = _loading
-
     fun login(email: String, password: String) {
-        _loading.value = true
         viewModelScope.launch {
             mainRepository.login(email, password).collect {
-                _loading.value = false
                 _message.value = it.message
                 _login.value = it.success()
                 databaseManager.saveUser(Gson().toJson(it.data.user))

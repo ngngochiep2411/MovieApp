@@ -43,6 +43,9 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    buildFeatures {
+        dataBinding = true
+    }
 }
 
 dependencies {
@@ -107,4 +110,6 @@ dependencies {
     implementation ("com.mikhaellopez:circularprogressbar:3.1.0")
     implementation ("com.github.animsh:AnimatedCheckBox:1.0.0")
     implementation ("org.ocpsoft.prettytime:prettytime:5.0.8.Final")
+
+    implementation("io.github.ParkSangGwon:tedimagepicker:1.6.1")
 }

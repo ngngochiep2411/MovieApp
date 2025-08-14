@@ -12,6 +12,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -49,6 +51,9 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import androidx.core.graphics.drawable.toDrawable
 import com.example.movieapp.ui.authen.LoginActivity
+import gun0912.tedimagepicker.builder.TedImagePicker
+
+//import gun0912.tedimagepicker.builder.TedImagePicker
 
 @AndroidEntryPoint
 class CommentFragment : Fragment() {
@@ -61,6 +66,7 @@ class CommentFragment : Fragment() {
     private val viewModel: CommentViewModel by viewModels()
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private lateinit var dialog: BottomSheetDialog
+    private lateinit var pickImageLauncher: ActivityResultLauncher<String>
 
     companion object {
 
@@ -102,6 +108,29 @@ class CommentFragment : Fragment() {
         setOnClick()
         Log.d("testing", "videoName $videoName")
 
+        pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            if (uri != null) {
+
+            }
+        }
+        replyDialog = ReplyDialog(requireContext(), callback = ::onReply)
+    }
+
+    private fun onReply(reply: String) {
+        lifecycleScope.launch {
+            viewModel.comment(
+                CommentData(
+                    content = reply,
+                    userId = viewModel.userDetail.value?.id,
+                    videoName = videoName!!
+                )
+            ).collect {
+                if (it.success()) {
+                    commentAdapter.reduceBlock.invoke(AddCommentReducer(it.data))
+                    binding.rvComment.smoothScrollToPosition(0)
+                }
+            }
+        }
     }
 
     private fun fetchData() {
@@ -201,6 +230,18 @@ class CommentFragment : Fragment() {
 
             }
         }
+
+        binding.emoji.setOnClickListener {
+
+        }
+
+        binding.pickImage.setOnClickListener {
+
+            TedImagePicker.with(requireContext())
+                .start { uri ->
+
+                }
+        }
     }
 
     private fun showBottomSheetLogin() {
@@ -212,6 +253,7 @@ class CommentFragment : Fragment() {
             dialog.dismiss()
         }
         dialog.findViewById<TextView>(R.id.login).setOnClickListener {
+            dialog.dismiss()
             startActivity(Intent(requireContext(), LoginActivity::class.java))
         }
         dialog.show()
@@ -260,30 +302,10 @@ class CommentFragment : Fragment() {
                     }
                 }
             }
-
         }
-
-
     }
 
-
     private fun showCommentDialog() {
-        replyDialog = ReplyDialog(requireContext()) { content ->
-            lifecycleScope.launch {
-                viewModel.comment(
-                    CommentData(
-                        content = content,
-                        userId = viewModel.userDetail.value?.id,
-                        videoName = videoName!!
-                    )
-                ).collect {
-                    if (it.success()) {
-                        commentAdapter.reduceBlock.invoke(AddCommentReducer(it.data))
-                        binding.rvComment.smoothScrollToPosition(0)
-                    }
-                }
-            }
-        }
         replyDialog.show()
     }
 
