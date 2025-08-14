@@ -51,10 +51,9 @@
             tools:ignore="DiscouragedApi" />
         <activity
             android:name=".ui.detailmovie.DetailMovieActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan"
+            android:windowSoftInputMode="adjustResize|stateHidden"
             tools:ignore="DiscouragedApi" />
         <activity
             android:name=".ui.main.MainActivity"

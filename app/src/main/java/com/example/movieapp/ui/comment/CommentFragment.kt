@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -114,6 +115,14 @@ class CommentFragment : Fragment() {
             }
         }
         replyDialog = ReplyDialog(requireContext(), callback = ::onReply)
+        replyDialog.setOnDismissListener {
+            if (replyDialog.uri != null) {
+                binding.textView.text = "[ảnh]"
+            } else {
+                binding.textView.text = "Viết bình luận"
+            }
+            binding.textView
+        }
     }
 
     private fun onReply(reply: String) {
@@ -237,9 +246,9 @@ class CommentFragment : Fragment() {
 
         binding.pickImage.setOnClickListener {
 
-            TedImagePicker.with(requireContext())
-                .start { uri ->
-
+            TedImagePicker.with(requireContext()).start { uri ->
+                    replyDialog.setImage(uri)
+                    replyDialog.show()
                 }
         }
     }
@@ -321,6 +330,14 @@ class CommentFragment : Fragment() {
         }
         this.videoName = slug
         Log.d("testing", "$videoName")
+    }
+
+    fun setImage(uri: Uri?) {
+        if (uri != null) {
+            binding.textView.text = "[ảnh]"
+        } else {
+            binding.textView.text = "Viết bình luận"
+        }
     }
 }
 
