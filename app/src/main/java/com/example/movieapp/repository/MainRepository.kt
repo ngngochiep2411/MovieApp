@@ -203,8 +203,18 @@ class MainRepository @Inject constructor(
         Log.d("testing", "$e")
     }
 
-    suspend fun comment(comment: CommentData) = flow<BaseResponse<CommentResponse>> {
-        val response = commentApiService.comment(comment)
+    suspend fun comment(
+        content: RequestBody,
+        video_id: RequestBody,
+        userId: RequestBody,
+        image: MultipartBody.Part?
+    ) = flow<BaseResponse<CommentResponse>> {
+        val response = commentApiService.comment(
+            content = content,
+            videoId = video_id,
+            userId = userId,
+            image = image
+        )
         emit(response)
     }.catch { e ->
         Log.d("testing", "$e")

@@ -30,6 +30,9 @@ data class Comment(
 
     @field:SerializedName("video_id")
     val videoId: String? = null,
+
+    @field:SerializedName("image")
+    val image: String = "",
 ) {
     fun getUserName(): String {
         if (user != null && user.name.isNotEmpty()) {

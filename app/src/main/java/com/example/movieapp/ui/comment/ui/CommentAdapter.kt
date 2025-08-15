@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView.VISIBLE
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import com.example.movieapp.Constant
 import com.example.movieapp.R
 import com.example.movieapp.databinding.ItemCommentFoldingBinding
 import com.example.movieapp.databinding.ItemCommentLevel1Binding
@@ -169,6 +170,11 @@ class Level1VH(
             data.avatar_url,
             binding.avatar
         )
+        Utils.loadImage(
+            binding.root.context,
+            Constant.BASE_URL + "/" + data.image,
+            binding.imageview
+        )
         binding.timeComment.text = getTimeAgoWithPrettyTime(data.time)
         binding.unLike.setImageResource(if (data.unLike) R.drawable.ic_unlike_selected else R.drawable.ic_unlike)
         binding.imgLike.setImageResource(if (data.like) R.drawable.ic_favorite_selected else R.drawable.ic_favorite)
@@ -232,6 +238,11 @@ class Level2VH(
             binding.root.context,
             data.avatar_url,
             binding.avatar
+        )
+        Utils.loadImage(
+            binding.root.context,
+            Constant.BASE_URL + data.image,
+            binding.imageview
         )
         binding.unLike.setImageResource(if (data.unLike) R.drawable.ic_unlike_selected else R.drawable.ic_unlike)
         binding.imgLike.setImageResource(if (data.like) R.drawable.ic_favorite_selected else R.drawable.ic_favorite)

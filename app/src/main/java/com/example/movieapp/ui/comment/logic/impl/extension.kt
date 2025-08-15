@@ -23,7 +23,8 @@ fun List<Comment>.convertComment(
                 likeCount = 22,
                 level2Count = 2,
                 avatar_url = comment.user?.avatar_url,
-                time = comment.createdAt
+                time = comment.createdAt,
+                image = comment.image
             )
         )
 
@@ -41,7 +42,8 @@ fun List<Comment>.convertComment(
                         userReply = if (comment.user?.id == reply.user?.id || reply.user?.id == reply.reply_user?.id) null else reply.reply_user?.name,
                         time = comment.createdAt,
                         parentId = comment.id,
-                        avatar_url = reply.user?.avatar_url
+                        avatar_url = reply.user?.avatar_url,
+                        image = comment.image
                     )
                 )
 

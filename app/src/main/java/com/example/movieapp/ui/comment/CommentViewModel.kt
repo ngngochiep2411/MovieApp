@@ -1,5 +1,6 @@
 package com.example.movieapp.ui.comment
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,12 +21,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
 @HiltViewModel
 class CommentViewModel @Inject constructor(
-    private val mainRepository: MainRepository,
-    private val databaseManager: DatabaseManager
+    private val mainRepository: MainRepository, private val databaseManager: DatabaseManager
 ) : ViewModel() {
 
     private val _comments = MutableStateFlow<List<Comment>?>(null)
@@ -73,12 +76,22 @@ class CommentViewModel @Inject constructor(
 
     }
 
-    fun comment(comment: CommentData) = flow<BaseResponse<CommentResponse>> {
-        mainRepository.comment(comment).collect {
-            Log.d("testing", Gson().toJson(it))
-            emit(it)
+    fun comment(comment: CommentData, imagePart: MultipartBody.Part?) =
+        flow<BaseResponse<CommentResponse>> {
+            val contentBody = comment.content.toRequestBody("text/plain".toMediaType())
+            val videoIdBody = comment.videoName.toRequestBody("text/plain".toMediaType())
+            val userIdBody =
+                (comment.userId?.toString() ?: "").toRequestBody("text/plain".toMediaType())
+            mainRepository.comment(
+                video_id = videoIdBody,
+                content = contentBody,
+                userId = userIdBody,
+                image = imagePart
+            ).collect {
+                Log.d("testing", Gson().toJson(it))
+                emit(it)
+            }
         }
-    }
 
     fun repComment(replyData: ReplyData) = flow<BaseResponse<ReplyResponse>> {
         mainRepository.reply(replyData).collect {
@@ -89,9 +102,7 @@ class CommentViewModel @Inject constructor(
 
     fun getReply(video_id: String?, comment_id: Int, page: Int) = flow<BaseResponse<List<Reply>>> {
         mainRepository.getReply(
-            video_id = video_id,
-            comment_id = comment_id,
-            page = page
+            video_id = video_id, comment_id = comment_id, page = page
         ).collect {
             Log.d("testing", Gson().toJson(it))
             emit(it)

@@ -29,8 +29,12 @@ interface CommentAPIService {
     ): BaseResponse<List<Comment>>
 
     @POST("comment")
+    @Multipart
     suspend fun comment(
-        @Body comment: CommentData
+        @Part("content") content: RequestBody,
+        @Part("video_id") videoId: RequestBody,
+        @Part("user_id") userId: RequestBody,
+        @Part image: MultipartBody.Part?
     ): BaseResponse<CommentResponse>
 
     @POST("reply")

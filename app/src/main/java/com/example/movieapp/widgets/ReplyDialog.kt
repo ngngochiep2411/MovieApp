@@ -23,7 +23,7 @@ class ReplyDialog(
     private val callback: (String) -> Unit
 ) : BottomSheetDialog(context) {
 
-     var uri: Uri? = null
+    var uri: Uri? = null
 
     fun setImage(uri: Uri) {
         this.uri = uri

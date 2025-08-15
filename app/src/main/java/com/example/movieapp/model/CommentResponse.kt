@@ -24,4 +24,7 @@ data class CommentResponse(
 
     @field:SerializedName("user")
     val user: User? = null,
+
+    @field:SerializedName("image")
+    val image: String = "",
 )

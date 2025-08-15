@@ -53,6 +53,9 @@ import kotlin.coroutines.suspendCoroutine
 import androidx.core.graphics.drawable.toDrawable
 import com.example.movieapp.ui.authen.LoginActivity
 import gun0912.tedimagepicker.builder.TedImagePicker
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 //import gun0912.tedimagepicker.builder.TedImagePicker
 
@@ -132,7 +135,7 @@ class CommentFragment : Fragment() {
                     content = reply,
                     userId = viewModel.userDetail.value?.id,
                     videoName = videoName!!
-                )
+                ), toMultiPart(replyDialog.uri)
             ).collect {
                 if (it.success()) {
                     commentAdapter.reduceBlock.invoke(AddCommentReducer(it.data))
@@ -140,6 +143,20 @@ class CommentFragment : Fragment() {
                 }
             }
         }
+    }
+
+    fun toMultiPart(uri: Uri?): MultipartBody.Part? {
+        if (uri != null) {
+            return requireContext().contentResolver.openInputStream(uri)?.use { inputStream ->
+                val bytes = inputStream.readBytes()
+                MultipartBody.Part.createFormData(
+                    "image",
+                    "upload_${System.currentTimeMillis()}.jpg",
+                    bytes.toRequestBody("image/*".toMediaType())
+                )
+            }
+        }
+        return null
     }
 
     private fun fetchData() {
@@ -154,7 +171,9 @@ class CommentFragment : Fragment() {
         commentAdapter.reduceBlock.invoke(StartExpandReducer(commentItem as CommentItem.Folding))
         lifecycleScope.launch {
             viewModel.getReply(
-                comment_id = commentItem.parentId, video_id = videoName, page = commentItem.page + 1
+                comment_id = commentItem.parentId,
+                video_id = videoName,
+                page = commentItem.page + 1
             ).collect { response ->
                 val folding = commentAdapter.currentList.find {
                     (it is CommentItem.Folding) && it.parentId == commentItem.parentId
@@ -231,7 +250,11 @@ class CommentFragment : Fragment() {
                 showBottomSheetLogin()
             } else {
                 if (commentAdapter.currentList.size == 1 && commentAdapter.currentList[0] is CommentItem.FirstLoading) {
-                    Toast.makeText(context, "Hãy đợi bình luận được tải xong", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        context,
+                        "Hãy đợi bình luận được tải xong",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 } else {
                     showCommentDialog()
@@ -247,9 +270,9 @@ class CommentFragment : Fragment() {
         binding.pickImage.setOnClickListener {
 
             TedImagePicker.with(requireContext()).start { uri ->
-                    replyDialog.setImage(uri)
-                    replyDialog.show()
-                }
+                replyDialog.setImage(uri)
+                replyDialog.show()
+            }
         }
     }
 

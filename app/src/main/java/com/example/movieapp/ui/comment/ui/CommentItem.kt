@@ -18,8 +18,7 @@ sealed interface CommentItem {
     }
 
     data class FirstLoading(
-        val page: Int = 0,
-        val state: State = State.LOADING
+        val page: Int = 0, val state: State = State.LOADING
     ) : CommentItem {
         override val id: Int = 0
         override val content: CharSequence = ""
@@ -55,6 +54,7 @@ sealed interface CommentItem {
         var unLike: Boolean = false,
         var likeCount: Int = 0,
         val avatar_url: String? = "",
+        val image: String = "",
         val time: String
     ) : CommentItem
 
@@ -69,12 +69,18 @@ sealed interface CommentItem {
         var unLike: Boolean = false,
         var likeCount: Int = 0,
         val time: String,
-        val avatar_url: String? = ""
+        val avatar_url: String? = "",
+        val image: String = "",
     ) : CommentItem
 
     data class Folding(
-        val parentId: Int, val page: Int = 1, val pageSize: Int = 3, val state: State = State.IDLE,
-        val count: Int, val total: Int, val current: Int,
+        val parentId: Int,
+        val page: Int = 1,
+        val pageSize: Int = 3,
+        val state: State = State.IDLE,
+        val count: Int,
+        val total: Int,
+        val current: Int,
         //lưu các bình luận trả lời đã tải từ api
         val replies: List<CommentItem> = emptyList()
     ) : CommentItem {
@@ -89,8 +95,7 @@ sealed interface CommentItem {
             IDLE, LOADING, LOADED_ALL, COLLAPSE
         }
 
-        val text: String =
-            "Xem thêm ${total - current} câu trả lời khác"
+        val text: String = "Xem thêm ${total - current} câu trả lời khác"
 
     }
 }
