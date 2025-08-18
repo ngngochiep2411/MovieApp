@@ -51,6 +51,9 @@ import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import androidx.core.graphics.drawable.toDrawable
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
+import androidx.recyclerview.widget.RecyclerView
 import com.example.movieapp.ui.authen.LoginActivity
 import gun0912.tedimagepicker.builder.TedImagePicker
 import okhttp3.MediaType.Companion.toMediaType
@@ -70,6 +73,7 @@ class CommentFragment : Fragment() {
     private val viewModel: CommentViewModel by viewModels()
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private lateinit var dialog: BottomSheetDialog
+    private var uri: Uri? = null
 
     companion object {
 
@@ -107,6 +111,8 @@ class CommentFragment : Fragment() {
             loadMoreReply = ::getReply
         )
         binding.rvComment.adapter = commentAdapter
+        commentAdapter.stateRestorationPolicy =
+            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         initObserver()
         setOnClick()
         Log.d("testing", "videoName $videoName")
@@ -114,7 +120,7 @@ class CommentFragment : Fragment() {
 
         replyDialog = ReplyDialog(requireContext(), callback = ::onReply)
         replyDialog.setOnDismissListener {
-            if (replyDialog.uri != null) {
+            if (uri != null) {
                 binding.textView.text = "[ảnh]"
             } else {
                 binding.textView.text = "Viết bình luận"
@@ -122,21 +128,32 @@ class CommentFragment : Fragment() {
         }
     }
 
-    private fun onReply(reply: String) {
+    private fun onReply(reply: String, uri: Uri?) {
         lifecycleScope.launch {
             viewModel.comment(
                 CommentData(
                     content = reply,
                     userId = viewModel.userDetail.value?.id,
                     videoName = videoName!!
-                ), toMultiPart(replyDialog.uri)
+                ), toMultiPart(uri)
             ).collect {
                 if (it.success()) {
                     commentAdapter.reduceBlock.invoke(AddCommentReducer(it.data))
-                    binding.rvComment.smoothScrollToPosition(0)
+                    scrollToPosition(0)
                 }
             }
         }
+    }
+
+    private fun scrollToPosition(position: Int) {
+        val layoutManager = binding.rvComment.layoutManager as LinearLayoutManager
+        val smoothScroller = object : LinearSmoothScroller(binding.rvComment.context) {
+            override fun getVerticalSnapPreference(): Int {
+                return SNAP_TO_START
+            }
+        }
+        smoothScroller.targetPosition = position
+        layoutManager.startSmoothScroll(smoothScroller)
     }
 
     fun toMultiPart(uri: Uri?): MultipartBody.Part? {
@@ -186,8 +203,9 @@ class CommentFragment : Fragment() {
             val content = withContext(Dispatchers.Main) {
                 suspendCoroutine { continuation ->
                     replyDialog.setUserName(commentItem.userName.toString())
-                    replyDialog.setCallback { result ->
-                        continuation.resume(result)
+                    replyDialog.setCallback { comment, uri ->
+                        this@CommentFragment.uri = uri
+                        continuation.resume(comment)
                     }
                     replyDialog.show()
                 }
@@ -200,7 +218,7 @@ class CommentFragment : Fragment() {
                 user_id = viewModel.userDetail.value?.id
             )
             viewModel.repComment(
-                replyData, toMultiPart(replyDialog.uri)
+                replyData, toMultiPart(uri)
             ).collect {
                 commentAdapter.reduceBlock.invoke(
                     ReplyReducer(
@@ -219,9 +237,7 @@ class CommentFragment : Fragment() {
                             image = it.data.image
                         )
                     )
-
                 )
-                replyDialog.uri = null
             }
         }
 
@@ -236,6 +252,7 @@ class CommentFragment : Fragment() {
                         reduce.invoke(commentAdapter.currentList)
                     }
                     commentAdapter.submitList(newList)
+                    binding.rvComment.scrollToPosition(0)
                 }
             }
         }
@@ -268,6 +285,7 @@ class CommentFragment : Fragment() {
                 showBottomSheetLogin()
             } else {
                 TedImagePicker.with(requireContext()).start { uri ->
+                    this.uri = uri
                     replyDialog.setImage(uri)
                     replyDialog.show()
                 }
@@ -354,13 +372,6 @@ class CommentFragment : Fragment() {
         Log.d("testing", "$videoName")
     }
 
-    fun setImage(uri: Uri?) {
-        if (uri != null) {
-            binding.textView.text = "[ảnh]"
-        } else {
-            binding.textView.text = "Viết bình luận"
-        }
-    }
 }
 
 

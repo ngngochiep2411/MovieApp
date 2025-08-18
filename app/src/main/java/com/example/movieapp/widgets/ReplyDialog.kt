@@ -20,16 +20,15 @@ import gun0912.tedimagepicker.builder.TedImagePicker
 class ReplyDialog(
     context: Context,
     private var userName: String = "",
-    private var callback: (String) -> Unit
+    private var callback: (String, uri: Uri?) -> Unit
 ) : BottomSheetDialog(context) {
 
-    var uri: Uri? = null
 
-    fun setImage(uri: Uri) {
+    private var uri: Uri? = null
+
+    fun setImage(uri: Uri?) {
         this.uri = uri
-        Glide.with(context)
-            .load(uri)
-            .into(binding.img)
+        Glide.with(context).load(uri).into(binding.img)
         binding.imageview.visibility = View.VISIBLE
         binding.icRemove.visibility = View.VISIBLE
     }
@@ -39,13 +38,17 @@ class ReplyDialog(
         binding.dialogCommentEt.hint = "Trả lời $userName"
     }
 
-    fun setCallback(callback: (String) -> Unit) {
+    fun setCallback(callback: (String, uri: Uri?) -> Unit) {
         this.callback = callback
+    }
+
+    fun clearAll() {
+        binding.dialogCommentEt.text.clear()
+        binding.imageview.visibility = View.GONE
     }
 
     private var binding: CommentDialogLayoutBinding =
         CommentDialogLayoutBinding.inflate(LayoutInflater.from(context))
-
 
 
     init {
@@ -66,7 +69,8 @@ class ReplyDialog(
         }
 
         binding.dialogCommentBt.setOnClickListener {
-            callback.invoke(binding.dialogCommentEt.text.toString())
+            callback.invoke(binding.dialogCommentEt.text.toString(), uri)
+            clearAll()
             this.dismiss()
         }
 
@@ -95,10 +99,9 @@ class ReplyDialog(
             binding.icRemove.visibility = View.GONE
         }
         binding.pickImage.setOnClickListener {
-            TedImagePicker.with(context)
-                .start { uri ->
-                    setImage(uri)
-                }
+            TedImagePicker.with(context).start { uri ->
+                setImage(uri)
+            }
         }
     }
 
