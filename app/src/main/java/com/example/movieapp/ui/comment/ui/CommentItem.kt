@@ -54,7 +54,7 @@ sealed interface CommentItem {
         var unLike: Boolean = false,
         var likeCount: Int = 0,
         val avatar_url: String? = "",
-        val image: String = "",
+        val image: String? = "",
         val time: String
     ) : CommentItem
 
@@ -70,7 +70,7 @@ sealed interface CommentItem {
         var likeCount: Int = 0,
         val time: String,
         val avatar_url: String? = "",
-        val image: String = "",
+        val image: String? = "",
     ) : CommentItem
 
     data class Folding(

@@ -1,6 +1,5 @@
 package com.example.movieapp.ui.comment.ui
 
-import android.annotation.SuppressLint
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
@@ -170,11 +169,17 @@ class Level1VH(
             data.avatar_url,
             binding.avatar
         )
-        Utils.loadImage(
-            binding.root.context,
-            Constant.BASE_URL + "/" + data.image,
-            binding.imageview
-        )
+        if (!data.image.isNullOrEmpty()) {
+            binding.cardView.visibility = VISIBLE
+            Utils.loadImage(
+                binding.root.context,
+                Constant.BASE_URL + "/" + data.image,
+                binding.imageview
+            )
+        } else {
+            binding.cardView.visibility = GONE
+        }
+
         binding.timeComment.text = getTimeAgoWithPrettyTime(data.time)
         binding.unLike.setImageResource(if (data.unLike) R.drawable.ic_unlike_selected else R.drawable.ic_unlike)
         binding.imgLike.setImageResource(if (data.like) R.drawable.ic_favorite_selected else R.drawable.ic_favorite)
@@ -215,7 +220,6 @@ class Level1VH(
 
         }
         binding.root.setOnClickListener {
-//            reduceBlock.invoke(ReplyReducer(item, itemView.context))
             callBack(item)
         }
         binding.reply.setOnClickListener {
@@ -239,11 +243,16 @@ class Level2VH(
             data.avatar_url,
             binding.avatar
         )
-        Utils.loadImage(
-            binding.root.context,
-            Constant.BASE_URL + data.image,
-            binding.imageview
-        )
+        if (!data.image.isNullOrEmpty()) {
+            binding.cardView.visibility = VISIBLE
+            Utils.loadImage(
+                binding.root.context,
+                Constant.BASE_URL + "/" + data.image,
+                binding.imageview
+            )
+        } else {
+            binding.cardView.visibility = GONE
+        }
         binding.unLike.setImageResource(if (data.unLike) R.drawable.ic_unlike_selected else R.drawable.ic_unlike)
         binding.imgLike.setImageResource(if (data.like) R.drawable.ic_favorite_selected else R.drawable.ic_favorite)
         binding.tvLike.text = data.likeCount.toString()
@@ -285,7 +294,6 @@ class Level2VH(
 
         }
         binding.root.setOnClickListener {
-//            reduceBlock.invoke(ReplyReducer(item, itemView.context))
             callBack(item)
         }
         binding.reply.setOnClickListener {

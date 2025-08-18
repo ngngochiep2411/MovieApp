@@ -9,10 +9,10 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/avatar"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
         android:gravity="center"
         android:scaleType="centerCrop"
         android:textColor="@color/black"
@@ -59,8 +59,8 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:layout_marginTop="10dp"
         app:cardCornerRadius="5dp"
         app:layout_constraintStart_toStartOf="@id/content"

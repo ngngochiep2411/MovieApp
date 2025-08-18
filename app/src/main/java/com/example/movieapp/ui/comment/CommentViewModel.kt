@@ -93,12 +93,21 @@ class CommentViewModel @Inject constructor(
             }
         }
 
-    fun repComment(replyData: ReplyData) = flow<BaseResponse<ReplyResponse>> {
-        mainRepository.reply(replyData).collect {
-            Log.d("testing", Gson().toJson(it))
-            emit(it)
+    fun repComment(replyData: ReplyData, imagePart: MultipartBody.Part?) =
+        flow<BaseResponse<ReplyResponse>> {
+            mainRepository.reply(
+                user_id = replyData.user_id.toString().toRequestBody("text/plain".toMediaType()),
+                content = replyData.content.toRequestBody("text/plain".toMediaType()),
+                comment_id = replyData.comment_id.toString()
+                    .toRequestBody("text/plain".toMediaType()),
+                reply_user_id = replyData.reply_user_id.toString()
+                    .toRequestBody("text/plain".toMediaType()),
+                image = imagePart
+            ).collect {
+                Log.d("testing", Gson().toJson(it))
+                emit(it)
+            }
         }
-    }
 
     fun getReply(video_id: String?, comment_id: Int, page: Int) = flow<BaseResponse<List<Reply>>> {
         mainRepository.getReply(

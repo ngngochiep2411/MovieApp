@@ -32,6 +32,8 @@ data class Reply(
     @field:SerializedName("content")
     val content: String,
 
+    @SerializedName("image")
+    val image: String,
 
     ) {
     fun getUserName(): String {

@@ -10,4 +10,5 @@ data class ReplyResponse(
     @SerializedName("updated_at") val updated_at: String,
     @SerializedName("user") val user: User,
     @SerializedName("reply_user") val reply_user: User?,
+    @SerializedName("image") val image: String = "",
 )

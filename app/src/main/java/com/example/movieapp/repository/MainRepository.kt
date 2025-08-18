@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.http.Part
 import javax.inject.Inject
 
 class MainRepository @Inject constructor(
@@ -220,9 +221,20 @@ class MainRepository @Inject constructor(
         Log.d("testing", "$e")
     }
 
-    suspend fun reply(replyData: ReplyData) = flow<BaseResponse<ReplyResponse>> {
-        val response = commentApiService.reply(replyData)
-        Log.d("testing", Gson().toJson(replyData))
+    suspend fun reply(
+        user_id: RequestBody,
+        content: RequestBody,
+        comment_id: RequestBody,
+        reply_user_id: RequestBody,
+        image: MultipartBody.Part?
+    ) = flow<BaseResponse<ReplyResponse>> {
+        val response = commentApiService.reply(
+            user_id = user_id,
+            content = content,
+            comment_id = comment_id,
+            reply_user_id = reply_user_id,
+            image = image
+        )
         emit(response)
         Log.d("testing", Gson().toJson(response))
     }.catch { e ->

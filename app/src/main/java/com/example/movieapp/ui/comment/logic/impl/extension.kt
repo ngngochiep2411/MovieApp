@@ -43,7 +43,7 @@ fun List<Comment>.convertComment(
                         time = comment.createdAt,
                         parentId = comment.id,
                         avatar_url = reply.user?.avatar_url,
-                        image = comment.image
+                        image = reply.image
                     )
                 )
 

@@ -19,8 +19,8 @@ import gun0912.tedimagepicker.builder.TedImagePicker
 
 class ReplyDialog(
     context: Context,
-    userName: CharSequence? = null,
-    private val callback: (String) -> Unit
+    private var userName: String = "",
+    private var callback: (String) -> Unit
 ) : BottomSheetDialog(context) {
 
     var uri: Uri? = null
@@ -34,8 +34,19 @@ class ReplyDialog(
         binding.icRemove.visibility = View.VISIBLE
     }
 
+    fun setUserName(userName: String) {
+        this.userName = userName
+        binding.dialogCommentEt.hint = "Trả lời $userName"
+    }
+
+    fun setCallback(callback: (String) -> Unit) {
+        this.callback = callback
+    }
+
     private var binding: CommentDialogLayoutBinding =
         CommentDialogLayoutBinding.inflate(LayoutInflater.from(context))
+
+
 
     init {
         setContentView(binding.root)
@@ -74,9 +85,6 @@ class ReplyDialog(
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        if (userName != null) {
-            binding.dialogCommentEt.hint = "Trả lời $userName"
-        }
 
         binding.dialogCommentEt.requestFocus()
         val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -93,4 +101,6 @@ class ReplyDialog(
                 }
         }
     }
+
+
 }

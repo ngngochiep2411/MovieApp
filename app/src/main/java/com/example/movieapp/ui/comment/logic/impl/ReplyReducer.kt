@@ -3,11 +3,6 @@ package com.example.movieapp.ui.comment.logic.impl
 import android.content.Context
 import com.example.movieapp.ui.comment.logic.Reducer
 import com.example.movieapp.ui.comment.ui.CommentItem
-import com.example.movieapp.widgets.ReplyDialog
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 class ReplyReducer(
     private val commentItem: CommentItem,

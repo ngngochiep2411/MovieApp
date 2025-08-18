@@ -35,7 +35,8 @@ data class ExpandReducer(
                         userReply = if (reply.user?.id == reply.user?.id || reply.user?.id == reply.reply_user?.id) null else reply.reply_user?.name,
                         time = reply.createdAt,
                         parentId = reply.commentId,
-                        avatar_url = reply.user?.avatar_url
+                        avatar_url = reply.user?.avatar_url,
+                        image = reply.image
                     )
                 )
             }

@@ -70,7 +70,6 @@ class CommentFragment : Fragment() {
     private val viewModel: CommentViewModel by viewModels()
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private lateinit var dialog: BottomSheetDialog
-    private lateinit var pickImageLauncher: ActivityResultLauncher<String>
 
     companion object {
 
@@ -112,11 +111,7 @@ class CommentFragment : Fragment() {
         setOnClick()
         Log.d("testing", "videoName $videoName")
 
-        pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            if (uri != null) {
 
-            }
-        }
         replyDialog = ReplyDialog(requireContext(), callback = ::onReply)
         replyDialog.setOnDismissListener {
             if (replyDialog.uri != null) {
@@ -124,7 +119,6 @@ class CommentFragment : Fragment() {
             } else {
                 binding.textView.text = "Viết bình luận"
             }
-            binding.textView
         }
     }
 
@@ -171,9 +165,7 @@ class CommentFragment : Fragment() {
         commentAdapter.reduceBlock.invoke(StartExpandReducer(commentItem as CommentItem.Folding))
         lifecycleScope.launch {
             viewModel.getReply(
-                comment_id = commentItem.parentId,
-                video_id = videoName,
-                page = commentItem.page + 1
+                comment_id = commentItem.parentId, video_id = videoName, page = commentItem.page + 1
             ).collect { response ->
                 val folding = commentAdapter.currentList.find {
                     (it is CommentItem.Folding) && it.parentId == commentItem.parentId
@@ -193,9 +185,11 @@ class CommentFragment : Fragment() {
         lifecycleScope.launch {
             val content = withContext(Dispatchers.Main) {
                 suspendCoroutine { continuation ->
-                    ReplyDialog(requireContext(), commentItem.userName) { result ->
+                    replyDialog.setUserName(commentItem.userName.toString())
+                    replyDialog.setCallback { result ->
                         continuation.resume(result)
-                    }.show()
+                    }
+                    replyDialog.show()
                 }
             }
             val replyData = ReplyData(
@@ -206,7 +200,7 @@ class CommentFragment : Fragment() {
                 user_id = viewModel.userDetail.value?.id
             )
             viewModel.repComment(
-                replyData
+                replyData, toMultiPart(replyDialog.uri)
             ).collect {
                 commentAdapter.reduceBlock.invoke(
                     ReplyReducer(
@@ -221,10 +215,13 @@ class CommentFragment : Fragment() {
                             parentId = it.data.comment_id,
                             userName = it.data.user.name,
                             likeCount = 22,
-                            avatar_url = it.data.user.avatar_url
+                            avatar_url = it.data.user.avatar_url,
+                            image = it.data.image
                         )
                     )
+
                 )
+                replyDialog.uri = null
             }
         }
 
@@ -245,17 +242,16 @@ class CommentFragment : Fragment() {
     }
 
     private fun setOnClick() {
+
+
         binding.rlComment.setOnClickListener {
             if (user == null) {
                 showBottomSheetLogin()
             } else {
                 if (commentAdapter.currentList.size == 1 && commentAdapter.currentList[0] is CommentItem.FirstLoading) {
                     Toast.makeText(
-                        context,
-                        "Hãy đợi bình luận được tải xong",
-                        Toast.LENGTH_SHORT
-                    )
-                        .show()
+                        context, "Hãy đợi bình luận được tải xong", Toast.LENGTH_SHORT
+                    ).show()
                 } else {
                     showCommentDialog()
                 }
@@ -268,10 +264,13 @@ class CommentFragment : Fragment() {
         }
 
         binding.pickImage.setOnClickListener {
-
-            TedImagePicker.with(requireContext()).start { uri ->
-                replyDialog.setImage(uri)
-                replyDialog.show()
+            if (user == null) {
+                showBottomSheetLogin()
+            } else {
+                TedImagePicker.with(requireContext()).start { uri ->
+                    replyDialog.setImage(uri)
+                    replyDialog.show()
+                }
             }
         }
     }
