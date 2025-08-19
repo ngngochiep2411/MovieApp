@@ -15,7 +15,7 @@ class LoadingDialog(context: Context) : Dialog(context) {
         setContentView(view)
 
         window?.setBackgroundDrawableResource(android.R.color.transparent)
-        setCancelable(false)
+        setCancelable(true)
 
 
     }

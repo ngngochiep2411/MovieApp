@@ -93,8 +93,11 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
                 binding.tabLayout.selectTab(binding.tabLayout.getTabAt(position))
             }
         })
+    }
 
-
+    override fun onPause() {
+        super.onPause()
+        binding.playerView.onVideoPause()
     }
 
     private fun setOnClick() {
