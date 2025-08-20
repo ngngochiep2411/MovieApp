@@ -1,14 +1,16 @@
 package com.example.movieapp.ui.listvideo
 
 import android.os.Bundle
+import android.os.Environment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.viewpager2.widget.ViewPager2
-import com.example.movieapp.R
+import com.arthenica.ffmpegkit.FFmpegKit
+import com.arthenica.ffmpegkit.ReturnCode
 import com.example.movieapp.databinding.FragmentLIstVideoBinding
 import com.example.movieapp.model.Category
 import com.example.movieapp.model.DetailMovie
@@ -21,6 +23,7 @@ import com.example.movieapp.util.Extension.parcelableArrayList
 import com.example.movieapp.util.SharedViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.io.File
 
 @AndroidEntryPoint
 class LIstVideoFragment : Fragment() {
@@ -33,6 +36,7 @@ class LIstVideoFragment : Fragment() {
     private var detailMovie: DetailMovie? = null
     private lateinit var flexboxAdapter: FlexboxAdapter
     private var slug: String = ""
+    var privateDir: File? = null
 
     companion object {
         fun newInstance(
@@ -77,6 +81,35 @@ class LIstVideoFragment : Fragment() {
         binding.recyclerView.setHasFixedSize(true)
         initObserver()
 
+        binding.download.setOnClickListener {
+            downLoadVideos(this.list)
+        }
+
+        privateDir = context?.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
+        privateDir?.mkdirs()
+    }
+
+
+    fun downLoadVideos(list: ArrayList<ServerData>) {
+        privateDir?.let {
+            for (i in list.indices) {
+                val outputFile = File(privateDir, "${list[i].slug}_tập${i + 1}.mp4")
+                val cmd =
+                    "-i ${list[i].linkM3u8} -c copy ${outputFile.absolutePath}"
+                FFmpegKit.executeAsync(
+                    cmd,
+                    { session ->
+                        val returnCode = session.returnCode
+                        if (ReturnCode.isSuccess(returnCode)) {
+                            Log.d("testing", "Convert thành công: ${outputFile.absolutePath}")
+                        } else {
+                            Log.e("testing", "Lỗi convert: $returnCode")
+                        }
+                    },
+                    { log -> Log.d("testing", "logCallBack: " + log.message) },
+                    { stats -> Log.d("testing", "staticCallBack:  $stats") })
+            }
+        }
     }
 
     private fun updateCurrentVideo(position: Int, slug: String) {
@@ -131,6 +164,7 @@ class LIstVideoFragment : Fragment() {
         detailMovie: DetailMovie?,
         slug: String
     ) {
+        this.list = list
         adapter.submitList(list, thumb)
         this.slug = slug
         if (detailMovie != null) {

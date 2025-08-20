@@ -106,54 +106,6 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
 
     private fun setOnClick() {
 
-//        val url = "https://s6.kkphimplayer6.com/20250820/scy4TNT9/3500kb/hls/index.m3u8"
-        val privateDir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
-        if (privateDir != null) {
-            privateDir.mkdirs()
-            val outputFile = File(privateDir, "video_test1.mp4")
-            val cmd =
-                "-i \"https://s6.kkphimplayer6.com/20250820/scy4TNT9/3500kb/hls/index.m3u8\" -c copy ${outputFile.absolutePath}"
-            FFmpegKit.executeAsync(
-                cmd,
-                { session ->
-                    val returnCode = session.returnCode
-                    if (ReturnCode.isSuccess(returnCode)) {
-                        Log.d("testing", "Convert thành công: ${outputFile.absolutePath}")
-                    } else {
-                        Log.e("testing", "Lỗi convert: $returnCode")
-                    }
-                },
-                { log -> Log.d("testing", "logCallBack: " + log.message) },
-                { stats -> Log.d("testing", "staticCallBack:  $stats") })
-        } else {
-            Log.e("testing", "Không truy cập được external storage")
-        }
-//        binding.download.setOnClickListener {
-//            val url = "https://s6.kkphimplayer6.com/20250820/scy4TNT9/3500kb/hls/index.m3u8"
-//            val privateDir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
-//            if (privateDir != null) {
-//                privateDir.mkdirs()
-//                val outputFile = File(privateDir, "video" + System.currentTimeMillis() + ".mp4")
-//                val cmd = "-i $url -c copy -bsf:a aac_adtstoasc ${outputFile.absolutePath}"
-//                FFmpegKit.executeAsync(
-//                    cmd,
-//                    { session ->
-//                        val returnCode = session.returnCode
-//                        if (ReturnCode.isSuccess(returnCode)) {
-//                            Log.d("testing", "Convert thành công: ${outputFile.absolutePath}")
-//                        } else {
-//                            Log.e("testing", "Lỗi convert: $returnCode")
-//                        }
-//                    },
-//                    { log -> Log.d("FFmpegLog", log.message) },
-//                    { stats -> Log.d("FFmpegLog", stats.toString()) }
-//                )
-//            } else {
-//                Log.e("testing", "Không truy cập được external storage")
-//            }
-//
-//
-//        }
     }
 
     var watchedAt: Long = 0
