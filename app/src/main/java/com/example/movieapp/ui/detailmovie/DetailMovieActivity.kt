@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.View
 import android.widget.TextView
@@ -36,6 +37,9 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import androidx.core.view.isVisible
+import com.arthenica.ffmpegkit.FFmpegKit
+import com.arthenica.ffmpegkit.ReturnCode
+import java.io.File
 
 
 @AndroidEntryPoint
@@ -101,6 +105,55 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
     }
 
     private fun setOnClick() {
+
+//        val url = "https://s6.kkphimplayer6.com/20250820/scy4TNT9/3500kb/hls/index.m3u8"
+        val privateDir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
+        if (privateDir != null) {
+            privateDir.mkdirs()
+            val outputFile = File(privateDir, "video_test1.mp4")
+            val cmd =
+                "-i \"https://s6.kkphimplayer6.com/20250820/scy4TNT9/3500kb/hls/index.m3u8\" -c copy ${outputFile.absolutePath}"
+            FFmpegKit.executeAsync(
+                cmd,
+                { session ->
+                    val returnCode = session.returnCode
+                    if (ReturnCode.isSuccess(returnCode)) {
+                        Log.d("testing", "Convert thành công: ${outputFile.absolutePath}")
+                    } else {
+                        Log.e("testing", "Lỗi convert: $returnCode")
+                    }
+                },
+                { log -> Log.d("testing", "logCallBack: " + log.message) },
+                { stats -> Log.d("testing", "staticCallBack:  $stats") })
+        } else {
+            Log.e("testing", "Không truy cập được external storage")
+        }
+//        binding.download.setOnClickListener {
+//            val url = "https://s6.kkphimplayer6.com/20250820/scy4TNT9/3500kb/hls/index.m3u8"
+//            val privateDir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
+//            if (privateDir != null) {
+//                privateDir.mkdirs()
+//                val outputFile = File(privateDir, "video" + System.currentTimeMillis() + ".mp4")
+//                val cmd = "-i $url -c copy -bsf:a aac_adtstoasc ${outputFile.absolutePath}"
+//                FFmpegKit.executeAsync(
+//                    cmd,
+//                    { session ->
+//                        val returnCode = session.returnCode
+//                        if (ReturnCode.isSuccess(returnCode)) {
+//                            Log.d("testing", "Convert thành công: ${outputFile.absolutePath}")
+//                        } else {
+//                            Log.e("testing", "Lỗi convert: $returnCode")
+//                        }
+//                    },
+//                    { log -> Log.d("FFmpegLog", log.message) },
+//                    { stats -> Log.d("FFmpegLog", stats.toString()) }
+//                )
+//            } else {
+//                Log.e("testing", "Không truy cập được external storage")
+//            }
+//
+//
+//        }
     }
 
     var watchedAt: Long = 0
@@ -246,24 +299,16 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
         //初始化不打开外部的旋转
         orientationUtils!!.setEnable(false)
         if (binding.playerView.fullscreenButton != null) {
-            binding.playerView.fullscreenButton
-                .setOnClickListener(object : View.OnClickListener {
-                    override fun onClick(v: View?) {
-                        showFull()
-                    }
-                })
+            binding.playerView.fullscreenButton.setOnClickListener(object : View.OnClickListener {
+                override fun onClick(v: View?) {
+                    showFull()
+                }
+            })
         }
 //        GSYVideoType.setShowType(GSYVideoType.SCREEN_MATCH_FULL)
-        GSYVideoOptionBuilder()
-            .setCacheWithPlay(true)
-            .setVideoTitle(" ")
-            .setIsTouchWiget(true)
-            .setRotateViewAuto(false)
-            .setLockLand(false)
-            .setShowFullAnimation(false)
-            .setNeedLockFull(true)
-            .setSeekRatio(1F)
-            .setVideoAllCallBack(this)
+        GSYVideoOptionBuilder().setCacheWithPlay(true).setVideoTitle(" ").setIsTouchWiget(true)
+            .setRotateViewAuto(false).setLockLand(false).setShowFullAnimation(false)
+            .setNeedLockFull(true).setSeekRatio(1F).setVideoAllCallBack(this)
             .build(binding.playerView)
 
     }
@@ -291,9 +336,7 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
         }
         //第一个true是否需要隐藏actionbar，第二个true是否需要隐藏statusbar
         binding.playerView.startWindowFullscreen(
-            this@DetailMovieActivity,
-            true,
-            true
+            this@DetailMovieActivity, true, true
         )
 
     }
@@ -485,11 +528,7 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
         //如果旋转了就全屏
         if (isPlay && !isPause) {
             binding.playerView.onConfigurationChanged(
-                this,
-                newConfig,
-                orientationUtils,
-                true,
-                true
+                this, newConfig, orientationUtils, true, true
             )
         }
     }

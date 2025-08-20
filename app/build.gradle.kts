@@ -112,4 +112,6 @@ dependencies {
     implementation ("org.ocpsoft.prettytime:prettytime:5.0.8.Final")
 
     implementation("io.github.ParkSangGwon:tedimagepicker:1.6.1")
+    implementation("com.arthenica:ffmpeg-kit-full:6.0-2")
+
 }
