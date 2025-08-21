@@ -1,5 +1,7 @@
 package com.example.movieapp.ui.listvideo
 
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -15,12 +17,14 @@ import com.example.movieapp.databinding.FragmentLIstVideoBinding
 import com.example.movieapp.model.Category
 import com.example.movieapp.model.DetailMovie
 import com.example.movieapp.model.ServerData
+import com.example.movieapp.service.DownloadService
 import com.example.movieapp.ui.detailmovie.DetailMovieActivity
 import com.example.movieapp.ui.listvideo.adapter.FlexboxAdapter
 import com.example.movieapp.ui.listvideo.adapter.ListVideoAdapter2
 import com.example.movieapp.util.Extension.parcelable
 import com.example.movieapp.util.Extension.parcelableArrayList
 import com.example.movieapp.util.SharedViewModel
+import com.example.movieapp.util.VideoDownloader
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.File
@@ -37,6 +41,7 @@ class LIstVideoFragment : Fragment() {
     private lateinit var flexboxAdapter: FlexboxAdapter
     private var slug: String = ""
     var privateDir: File? = null
+    private lateinit var videoDownloader: VideoDownloader
 
     companion object {
         fun newInstance(
@@ -65,6 +70,7 @@ class LIstVideoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        videoDownloader = VideoDownloader(requireContext())
         list = arguments?.parcelableArrayList("data")!!
         thumb = arguments?.getString("thumb").toString()
         detailMovie = arguments?.parcelable("detailMovie")
@@ -82,32 +88,13 @@ class LIstVideoFragment : Fragment() {
         initObserver()
 
         binding.download.setOnClickListener {
-            downLoadVideos(this.list)
-        }
-
-        privateDir = context?.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
-        privateDir?.mkdirs()
-    }
-
-
-    fun downLoadVideos(list: ArrayList<ServerData>) {
-        privateDir?.let {
-            for (i in list.indices) {
-                val outputFile = File(privateDir, "${list[i].slug}_tập${i + 1}.mp4")
-                val cmd =
-                    "-i ${list[i].linkM3u8} -c copy ${outputFile.absolutePath}"
-                FFmpegKit.executeAsync(
-                    cmd,
-                    { session ->
-                        val returnCode = session.returnCode
-                        if (ReturnCode.isSuccess(returnCode)) {
-                            Log.d("testing", "Convert thành công: ${outputFile.absolutePath}")
-                        } else {
-                            Log.e("testing", "Lỗi convert: $returnCode")
-                        }
-                    },
-                    { log -> Log.d("testing", "logCallBack: " + log.message) },
-                    { stats -> Log.d("testing", "staticCallBack:  $stats") })
+            val intent = Intent(context, DownloadService::class.java)
+            intent.putParcelableArrayListExtra("urls", list)
+            intent.putExtra("slug", slug)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireContext().startForegroundService(intent)
+            } else {
+                requireContext().startService(intent)
             }
         }
     }
