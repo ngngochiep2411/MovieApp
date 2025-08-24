@@ -3,16 +3,12 @@ package com.example.movieapp.ui.listvideo
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import com.arthenica.ffmpegkit.FFmpegKit
-import com.arthenica.ffmpegkit.ReturnCode
 import com.example.movieapp.databinding.FragmentLIstVideoBinding
 import com.example.movieapp.model.Category
 import com.example.movieapp.model.DetailMovie
@@ -90,7 +86,8 @@ class LIstVideoFragment : Fragment() {
         binding.download.setOnClickListener {
             val intent = Intent(context, DownloadService::class.java)
             intent.putParcelableArrayListExtra("urls", list)
-            intent.putExtra("slug", slug)
+            intent.putExtra("slug", this.slug)
+            intent.putExtra("movieName", detailMovie?.movie?.name)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 requireContext().startForegroundService(intent)
             } else {
@@ -113,6 +110,7 @@ class LIstVideoFragment : Fragment() {
     }
 
     private fun setData(detailMovie: DetailMovie) {
+        this.detailMovie = detailMovie
         binding.tvMovieName.text = detailMovie.movie?.name
         val info = "${detailMovie.movie?.year} | ${detailMovie.movie?.episodeTotal} tập | ${
             detailMovie.movie?.country?.get(0)?.name
