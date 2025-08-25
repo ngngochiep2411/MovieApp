@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -17,14 +16,13 @@ import com.example.movieapp.model.ServerData
 import com.example.movieapp.service.DownloadService
 import com.example.movieapp.ui.detailmovie.DetailMovieActivity
 import com.example.movieapp.ui.listvideo.adapter.FlexboxAdapter
+import com.example.movieapp.ui.listvideo.adapter.ListVideoAdapter
 import com.example.movieapp.ui.listvideo.adapter.ListVideoAdapter2
 import com.example.movieapp.util.Extension.parcelable
 import com.example.movieapp.util.Extension.parcelableArrayList
 import com.example.movieapp.util.SharedViewModel
 import com.example.movieapp.util.VideoDownloader
 import dagger.hilt.android.AndroidEntryPoint
-import io.github.glailton.expandabletextview.EXPAND_TYPE_DEFAULT
-import io.github.glailton.expandabletextview.EXPAND_TYPE_LAYOUT
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -32,7 +30,7 @@ import java.io.File
 class LIstVideoFragment : Fragment() {
 
     private lateinit var binding: FragmentLIstVideoBinding
-    private lateinit var adapter: ListVideoAdapter2
+    private lateinit var adapter: ListVideoAdapter
     var list: ArrayList<ServerData> = ArrayList()
     private var thumb: String = ""
     private val sharedViewModel: SharedViewModel by activityViewModels()
@@ -77,7 +75,7 @@ class LIstVideoFragment : Fragment() {
             setData(detailMovie!!)
         }
         arguments?.getString("thumb")
-        adapter = ListVideoAdapter2(list, thumb) { position ->
+        adapter = ListVideoAdapter(list, thumb) { position ->
             updateCurrentVideo(position, slug)
             updateEpisode(slug, position)
             updateWatchedAt()

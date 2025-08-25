@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/black"
     android:padding="@dimen/dp8">
 
     <RelativeLayout
@@ -17,29 +19,30 @@
             android:src="@mipmap/ic_launcher" />
 
         <View
-            android:visibility="invisible"
             android:id="@+id/view"
             android:layout_width="150dp"
             android:layout_height="100dp"
             android:alpha="0.6"
-            android:background="@color/black" />
+            android:background="@color/black"
+            android:visibility="invisible" />
 
         <ImageView
-            android:visibility="invisible"
             android:id="@+id/imgPlay"
             android:layout_width="@dimen/dp50"
             android:layout_height="@dimen/dp50"
             android:layout_centerInParent="true"
             android:scaleType="fitXY"
-            android:src="@drawable/baseline_play_arrow_24" />
+            android:src="@drawable/baseline_play_arrow_24"
+            android:visibility="invisible" />
     </RelativeLayout>
 
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
         android:layout_marginHorizontal="@dimen/dp8"
+        android:layout_marginTop="20dp"
         android:layout_toEndOf="@id/rlThumb"
         android:orientation="vertical">
 
@@ -62,5 +65,15 @@
             android:text="@string/app_name"
             android:textColor="@color/white" />
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/download"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_below="@id/linearLayout"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/ic_download"
+        app:tint="@color/white" />
 
 </RelativeLayout>
