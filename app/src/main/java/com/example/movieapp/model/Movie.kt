@@ -58,7 +58,11 @@ data class Movie(
     val slug: String? = null,
 
     @field:SerializedName("origin_name")
-    val originName: String? = null
+    val originName: String? = null,
+
+    @field:SerializedName("content")
+    val content: String? = null
+
 ) : MultiViewItem, Parcelable {
     override val id: String
         get() = _id

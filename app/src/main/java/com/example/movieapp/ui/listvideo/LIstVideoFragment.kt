@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -22,6 +23,8 @@ import com.example.movieapp.util.Extension.parcelableArrayList
 import com.example.movieapp.util.SharedViewModel
 import com.example.movieapp.util.VideoDownloader
 import dagger.hilt.android.AndroidEntryPoint
+import io.github.glailton.expandabletextview.EXPAND_TYPE_DEFAULT
+import io.github.glailton.expandabletextview.EXPAND_TYPE_LAYOUT
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -118,6 +121,12 @@ class LIstVideoFragment : Fragment() {
         binding.tvInfo.text = info
         val category = getCategory(detailMovie.movie?.category)
         binding.tvCategory.text = category
+        binding.content.text =
+            detailMovie.movie?.content
+
+        binding.content.setOnClickListener {
+            binding.content.toggle()
+        }
     }
 
 
