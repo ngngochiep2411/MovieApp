@@ -2,19 +2,17 @@ package com.example.movieapp.ui.listvideo.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.media.Image
 import android.os.Environment
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.movieapp.R
 import com.example.movieapp.databinding.LayoutItemListMovieBinding
 import com.example.movieapp.model.ServerData
+import com.example.movieapp.service.DownloadBroadcast
 import java.io.File
 
 
@@ -45,24 +43,28 @@ class ListVideoAdapter(
 
     inner class ListVideoViewHolder(private val binding: LayoutItemListMovieBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
         fun bind(position: Int) {
             val item = list[position]
+
             binding.view.visibility = if (currentVideo == position) View.VISIBLE else View.INVISIBLE
             binding.imgPlay.visibility =
                 if (currentVideo == position) View.VISIBLE else View.INVISIBLE
-            Glide.with(binding.root.context).load(thumb).diskCacheStrategy(DiskCacheStrategy.ALL)
+
+            Glide.with(binding.root.context)
+                .load(thumb)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(binding.imgThumb)
-            binding.tvName.text = list[position].name
-            val fullName = list[position].filename?.split(" - ")
-            if (fullName != null && fullName.size > 1) {
-                val name = fullName[0] + " - " + fullName[1]
-                binding.movieName.text = name
-            } else if (fullName != null && fullName.size == 1) {
-                binding.movieName.text = fullName[0]
+
+            binding.tvName.text = item.name
+            val fullName = item.filename?.split(" - ")
+            binding.movieName.text = when {
+                fullName != null && fullName.size > 1 -> fullName[0] + " - " + fullName[1]
+                fullName != null && fullName.size == 1 -> fullName[0]
+                else -> ""
             }
-            binding.root.setOnClickListener {
-                onItemClick?.invoke(position)
-            }
+
+            binding.root.setOnClickListener { onItemClick?.invoke(position) }
 
             when (item.downloadState) {
                 DownloadState.IDLE -> {
@@ -73,9 +75,6 @@ class ListVideoAdapter(
                     if (exits) {
                         item.downloadState = DownloadState.DOWNLOADED
                         binding.imgDownload.setImageResource(R.drawable.ic_success)
-                    }
-                    binding.imgDownload.setOnClickListener {
-                        onDownloadClick(position)
                     }
                 }
 
@@ -91,18 +90,23 @@ class ListVideoAdapter(
                 DownloadState.DOWNLOADING -> {
                     binding.imgDownload.visibility = View.GONE
                     binding.progress.visibility = View.VISIBLE
+                    binding.progressBar.progress =
+                        item.progress.toFloat()   // hiển thị progress hiện tại
                 }
 
                 DownloadState.DOWNLOADED -> {
                     binding.imgDownload.visibility = View.VISIBLE
                     binding.progress.visibility = View.GONE
+                    binding.imgDownload.setImageResource(R.drawable.ic_success)
                 }
             }
+
             binding.download.setOnClickListener {
-                Log.d("testing", "state")
                 when (item.downloadState) {
                     DownloadState.IDLE -> {
                         item.downloadState = DownloadState.DOWNLOADING
+                        notifyItemChanged(position)
+                        onDownloadClick(position)
                     }
 
                     DownloadState.QUEUED -> {
@@ -110,7 +114,7 @@ class ListVideoAdapter(
                     }
 
                     DownloadState.DOWNLOADING -> {
-                        item.downloadState = DownloadState.IDLE
+                        // đang tải thì không làm gì
                     }
 
                     DownloadState.DOWNLOADED -> {
@@ -119,14 +123,12 @@ class ListVideoAdapter(
                 }
             }
         }
-    }
 
-    private fun setOnClickDelete(imgDownload: ImageView, position: Int) {
-        imgDownload.setImageResource(R.drawable.ic_success)
-        imgDownload.setOnClickListener {
-            onDeleteClick(position)
+        fun updateProgressOnly(progress: Int) {
+            binding.progressBar.progress = progress.toFloat()
         }
     }
+
 
     fun checkFileExits(context: Context, position: Int): Boolean {
         return File(
@@ -142,10 +144,41 @@ class ListVideoAdapter(
         return ListVideoViewHolder(binding)
     }
 
+
     override fun getItemCount(): Int = list.size
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
+        if (payloads.isNotEmpty()) {
+            when (payloads[0]) {
+                DownloadBroadcast.EXTRA_PROGRESS -> {
+                    val item = list[position]
+                    val viewHolder = holder as ListVideoViewHolder
+                    viewHolder.updateProgressOnly(item.progress)
+                }
+
+                else -> (holder as ListVideoViewHolder).bind(position)
+            }
+        } else {
+            (holder as ListVideoViewHolder).bind(position)
+        }
+    }
+
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int
+    ) {
         (holder as ListVideoViewHolder).bind(position)
+    }
+
+    fun updateProgress(index: Int, progress: Double) {
+        if (index in list.indices) {
+            list[index].progress = progress.toInt()
+            notifyItemChanged(index, DownloadBroadcast.EXTRA_PROGRESS)
+        }
     }
 
 }

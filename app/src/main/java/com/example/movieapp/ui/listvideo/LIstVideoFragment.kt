@@ -1,23 +1,30 @@
 package com.example.movieapp.ui.listvideo
 
 import android.app.Dialog
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.movieapp.R
 import com.example.movieapp.databinding.FragmentLIstVideoBinding
 import com.example.movieapp.model.Category
 import com.example.movieapp.model.DetailMovie
 import com.example.movieapp.model.ServerData
+import com.example.movieapp.service.DownloadBroadcast
 import com.example.movieapp.service.DownloadService
 import com.example.movieapp.ui.authen.LoginActivity
 import com.example.movieapp.ui.detailmovie.DetailMovieActivity
@@ -46,6 +53,32 @@ class LIstVideoFragment : Fragment() {
     var privateDir: File? = null
     private lateinit var videoDownloader: VideoDownloader
 
+    private val downloadReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.d("DownloadService", "onReceive")
+            when (intent?.action) {
+                DownloadBroadcast.ACTION_PROGRESS -> {
+
+                    val index = intent.getIntExtra(DownloadBroadcast.EXTRA_INDEX, -1)
+                    val progress = intent.getDoubleExtra(DownloadBroadcast.EXTRA_PROGRESS, 0.0)
+
+                    if (index >= 0) {
+                        adapter.updateProgress(index, progress)
+                    }
+                }
+
+                DownloadBroadcast.ACTION_COMPLETE -> {
+//                    val index = intent.getIntExtra(DownloadBroadcast.EXTRA_INDEX, -1)
+//                    val success = intent.getBooleanExtra(DownloadBroadcast.EXTRA_SUCCESS, false)
+//                    if (index >= 0) {
+//                        adapter.markCompleted(index, success)
+//                    }
+                }
+            }
+        }
+    }
+
+
     companion object {
         fun newInstance(
             list: ArrayList<ServerData>,
@@ -69,6 +102,12 @@ class LIstVideoFragment : Fragment() {
         binding = FragmentLIstVideoBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
+
+    override fun onStart() {
+        super.onStart()
+
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -236,7 +275,7 @@ class LIstVideoFragment : Fragment() {
         slug: String
     ) {
         this.list = list
-        adapter.submitList(list, thumb,slug)
+        adapter.submitList(list, thumb, slug)
         this.slug = slug
         if (detailMovie != null) {
             setData(detailMovie)
@@ -253,8 +292,21 @@ class LIstVideoFragment : Fragment() {
     }
 
     override fun onResume() {
-        super.onResume()
         binding.root.requestLayout()
+        val filter = IntentFilter().apply {
+            addAction(DownloadBroadcast.ACTION_PROGRESS)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            activity?.registerReceiver(downloadReceiver, filter, Context.RECEIVER_EXPORTED)
+        } else {
+            activity?.registerReceiver(downloadReceiver, filter)
+        }
+        super.onResume()
     }
 
+
+    override fun onStop() {
+        activity?.unregisterReceiver(downloadReceiver)
+        super.onStop()
+    }
 }

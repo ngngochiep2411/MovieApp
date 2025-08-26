@@ -1,16 +1,26 @@
 package com.example.movieapp.ui.home
 
+import android.Manifest
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
+import com.example.movieapp.R
 import com.example.movieapp.databinding.FragmentHomeBinding
 import com.example.movieapp.model.Banner
 import com.example.movieapp.ui.detailmovie.DetailMovieActivity
@@ -34,7 +44,13 @@ class HomeFragment : Fragment(), OnItemClickListener, ToolbarHome.OnItemClickLis
     private lateinit var binding: FragmentHomeBinding
     private val viewModel: HomeViewModel by viewModels()
     private var homeAdapter = HomeAdapter(onBannerClick = ::bannerClick)
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
 
+            } else {
+            }
+        }
 
     private var state = intArrayOf(0)
 
@@ -57,6 +73,51 @@ class HomeFragment : Fragment(), OnItemClickListener, ToolbarHome.OnItemClickLis
         super.onAttach(context)
     }
 
+    private fun askNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    requireContext(), Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+
+                }
+
+                shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
+                    val dialog = Dialog(requireContext())
+                    dialog.setContentView(R.layout.layout_dialog_request_per)
+                    dialog.setCancelable(false)
+                    dialog.findViewById<TextView>(R.id.cancel).setOnClickListener {
+                        dialog.dismiss()
+                    }
+                    dialog.findViewById<TextView>(R.id.setting).setOnClickListener {
+                        dialog.dismiss()
+                        openNotificationSettings()
+                    }
+                    dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+                    dialog.show()
+                }
+
+                else -> {
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        }
+    }
+
+    fun openNotificationSettings() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                putExtra(Settings.EXTRA_APP_PACKAGE, context?.packageName)
+            }
+            startActivity(intent)
+        } else {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = ("package:${context?.packageName}").toUri()
+            }
+            startActivity(intent)
+        }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -104,6 +165,7 @@ class HomeFragment : Fragment(), OnItemClickListener, ToolbarHome.OnItemClickLis
 //                binding.shimmerLayout.showOriginal()
 //                binding.shimmerLayout.visibility = View.GONE
                 binding.refreshLayout.isRefreshing = false
+
             }
         }
         viewModel.movieResponse.observe(viewLifecycleOwner) {
@@ -113,6 +175,7 @@ class HomeFragment : Fragment(), OnItemClickListener, ToolbarHome.OnItemClickLis
 
                 is NetworkResult.Success -> {
                     homeAdapter.submitList(it.data)
+                    askNotificationPermission()
                 }
             }
         }

@@ -39,8 +39,8 @@ data class ServerData(
 
     @field:SerializedName("slug")
     val slug: String? = null,
-
-    var downloadState: DownloadState = DownloadState.IDLE
+    var progress: Int = 0,
+    var downloadState: DownloadState = DownloadState.IDLE,
 ) : Parcelable
 
 @Parcelize
