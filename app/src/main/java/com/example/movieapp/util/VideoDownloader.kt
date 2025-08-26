@@ -23,7 +23,7 @@ class VideoDownloader(
         movieName: String,
         slug: String,
         onDownloadStart: (index: Int, fileName: String) -> Unit,
-        onProgress: (index: Int, fileName: String, progress: Int) -> Unit,
+        onProgress: (index: Int, fileName: String, progress: Double) -> Unit,
         onDownloadComplete: (index: Int, fileName: String, success: Boolean) -> Unit
     ) {
         fun processVideo(index: Int) {
@@ -68,7 +68,7 @@ class VideoDownloader(
                 if (url.isNotEmpty() && videoDuration.isNotEmpty() && !isDownloading) {
                     isDownloading = true
                     val durationMs = parseDurationToMs(videoDuration)
-
+                    Log.d("testing", "durationMs: $durationMs")
                     downloadVideo(
                         url = url,
                         movieName = movieName,
@@ -97,9 +97,9 @@ class VideoDownloader(
         movieName: String,
         i: Int,
         onDownloadStart: (index: Int, fileName: String) -> Unit,
-        onProgress: (index: Int, fileName: String, progress: Int) -> Unit,
+        onProgress: (index: Int, fileName: String, progress: Double) -> Unit,
         onDownloadComplete: (index: Int, fileName: String, success: Boolean) -> Unit,
-        duration: Long,
+        duration: Double,
         slug: String
     ) {
 
@@ -116,47 +116,45 @@ class VideoDownloader(
             val returnCode = session.returnCode
             if (ReturnCode.isSuccess(returnCode)) {
                 Log.d("FFMPEGLOG", "Tải thành công: ${outputFile.absolutePath}")
+                onDownloadComplete(i, movieName, true)
             } else {
                 Log.e("FFMPEGLOG", "Lỗi tải video: $returnCode")
                 Log.e("FFMPEGLOG", "Output: ${session.allLogsAsString}")
+                onDownloadComplete(i, movieName, false)
             }
         }, { log ->
-
             val message = log.message
             Log.d("FFMPEGLOG", message)
 
         }, { statistics ->
             if (duration > 0) {
                 val current = statistics.time
-                val progress = ((current / duration) * 100).toInt()
+                val progress = (current / duration) * 100
                 onProgress(i, movieName, progress)
-                if (progress >= 100) {
-                    onDownloadComplete(i, movieName, true)
-                }
                 Log.d("FFMPEGLOG", "Progress: $progress%")
             }
         })
     }
 
-    fun parseDurationToMs(duration: String): Long {
+    fun parseDurationToMs(duration: String): Double {
         val parts = duration.split(":", ".")
         return when (parts.size) {
             4 -> { // hh:mm:ss.xx
-                val hours = parts[0].toLong()
-                val minutes = parts[1].toLong()
-                val seconds = parts[2].toLong()
-                val centis = parts[3].toLong() // 2 chữ số sau dấu chấm = centiseconds
-                (hours * 3600 + minutes * 60 + seconds) * 1000 + centis * 10
+                val hours = parts[0].toDouble()
+                val minutes = parts[1].toDouble()
+                val seconds = parts[2].toDouble()
+                val centis = parts[3].toDouble() // 2 chữ số sau dấu chấm = centiseconds
+                (hours * 3600 + minutes * 60 + seconds) * 1000 + centis * 10.0
             }
 
             3 -> { // mm:ss.xx hoặc hh:mm:ss (không có centisecond)
-                val minutes = parts[0].toLong()
-                val seconds = parts[1].toLong()
-                val centis = parts[2].toLongOrNull() ?: 0
-                (minutes * 60 + seconds) * 1000 + centis * 10
+                val minutes = parts[0].toDouble()
+                val seconds = parts[1].toDouble()
+                val centis = parts[2].toDoubleOrNull() ?: 0.0
+                (minutes * 60 + seconds) * 1000 + centis * 10.0
             }
 
-            else -> 0
+            else -> 0.0
         }
     }
 }

@@ -34,22 +34,31 @@ class Notification(context: Context) {
 
     fun getBuilder() = builder
 
-    fun updateProgress(progress: Int, movieName: String, current: Int) {
+    fun updateProgress(progress: Double, movieName: String, current: Int) {
         builder
             .setContentTitle("Tải xuống $movieName - Tập ${current + 1}")
-            .setContentText("$progress %")
-            .setProgress(100, progress, false)
-            .setSmallIcon(android.R.drawable.stat_sys_download)
+            .setContentText("${progress.toInt()} %")
+            .setProgress(100, progress.toInt(), false)
         notificationManager.notify(notificationId, builder.build())
     }
 
-    fun complete(movieName: String, current: Int) {
-        builder.setContentTitle("Tải xuống $movieName - Tập ${current + 1}")
-            .setContentText("Đã tải xuống video")
-            .setProgress(0, 0, false)
-            .setOngoing(true)
-            .setSmallIcon(android.R.drawable.stat_sys_download_done)
-        notificationManager.notify(notificationId, builder.build())
+    fun complete(movieName: String, current: Int, success: Boolean) {
+        if (success) {
+            builder.setContentTitle("Tải xuống $movieName - Tập ${current + 1}")
+                .setContentText("Đã tải xuống video")
+                .setProgress(0, 0, false)
+                .setOngoing(true)
+                .setSmallIcon(android.R.drawable.stat_sys_download_done)
+            notificationManager.notify(notificationId, builder.build())
+        } else {
+            builder.setContentTitle("Tải xuống $movieName - Tập ${current + 1}")
+                .setContentText("Có lỗi xảy ra")
+                .setProgress(0, 0, false)
+                .setOngoing(true)
+                .setSmallIcon(android.R.drawable.stat_sys_download_done)
+            notificationManager.notify(notificationId, builder.build())
+        }
+
     }
 
 }

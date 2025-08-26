@@ -89,15 +89,18 @@
             android:layout_marginHorizontal="10dp"
             android:layout_marginTop="5dp"
             android:textColor="@color/white"
+            android:textSize="13sp"
+            android:visibility="visible"
             app:animDuration="500"
-            app:collapsedLines="3"
+            app:collapsedLines="6"
             app:ellipsizeTextColor="@color/textGray"
             app:expandType="layout"
-            app:isExpanded="true"
+            app:isExpanded="false"
             app:readLessText="Thu gọn"
             app:readMoreText="Xem thêm"
             app:textMode="line"
             tools:text="2019 | K | 25/25 tap | Nhat Ban" />
+
 
         <TextView
             android:id="@+id/tvInfo"
@@ -132,7 +135,9 @@
             android:paddingBottom="4dp"
             android:tag="sticky"
             android:text="Danh sách tập phim"
-            android:textColor="@color/textGray" />
+            android:textColor="@color/white"
+            android:textSize="13sp"
+            android:textStyle="bold" />
 
 
         <androidx.recyclerview.widget.RecyclerView

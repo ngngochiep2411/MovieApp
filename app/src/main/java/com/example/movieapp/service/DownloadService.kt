@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import com.example.movieapp.model.ServerData
 import com.example.movieapp.util.Notification
 import com.example.movieapp.util.VideoDownloader
@@ -57,12 +56,12 @@ class DownloadService : Service() {
                 onDownloadStart = { index, fileName ->
 
                 },
-                onDownloadComplete = { index, fileName, progress ->
+                onDownloadComplete = { index, fileName, success ->
                     notificationHelper.complete(
                         movieName = movieName,
-                        current = index
+                        current = index,
+                        success = success
                     )
-                    notificationHelper.notificationId = index + 1
                 }
             )
 

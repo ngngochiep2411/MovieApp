@@ -2,6 +2,7 @@ package com.example.movieapp.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import com.example.movieapp.ui.listvideo.adapter.DownloadState
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 import kotlinx.parcelize.Parcelize
@@ -22,7 +23,7 @@ data class DetailMovie(
     val status: Boolean? = null,
 ) : Parcelable
 
-
+@Parcelize
 data class ServerData(
     @field:SerializedName("filename")
     val filename: String? = null,
@@ -37,41 +38,10 @@ data class ServerData(
     val name: String? = null,
 
     @field:SerializedName("slug")
-    val slug: String? = null
-) : Parcelable {
+    val slug: String? = null,
 
-    constructor(parcel: Parcel) : this(
-        filename = parcel.readString(),
-        linkEmbed = parcel.readString(),
-        linkM3u8 = parcel.readString(),
-        name = parcel.readString(),
-        slug = parcel.readString()
-    )
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(filename)
-        parcel.writeString(linkEmbed)
-        parcel.writeString(linkM3u8)
-        parcel.writeString(name)
-        parcel.writeString(slug)
-    }
-
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-
-    companion object CREATOR : Parcelable.Creator<ServerData> {
-        override fun createFromParcel(parcel: Parcel): ServerData {
-            return ServerData(parcel)
-        }
-
-        override fun newArray(size: Int): Array<ServerData?> {
-            return arrayOfNulls(size)
-        }
-    }
-}
+    var downloadState: DownloadState = DownloadState.IDLE
+) : Parcelable
 
 @Parcelize
 data class Episodes(
