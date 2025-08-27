@@ -2,15 +2,12 @@ package com.example.movieapp.ui.listvideo
 
 import android.app.Dialog
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.os.IBinder
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -25,11 +22,8 @@ import com.example.movieapp.databinding.FragmentLIstVideoBinding
 import com.example.movieapp.model.Category
 import com.example.movieapp.model.DetailMovie
 import com.example.movieapp.model.ServerData
-import com.example.movieapp.service.DownloadBroadcast
 import com.example.movieapp.service.DownloadService
 import com.example.movieapp.ui.detailmovie.DetailMovieActivity
-import com.example.movieapp.ui.listvideo.adapter.DownloadState
-import com.example.movieapp.ui.listvideo.adapter.FlexboxAdapter
 import com.example.movieapp.ui.listvideo.adapter.ListVideoAdapter
 import com.example.movieapp.util.Extension.parcelable
 import com.example.movieapp.util.Extension.parcelableArrayList
@@ -50,45 +44,29 @@ class LIstVideoFragment : Fragment() {
     private var detailMovie: DetailMovie? = null
     private var slug: String = ""
     private lateinit var videoDownloader: VideoDownloader
-    private var downloadService: DownloadService? = null
-    private var isBound = false
 
     private val downloadReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
 
             when (intent?.action) {
-                DownloadBroadcast.ACTION_PROGRESS -> {
+                DownloadService.ACTION_PROGRESS -> {
 
-                    val index = intent.getIntExtra(DownloadBroadcast.EXTRA_INDEX, -1)
-                    val progress = intent.getDoubleExtra(DownloadBroadcast.EXTRA_PROGRESS, 0.0)
+                    val index = intent.getIntExtra(DownloadService.EXTRA_INDEX, -1)
+                    val progress = intent.getDoubleExtra(DownloadService.EXTRA_PROGRESS, 0.0)
                     Log.d("DownloadService", "onReceive $progress")
                     if (index >= 0) {
                         adapter.updateProgress(index, progress)
                     }
                 }
 
-                DownloadBroadcast.ACTION_STATE -> {
-                    val state = intent.getStringExtra(DownloadBroadcast.EXTRA_STATE)
-                    val index = intent.getIntExtra(DownloadBroadcast.EXTRA_INDEX, -1)
+                DownloadService.ACTION_STATE -> {
+                    val state = intent.getStringExtra(DownloadService.EXTRA_STATE)
+                    val index = intent.getIntExtra(DownloadService.EXTRA_INDEX, -1)
                     adapter.updateState(state, index)
                 }
             }
         }
     }
-
-    private val connection = object : ServiceConnection {
-        override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
-            val binder = service as DownloadService.LocalBinder
-            downloadService = binder.getService()
-            isBound = true
-        }
-
-        override fun onServiceDisconnected(arg0: ComponentName?) {
-            downloadService = null
-            isBound = false
-        }
-    }
-
 
     companion object {
         fun newInstance(
@@ -137,32 +115,19 @@ class LIstVideoFragment : Fragment() {
                 updateWatchedAt()
             },
             onDownloadClick = { position ->
-                if (downloadService == null) {
-                    val intent = Intent(context, DownloadService::class.java).apply {
-                        putExtra("url", list[position].linkM3u8)
-                        putExtra("slug", this@LIstVideoFragment.slug)
-                        putExtra("movieName", detailMovie?.movie?.name)
-                        putExtra("position", position)
-                    }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        requireContext().startForegroundService(intent)
-                    } else {
-                        requireContext().startService(intent)
-                    }
-                    requireContext().bindService(intent, connection, Context.BIND_AUTO_CREATE)
-                } else {
-                    if (downloadService?.isDownloading() == true) {
-                        adapter.list[position].downloadState = DownloadState.QUEUED
-                        videoDownloader.addQueue(this.list[position].linkM3u8)
-                        adapter.notifyItemChanged(position)
-                    } else {
-                        downloadVideos(this.list[position].linkM3u8, position)
-                        adapter.list[position].downloadState = DownloadState.DOWNLOADING
-                        adapter.notifyItemChanged(position)
-                    }
+                val intent = Intent(requireContext(), DownloadService::class.java).apply {
+                    setPackage(requireContext().packageName)
+                    action = DownloadService.ACTION_START
+                    putExtra(DownloadService.EXTRA_URL, list[position].linkM3u8)
+                    putExtra(DownloadService.EXTRA_SLUG, slug)
+                    putExtra(DownloadService.EXTRA_MOVIE_NAME, detailMovie?.movie?.name)
+                    putExtra(DownloadService.EXTRA_POSITION, position)
                 }
-
-
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    requireContext().startForegroundService(intent)
+                } else {
+                    requireContext().startService(intent)
+                }
             },
             onDeleteClick = { position ->
                 showDialog(
@@ -192,8 +157,8 @@ class LIstVideoFragment : Fragment() {
     override fun onResume() {
         binding.root.requestLayout()
         val filter = IntentFilter().apply {
-            addAction(DownloadBroadcast.ACTION_PROGRESS)
-            addAction(DownloadBroadcast.ACTION_STATE)
+            addAction(DownloadService.ACTION_PROGRESS)
+            addAction(DownloadService.ACTION_STATE)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             activity?.registerReceiver(downloadReceiver, filter, Context.RECEIVER_EXPORTED)
@@ -205,10 +170,6 @@ class LIstVideoFragment : Fragment() {
 
     override fun onStop() {
         activity?.unregisterReceiver(downloadReceiver)
-        if (isBound) {
-            requireContext().unbindService(connection)
-            isBound = false
-        }
         super.onStop()
     }
 

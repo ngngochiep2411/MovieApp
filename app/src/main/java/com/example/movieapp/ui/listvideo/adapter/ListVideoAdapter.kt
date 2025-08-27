@@ -12,7 +12,9 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.movieapp.R
 import com.example.movieapp.databinding.LayoutItemListMovieBinding
 import com.example.movieapp.model.ServerData
-import com.example.movieapp.service.DownloadBroadcast
+import com.example.movieapp.service.DownloadService.Companion.EXTRA_PROGRESS
+import com.example.movieapp.service.DownloadService.Companion.EXTRA_STATE
+import com.example.movieapp.service.DownloadService.DownloadState
 import java.io.File
 
 
@@ -67,22 +69,23 @@ class ListVideoAdapter(
             setImageDrawable(item)
 
             binding.download.setOnClickListener {
-                when (item.downloadState) {
-                    DownloadState.IDLE -> {
-                        onDownloadClick(position)
-                    }
-
-                    DownloadState.QUEUED -> {
-                        item.downloadState = DownloadState.IDLE
-                    }
-
-                    DownloadState.DOWNLOADING -> {
-                    }
-
-                    DownloadState.DOWNLOADED -> {
-                        onDeleteClick(position)
-                    }
-                }
+                onDownloadClick(position)
+//                when (item.downloadState) {
+//                    DownloadState.IDLE -> {
+//                        onDownloadClick(position)
+//                    }
+//
+//                    DownloadState.QUEUED -> {
+//                        item.downloadState = DownloadState.IDLE
+//                    }
+//
+//                    DownloadState.DOWNLOADING -> {
+//                    }
+//
+//                    DownloadState.DOWNLOADED -> {
+//                        onDeleteClick(position)
+//                    }
+//                }
             }
         }
 
@@ -156,13 +159,13 @@ class ListVideoAdapter(
         if (payloads.isNotEmpty()) {
             for (payload in payloads) {
                 when (payload) {
-                    DownloadBroadcast.EXTRA_PROGRESS -> {
+                    EXTRA_PROGRESS -> {
                         val item = list[position]
                         val viewHolder = holder as ListVideoViewHolder
                         viewHolder.updateProgressOnly(item.progress)
                     }
 
-                    DownloadBroadcast.EXTRA_STATE -> {
+                    EXTRA_STATE -> {
                         val item = list[position]
                         val viewHolder = holder as ListVideoViewHolder
                         viewHolder.updateState(item)
@@ -185,7 +188,7 @@ class ListVideoAdapter(
     fun updateProgress(index: Int, progress: Double) {
         if (index in list.indices) {
             list[index].progress = progress.toInt()
-            notifyItemChanged(index, DownloadBroadcast.EXTRA_PROGRESS)
+            notifyItemChanged(index, EXTRA_PROGRESS)
         }
     }
 
@@ -193,12 +196,9 @@ class ListVideoAdapter(
         if (index in list.indices) {
             list[index].downloadState =
                 if (state != null) DownloadState.valueOf(state) else DownloadState.IDLE
-            notifyItemChanged(index, DownloadBroadcast.EXTRA_STATE)
+            notifyItemChanged(index, EXTRA_STATE)
         }
     }
 
 }
 
-enum class DownloadState {
-    IDLE, QUEUED, DOWNLOADING, DOWNLOADED
-}
