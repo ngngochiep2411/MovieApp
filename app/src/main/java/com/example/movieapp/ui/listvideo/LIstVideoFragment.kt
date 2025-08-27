@@ -2,23 +2,24 @@ package com.example.movieapp.ui.listvideo
 
 import android.app.Dialog
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.IBinder
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.movieapp.R
 import com.example.movieapp.databinding.FragmentLIstVideoBinding
 import com.example.movieapp.model.Category
@@ -26,11 +27,10 @@ import com.example.movieapp.model.DetailMovie
 import com.example.movieapp.model.ServerData
 import com.example.movieapp.service.DownloadBroadcast
 import com.example.movieapp.service.DownloadService
-import com.example.movieapp.ui.authen.LoginActivity
 import com.example.movieapp.ui.detailmovie.DetailMovieActivity
+import com.example.movieapp.ui.listvideo.adapter.DownloadState
 import com.example.movieapp.ui.listvideo.adapter.FlexboxAdapter
 import com.example.movieapp.ui.listvideo.adapter.ListVideoAdapter
-import com.example.movieapp.ui.listvideo.adapter.ListVideoAdapter2
 import com.example.movieapp.util.Extension.parcelable
 import com.example.movieapp.util.Extension.parcelableArrayList
 import com.example.movieapp.util.SharedViewModel
@@ -48,42 +48,51 @@ class LIstVideoFragment : Fragment() {
     private var thumb: String = ""
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private var detailMovie: DetailMovie? = null
-    private lateinit var flexboxAdapter: FlexboxAdapter
     private var slug: String = ""
-    var privateDir: File? = null
     private lateinit var videoDownloader: VideoDownloader
+    private var downloadService: DownloadService? = null
+    private var isBound = false
 
     private val downloadReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            Log.d("DownloadService", "onReceive")
+
             when (intent?.action) {
                 DownloadBroadcast.ACTION_PROGRESS -> {
 
                     val index = intent.getIntExtra(DownloadBroadcast.EXTRA_INDEX, -1)
                     val progress = intent.getDoubleExtra(DownloadBroadcast.EXTRA_PROGRESS, 0.0)
-
+                    Log.d("DownloadService", "onReceive $progress")
                     if (index >= 0) {
                         adapter.updateProgress(index, progress)
                     }
                 }
 
-                DownloadBroadcast.ACTION_COMPLETE -> {
-//                    val index = intent.getIntExtra(DownloadBroadcast.EXTRA_INDEX, -1)
-//                    val success = intent.getBooleanExtra(DownloadBroadcast.EXTRA_SUCCESS, false)
-//                    if (index >= 0) {
-//                        adapter.markCompleted(index, success)
-//                    }
+                DownloadBroadcast.ACTION_STATE -> {
+                    val state = intent.getStringExtra(DownloadBroadcast.EXTRA_STATE)
+                    val index = intent.getIntExtra(DownloadBroadcast.EXTRA_INDEX, -1)
+                    adapter.updateState(state, index)
                 }
             }
+        }
+    }
+
+    private val connection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
+            val binder = service as DownloadService.LocalBinder
+            downloadService = binder.getService()
+            isBound = true
+        }
+
+        override fun onServiceDisconnected(arg0: ComponentName?) {
+            downloadService = null
+            isBound = false
         }
     }
 
 
     companion object {
         fun newInstance(
-            list: ArrayList<ServerData>,
-            thumb: String?,
-            detailMovie: DetailMovie?
+            list: ArrayList<ServerData>, thumb: String?, detailMovie: DetailMovie?
         ): LIstVideoFragment {
             val fragment = LIstVideoFragment()
             val bundle = Bundle()
@@ -105,9 +114,7 @@ class LIstVideoFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-
     }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -130,7 +137,32 @@ class LIstVideoFragment : Fragment() {
                 updateWatchedAt()
             },
             onDownloadClick = { position ->
-                downloadVideos(arrayListOf(this.list[position]))
+                if (downloadService == null) {
+                    val intent = Intent(context, DownloadService::class.java).apply {
+                        putExtra("url", list[position].linkM3u8)
+                        putExtra("slug", this@LIstVideoFragment.slug)
+                        putExtra("movieName", detailMovie?.movie?.name)
+                        putExtra("position", position)
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        requireContext().startForegroundService(intent)
+                    } else {
+                        requireContext().startService(intent)
+                    }
+                    requireContext().bindService(intent, connection, Context.BIND_AUTO_CREATE)
+                } else {
+                    if (downloadService?.isDownloading() == true) {
+                        adapter.list[position].downloadState = DownloadState.QUEUED
+                        videoDownloader.addQueue(this.list[position].linkM3u8)
+                        adapter.notifyItemChanged(position)
+                    } else {
+                        downloadVideos(this.list[position].linkM3u8, position)
+                        adapter.list[position].downloadState = DownloadState.DOWNLOADING
+                        adapter.notifyItemChanged(position)
+                    }
+                }
+
+
             },
             onDeleteClick = { position ->
                 showDialog(
@@ -138,8 +170,7 @@ class LIstVideoFragment : Fragment() {
                     message = "Nội dung này sẽ không có sẵn trên thiết bị để xem khi không có Internet.",
                     onAccept = {
                         deleteFile(position)
-                    }
-                )
+                    })
             },
             onRemoveQUEUED = {
                 showDialog(
@@ -147,16 +178,38 @@ class LIstVideoFragment : Fragment() {
                     message = "Nội dung này đang được chờ để được tải xuống. Bạn có muốn hủy bỏ việc tải xuống nội dung này?",
                     onAccept = {
 
-                    }
-                )
-            }
-        )
+                    })
+            })
         binding.recyclerView.adapter = adapter
         binding.recyclerView.setHasFixedSize(true)
         initObserver()
         binding.download.setOnClickListener {
-            downloadVideos(this.list)
+            downloadVideos(this.list[0].linkM3u8, 0)
         }
+    }
+
+
+    override fun onResume() {
+        binding.root.requestLayout()
+        val filter = IntentFilter().apply {
+            addAction(DownloadBroadcast.ACTION_PROGRESS)
+            addAction(DownloadBroadcast.ACTION_STATE)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            activity?.registerReceiver(downloadReceiver, filter, Context.RECEIVER_EXPORTED)
+        } else {
+            activity?.registerReceiver(downloadReceiver, filter)
+        }
+        super.onResume()
+    }
+
+    override fun onStop() {
+        activity?.unregisterReceiver(downloadReceiver)
+        if (isBound) {
+            requireContext().unbindService(connection)
+            isBound = false
+        }
+        super.onStop()
     }
 
     private fun deleteFile(position: Int) {
@@ -166,15 +219,11 @@ class LIstVideoFragment : Fragment() {
             val deleted = file.delete()
             if (deleted) {
                 Toast.makeText(
-                    context,
-                    "Xóa thành công",
-                    Toast.LENGTH_SHORT
+                    context, "Xóa thành công", Toast.LENGTH_SHORT
                 ).show()
             } else {
                 Toast.makeText(
-                    context,
-                    "Xóa thất bại",
-                    Toast.LENGTH_SHORT
+                    context, "Xóa thất bại", Toast.LENGTH_SHORT
                 ).show()
             }
         } else {
@@ -207,11 +256,12 @@ class LIstVideoFragment : Fragment() {
 
     }
 
-    fun downloadVideos(list: ArrayList<ServerData>) {
+    fun downloadVideos(url: String, position: Int) {
         val intent = Intent(context, DownloadService::class.java)
-        intent.putParcelableArrayListExtra("urls", list)
+        intent.putExtra("url", url)
         intent.putExtra("slug", this.slug)
         intent.putExtra("movieName", detailMovie?.movie?.name)
+        intent.putExtra("position", position)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             requireContext().startForegroundService(intent)
         } else {
@@ -241,8 +291,7 @@ class LIstVideoFragment : Fragment() {
         binding.tvInfo.text = info
         val category = getCategory(detailMovie.movie?.category)
         binding.tvCategory.text = category
-        binding.content.text =
-            detailMovie.movie?.content.toString()
+        binding.content.text = detailMovie.movie?.content.toString()
     }
 
 
@@ -269,10 +318,7 @@ class LIstVideoFragment : Fragment() {
     }
 
     fun updateList(
-        list: ArrayList<ServerData>,
-        thumb: String?,
-        detailMovie: DetailMovie?,
-        slug: String
+        list: ArrayList<ServerData>, thumb: String?, detailMovie: DetailMovie?, slug: String
     ) {
         this.list = list
         adapter.submitList(list, thumb, slug)
@@ -289,24 +335,5 @@ class LIstVideoFragment : Fragment() {
         }
 
         return list
-    }
-
-    override fun onResume() {
-        binding.root.requestLayout()
-        val filter = IntentFilter().apply {
-            addAction(DownloadBroadcast.ACTION_PROGRESS)
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            activity?.registerReceiver(downloadReceiver, filter, Context.RECEIVER_EXPORTED)
-        } else {
-            activity?.registerReceiver(downloadReceiver, filter)
-        }
-        super.onResume()
-    }
-
-
-    override fun onStop() {
-        activity?.unregisterReceiver(downloadReceiver)
-        super.onStop()
     }
 }

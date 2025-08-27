@@ -34,24 +34,24 @@ class Notification(context: Context) {
 
     fun getBuilder() = builder
 
-    fun updateProgress(progress: Double, movieName: String, current: Int) {
+    fun updateProgress(progress: Double, movieName: String, position: Int) {
         builder
-            .setContentTitle("Tải xuống $movieName - Tập ${current + 1}")
+            .setContentTitle("Tải xuống $movieName - Tập ${position + 1}")
             .setContentText("${progress.toInt()} %")
             .setProgress(100, progress.toInt(), false)
         notificationManager.notify(notificationId, builder.build())
     }
 
-    fun complete(movieName: String, current: Int, success: Boolean) {
+    fun complete(movieName: String, position: Int?, success: Boolean) {
         if (success) {
-            builder.setContentTitle("Tải xuống $movieName - Tập ${current + 1}")
+            builder.setContentTitle("Tải xuống $movieName - Tập ${position?.plus(1)}")
                 .setContentText("Đã tải xuống video")
                 .setProgress(0, 0, false)
                 .setOngoing(true)
                 .setSmallIcon(android.R.drawable.stat_sys_download_done)
             notificationManager.notify(notificationId, builder.build())
         } else {
-            builder.setContentTitle("Tải xuống $movieName - Tập ${current + 1}")
+            builder.setContentTitle("Tải xuống $movieName - Tập ${position?.plus(1)}")
                 .setContentText("Có lỗi xảy ra")
                 .setProgress(0, 0, false)
                 .setOngoing(true)

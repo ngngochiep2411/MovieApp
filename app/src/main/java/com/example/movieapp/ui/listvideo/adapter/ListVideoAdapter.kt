@@ -17,7 +17,7 @@ import java.io.File
 
 
 class ListVideoAdapter(
-    private var list: ArrayList<ServerData>,
+    var list: ArrayList<ServerData>,
     var thumb: String? = "",
     var slug: String = "",
     var currentVideo: Int = 0,
@@ -51,9 +51,7 @@ class ListVideoAdapter(
             binding.imgPlay.visibility =
                 if (currentVideo == position) View.VISIBLE else View.INVISIBLE
 
-            Glide.with(binding.root.context)
-                .load(thumb)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
+            Glide.with(binding.root.context).load(thumb).diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(binding.imgThumb)
 
             binding.tvName.text = item.name
@@ -66,6 +64,29 @@ class ListVideoAdapter(
 
             binding.root.setOnClickListener { onItemClick?.invoke(position) }
 
+            setImageDrawable(item)
+
+            binding.download.setOnClickListener {
+                when (item.downloadState) {
+                    DownloadState.IDLE -> {
+                        onDownloadClick(position)
+                    }
+
+                    DownloadState.QUEUED -> {
+                        item.downloadState = DownloadState.IDLE
+                    }
+
+                    DownloadState.DOWNLOADING -> {
+                    }
+
+                    DownloadState.DOWNLOADED -> {
+                        onDeleteClick(position)
+                    }
+                }
+            }
+        }
+
+        fun setImageDrawable(item: ServerData) {
             when (item.downloadState) {
                 DownloadState.IDLE -> {
                     binding.imgDownload.visibility = View.VISIBLE
@@ -100,32 +121,14 @@ class ListVideoAdapter(
                     binding.imgDownload.setImageResource(R.drawable.ic_success)
                 }
             }
-
-            binding.download.setOnClickListener {
-                when (item.downloadState) {
-                    DownloadState.IDLE -> {
-                        item.downloadState = DownloadState.DOWNLOADING
-                        notifyItemChanged(position)
-                        onDownloadClick(position)
-                    }
-
-                    DownloadState.QUEUED -> {
-                        item.downloadState = DownloadState.IDLE
-                    }
-
-                    DownloadState.DOWNLOADING -> {
-                        // đang tải thì không làm gì
-                    }
-
-                    DownloadState.DOWNLOADED -> {
-                        onDeleteClick(position)
-                    }
-                }
-            }
         }
 
         fun updateProgressOnly(progress: Int) {
             binding.progressBar.progress = progress.toFloat()
+        }
+
+        fun updateState(item: ServerData) {
+            setImageDrawable(item)
         }
     }
 
@@ -148,19 +151,25 @@ class ListVideoAdapter(
     override fun getItemCount(): Int = list.size
 
     override fun onBindViewHolder(
-        holder: RecyclerView.ViewHolder,
-        position: Int,
-        payloads: MutableList<Any>
+        holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>
     ) {
         if (payloads.isNotEmpty()) {
-            when (payloads[0]) {
-                DownloadBroadcast.EXTRA_PROGRESS -> {
-                    val item = list[position]
-                    val viewHolder = holder as ListVideoViewHolder
-                    viewHolder.updateProgressOnly(item.progress)
-                }
+            for (payload in payloads) {
+                when (payload) {
+                    DownloadBroadcast.EXTRA_PROGRESS -> {
+                        val item = list[position]
+                        val viewHolder = holder as ListVideoViewHolder
+                        viewHolder.updateProgressOnly(item.progress)
+                    }
 
-                else -> (holder as ListVideoViewHolder).bind(position)
+                    DownloadBroadcast.EXTRA_STATE -> {
+                        val item = list[position]
+                        val viewHolder = holder as ListVideoViewHolder
+                        viewHolder.updateState(item)
+                    }
+
+                    else -> (holder as ListVideoViewHolder).bind(position)
+                }
             }
         } else {
             (holder as ListVideoViewHolder).bind(position)
@@ -168,8 +177,7 @@ class ListVideoAdapter(
     }
 
     override fun onBindViewHolder(
-        holder: RecyclerView.ViewHolder,
-        position: Int
+        holder: RecyclerView.ViewHolder, position: Int
     ) {
         (holder as ListVideoViewHolder).bind(position)
     }
@@ -178,6 +186,14 @@ class ListVideoAdapter(
         if (index in list.indices) {
             list[index].progress = progress.toInt()
             notifyItemChanged(index, DownloadBroadcast.EXTRA_PROGRESS)
+        }
+    }
+
+    fun updateState(state: String?, index: Int) {
+        if (index in list.indices) {
+            list[index].downloadState =
+                if (state != null) DownloadState.valueOf(state) else DownloadState.IDLE
+            notifyItemChanged(index, DownloadBroadcast.EXTRA_STATE)
         }
     }
 

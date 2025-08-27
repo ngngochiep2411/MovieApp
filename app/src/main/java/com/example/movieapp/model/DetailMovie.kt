@@ -32,7 +32,7 @@ data class ServerData(
     val linkEmbed: String? = null,
 
     @field:SerializedName("link_m3u8")
-    val linkM3u8: String? = null,
+    val linkM3u8: String = "",
 
     @field:SerializedName("name")
     val name: String? = null,
