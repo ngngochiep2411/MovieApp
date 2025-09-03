@@ -137,7 +137,11 @@ class LIstVideoFragment : Fragment() {
                         title = "Hủy tải xuống?",
                         message = "Nội dung này đang được chờ để được tải xuống. Bạn có muốn hủy bỏ việc tải xuống nội dung này?",
                         onAccept = {
-
+                            sendBroadCast(
+                                action = DownloadService.ACTION_UPDATE_STATE,
+                                position = position,
+                                state = DownloadService.DownloadState.IDLE
+                            )
                         })
                 } else {
                     val intent = Intent(requireContext(), DownloadService::class.java).apply {

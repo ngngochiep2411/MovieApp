@@ -24,7 +24,10 @@ class DownloadService : Service() {
     }
 
     override fun onCreate() {
-        Log.d("DownloadService", "onCreate instance = ${this.hashCode()}, thread = ${Thread.currentThread().name}")
+        Log.d(
+            "DownloadService",
+            "onCreate instance = ${this.hashCode()}, thread = ${Thread.currentThread().name}"
+        )
         videoDownloader = VideoDownloader(this)
         notificationHelper = Notification(this)
         startForeground(
@@ -39,7 +42,7 @@ class DownloadService : Service() {
 
     fun sendBroadCast(
         action: String,
-        state: DownloadService.DownloadState? = null,
+        state: String? = null,
         position: Int = -1,
         url: String = "",
         slug: String = "",
@@ -48,19 +51,19 @@ class DownloadService : Service() {
         val intent = Intent(action).apply {
             setPackage(packageName)
             if (state != null) {
-                putExtra(DownloadService.EXTRA_STATE, state)
+                putExtra(EXTRA_STATE, state)
             }
             if (position != -1) {
-                putExtra(DownloadService.EXTRA_INDEX, position)
+                putExtra(EXTRA_INDEX, position)
             }
             if (url.isNotEmpty()) {
-                putExtra(DownloadService.EXTRA_URL, url)
+                putExtra(EXTRA_URL, url)
             }
             if (slug.isNotEmpty()) {
-                putExtra(DownloadService.EXTRA_SLUG, slug)
+                putExtra(EXTRA_SLUG, slug)
             }
             if (!movieName.isNullOrEmpty()) {
-                putExtra(DownloadService.EXTRA_MOVIE_NAME, slug)
+                putExtra(EXTRA_MOVIE_NAME, slug)
             }
         }
         sendBroadcast(intent)
@@ -86,7 +89,7 @@ class DownloadService : Service() {
                     sendBroadCast(
                         action = ACTION_UPDATE_STATE,
                         position = position,
-                        state = DownloadState.QUEUED
+                        state = DownloadState.QUEUED.name
                     )
                 } else {
                     videoDownloader.download(

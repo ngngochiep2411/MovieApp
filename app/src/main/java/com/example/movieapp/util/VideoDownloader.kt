@@ -78,7 +78,7 @@ class VideoDownloader(
         }
 
         onDownloadStart(position, movieName)
-        val serverData = task
+        val serverData = task.url
 
         val probeCmd = "-i $serverData -c copy -f null -"
 
@@ -107,6 +107,7 @@ class VideoDownloader(
             }
         }, { log ->
             val message = log.message
+            Log.d("zmmsfdsfs", "$message")
             if (message.contains("Opening") && message.contains(".m3u8")) {
                 val regex = Regex("https?://[^\\s']+\\.m3u8")
                 regex.find(message)?.let { downloadUrl = it.value }
@@ -118,33 +119,33 @@ class VideoDownloader(
             }
             if (message.contains("Duration:")) waitingForDuration = true
 
-//            if (!started && downloadUrl.isNotEmpty() && videoDuration.isNotEmpty()) {
-//                started = true
-//                Log.d("testing", "downloadvideo")
-//                val durationMs = parseDurationToMs(videoDuration)
-//                downloadVideo(
-//                    url = url,
-//                    movieName = movieName,
-//                    slug = slug,
-//                    position = position,
-//                    onDownloadStart = onDownloadStart,
-//                    onProgress = onProgress,
-//                    onDownloadComplete = { i, fileName, success ->
-//                        onDownloadComplete(i, fileName, success)
-//                        processNext(
-//                            onDownloadStart,
-//                            onProgress,
-//                            onDownloadComplete,
-//                            onFinish,
-//                            movieName,
-//                            slug,
-//                            position?.plus(1),
-//                            url = url
-//                        )
-//                    },
-//                    duration = durationMs
-//                )
-//            }
+            if (!started && downloadUrl.isNotEmpty() && videoDuration.isNotEmpty()) {
+                started = true
+                Log.d("testing", "downloadvideo")
+                val durationMs = parseDurationToMs(videoDuration)
+                downloadVideo(
+                    url = url,
+                    movieName = movieName,
+                    slug = slug,
+                    position = position,
+                    onDownloadStart = onDownloadStart,
+                    onProgress = onProgress,
+                    onDownloadComplete = { i, fileName, success ->
+                        onDownloadComplete(i, fileName, success)
+                        processNext(
+                            onDownloadStart,
+                            onProgress,
+                            onDownloadComplete,
+                            onFinish,
+                            movieName,
+                            slug,
+                            position?.plus(1),
+                            url = url
+                        )
+                    },
+                    duration = durationMs
+                )
+            }
         }, {
             Log.e("FFMPEGLOG", "$it")
         })
