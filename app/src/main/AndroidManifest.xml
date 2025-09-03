@@ -60,8 +60,9 @@
         <activity
             android:name=".ui.detailmovie.DetailMovieActivity"
             android:exported="false"
-            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize|stateHidden"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:screenOrientation="sensor"
             tools:ignore="DiscouragedApi" />
         <activity
             android:name=".ui.main.MainActivity"

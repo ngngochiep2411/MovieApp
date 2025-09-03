@@ -13,7 +13,7 @@ class VideoDownloader(
 
     ) {
     private val privateDir = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
-    private val queue = ArrayDeque<String>()
+    private val queue = ArrayDeque<DownloadTask>()
     var isDownloading = false
 
 
@@ -21,12 +21,12 @@ class VideoDownloader(
         privateDir?.mkdirs()
     }
 
-    fun removeQueue(url: String) {
-        queue.remove(url)
+    fun removeQueue() {
+        queue.removeFirst()
     }
 
-    fun addQueue(url: String) {
-        queue.add(url)
+    fun addQueue(downloadTask: DownloadTask) {
+        queue.add(downloadTask)
     }
 
     fun download(
@@ -38,19 +38,23 @@ class VideoDownloader(
         onProgress: (position: Int?, fileName: String, progress: Double) -> Unit,
         onDownloadComplete: (position: Int?, fileName: String, success: Boolean) -> Unit,
         onFinish: () -> Unit,
+        downloadTask: DownloadTask
     ) {
-        queue.add(url)
+        Log.d("testing", "download")
+        queue.add(downloadTask)
         if (!isDownloading) {
             processNext(
-                onDownloadStart,
-                onProgress,
-                onDownloadComplete,
-                onFinish,
-                movieName,
-                slug,
-                position,
+                onDownloadStart = onDownloadStart,
+                onProgress = onProgress,
+                onDownloadComplete = onDownloadComplete,
+                onFinish = onFinish,
+                movieName = movieName,
+                slug = slug,
+                position = position,
+                url = url
             )
         }
+        isDownloading = true
     }
 
     private fun processNext(
@@ -60,9 +64,10 @@ class VideoDownloader(
         onFinish: () -> Unit,
         movieName: String,
         slug: String,
-        position: Int?
+        position: Int?,
+        url: String
     ) {
-        if (position != null && position >= queue.size) {
+        if (position != null && queue.isEmpty()) {
             onFinish()
             return
         }
@@ -72,35 +77,39 @@ class VideoDownloader(
             return
         }
 
-        isDownloading = true
+        onDownloadStart(position, movieName)
         val serverData = task
 
         val probeCmd = "-i $serverData -c copy -f null -"
 
         var waitingForDuration = false
         var videoDuration = ""
-        var url = ""
+        var downloadUrl = ""
         var started = false
 
         FFmpegKit.executeAsync(probeCmd, { session ->
             val returnCode = session.returnCode
             if (!ReturnCode.isSuccess(returnCode)) {
-                removeQueue(url = url)
+                removeQueue()
                 processNext(
-                    onDownloadStart,
-                    onProgress,
-                    onDownloadComplete,
-                    onFinish,
-                    movieName,
-                    slug,
-                    position
+                    onDownloadStart = onDownloadStart,
+                    onProgress = onProgress,
+                    onDownloadComplete = onDownloadComplete,
+                    onFinish = onFinish,
+                    movieName = movieName,
+                    slug = slug,
+                    position = position,
+                    url = url
                 )
+            } else {
+                Log.e("FFMPEGLOG", "Lỗi khi tải video: $returnCode")
+                Log.e("FFMPEGLOG", "Fail stack trace: ${session.failStackTrace}")
             }
         }, { log ->
             val message = log.message
             if (message.contains("Opening") && message.contains(".m3u8")) {
                 val regex = Regex("https?://[^\\s']+\\.m3u8")
-                regex.find(message)?.let { url = it.value }
+                regex.find(message)?.let { downloadUrl = it.value }
             }
             if (waitingForDuration) {
                 val regex = Regex("""(?:\d{2}:)?\d{2}:\d{2}(?:\.\d{2})?""")
@@ -109,33 +118,36 @@ class VideoDownloader(
             }
             if (message.contains("Duration:")) waitingForDuration = true
 
-            if (!started && url.isNotEmpty() && videoDuration.isNotEmpty()) {
-                started = true
-                Log.d("testing", "downloadvideo")
-                val durationMs = parseDurationToMs(videoDuration)
-                downloadVideo(
-                    url = url,
-                    movieName = movieName,
-                    slug = slug,
-                    position = position,
-                    onDownloadStart = onDownloadStart,
-                    onProgress = onProgress,
-                    onDownloadComplete = { i, fileName, success ->
-                        onDownloadComplete(i, fileName, success)
-                        processNext(
-                            onDownloadStart,
-                            onProgress,
-                            onDownloadComplete,
-                            onFinish,
-                            movieName,
-                            slug,
-                            position?.plus(1)
-                        )
-                    },
-                    duration = durationMs
-                )
-            }
-        }, { })
+//            if (!started && downloadUrl.isNotEmpty() && videoDuration.isNotEmpty()) {
+//                started = true
+//                Log.d("testing", "downloadvideo")
+//                val durationMs = parseDurationToMs(videoDuration)
+//                downloadVideo(
+//                    url = url,
+//                    movieName = movieName,
+//                    slug = slug,
+//                    position = position,
+//                    onDownloadStart = onDownloadStart,
+//                    onProgress = onProgress,
+//                    onDownloadComplete = { i, fileName, success ->
+//                        onDownloadComplete(i, fileName, success)
+//                        processNext(
+//                            onDownloadStart,
+//                            onProgress,
+//                            onDownloadComplete,
+//                            onFinish,
+//                            movieName,
+//                            slug,
+//                            position?.plus(1),
+//                            url = url
+//                        )
+//                    },
+//                    duration = durationMs
+//                )
+//            }
+        }, {
+            Log.e("FFMPEGLOG", "$it")
+        })
     }
 
     private fun downloadVideo(
@@ -162,7 +174,7 @@ class VideoDownloader(
         FFmpegKit.executeAsync(cmd, { session ->
             val returnCode = session.returnCode
             if (ReturnCode.isSuccess(returnCode)) {
-                removeQueue(url = url)
+                removeQueue()
                 isDownloading = false
                 Log.d("FFMPEGLOG", "Tải thành công: ${outputFile.absolutePath}")
                 onDownloadComplete(position, movieName, true)
@@ -170,6 +182,7 @@ class VideoDownloader(
                 isDownloading = false
                 Log.e("FFMPEGLOG", "Lỗi tải video: $returnCode")
                 Log.e("FFMPEGLOG", "Output: ${session.allLogsAsString}")
+                removeQueue()
                 onDownloadComplete(position, movieName, false)
             }
         }, { log ->
@@ -177,6 +190,7 @@ class VideoDownloader(
             Log.d("FFMPEGLOG", message)
 
         }, { statistics ->
+
             if (duration > 0) {
                 val current = statistics.time
                 val progress = (current / duration) * 100
@@ -208,3 +222,10 @@ class VideoDownloader(
         }
     }
 }
+
+data class DownloadTask(
+    val url: String,
+    val position: Int,
+    val movieName: String,
+    val slug: String
+)

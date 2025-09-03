@@ -25,8 +25,6 @@ class ListVideoAdapter(
     var currentVideo: Int = 0,
     var onItemClick: ((Int) -> Unit)? = null,
     var onDownloadClick: (Int) -> Unit,
-    var onDeleteClick: (Int) -> Unit,
-    var onRemoveQUEUED: (Int) -> Unit,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     @SuppressLint("NotifyDataSetChanged")
@@ -70,22 +68,6 @@ class ListVideoAdapter(
 
             binding.download.setOnClickListener {
                 onDownloadClick(position)
-//                when (item.downloadState) {
-//                    DownloadState.IDLE -> {
-//                        onDownloadClick(position)
-//                    }
-//
-//                    DownloadState.QUEUED -> {
-//                        item.downloadState = DownloadState.IDLE
-//                    }
-//
-//                    DownloadState.DOWNLOADING -> {
-//                    }
-//
-//                    DownloadState.DOWNLOADED -> {
-//                        onDeleteClick(position)
-//                    }
-//                }
             }
         }
 
@@ -106,9 +88,6 @@ class ListVideoAdapter(
                     binding.imgDownload.visibility = View.VISIBLE
                     binding.progress.visibility = View.GONE
                     binding.imgDownload.setImageResource(R.drawable.ic_download_gray)
-                    binding.imgDownload.setOnClickListener {
-                        onRemoveQUEUED(position)
-                    }
                 }
 
                 DownloadState.DOWNLOADING -> {

@@ -49,7 +49,7 @@ class LIstVideoFragment : Fragment() {
         override fun onReceive(context: Context?, intent: Intent?) {
 
             when (intent?.action) {
-                DownloadService.ACTION_PROGRESS -> {
+                DownloadService.ACTION_UPDATE_PROGRESS -> {
 
                     val index = intent.getIntExtra(DownloadService.EXTRA_INDEX, -1)
                     val progress = intent.getDoubleExtra(DownloadService.EXTRA_PROGRESS, 0.0)
@@ -59,7 +59,7 @@ class LIstVideoFragment : Fragment() {
                     }
                 }
 
-                DownloadService.ACTION_STATE -> {
+                DownloadService.ACTION_UPDATE_STATE -> {
                     val state = intent.getStringExtra(DownloadService.EXTRA_STATE)
                     val index = intent.getIntExtra(DownloadService.EXTRA_INDEX, -1)
                     adapter.updateState(state, index)
@@ -115,36 +115,48 @@ class LIstVideoFragment : Fragment() {
                 updateWatchedAt()
             },
             onDownloadClick = { position ->
-                val intent = Intent(requireContext(), DownloadService::class.java).apply {
-                    setPackage(requireContext().packageName)
-                    action = DownloadService.ACTION_START
-                    putExtra(DownloadService.EXTRA_URL, list[position].linkM3u8)
-                    putExtra(DownloadService.EXTRA_SLUG, slug)
-                    putExtra(DownloadService.EXTRA_MOVIE_NAME, detailMovie?.movie?.name)
-                    putExtra(DownloadService.EXTRA_POSITION, position)
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    requireContext().startForegroundService(intent)
-                } else {
-                    requireContext().startService(intent)
-                }
-            },
-            onDeleteClick = { position ->
-                showDialog(
-                    title = "Xóa nội dung đã tải?",
-                    message = "Nội dung này sẽ không có sẵn trên thiết bị để xem khi không có Internet.",
-                    onAccept = {
-                        deleteFile(position)
-                    })
-            },
-            onRemoveQUEUED = {
-                showDialog(
-                    title = "Hủy tải xuống?",
-                    message = "Nội dung này đang được chờ để được tải xuống. Bạn có muốn hủy bỏ việc tải xuống nội dung này?",
-                    onAccept = {
+                val state = adapter.list[position].downloadState
+                if (state == DownloadService.DownloadState.DOWNLOADED) {
+                    showDialog(
+                        title = "Xóa nội dung đã tải?",
+                        message = "Nội dung này sẽ không có sẵn trên thiết bị để xem khi không có Internet.",
+                        onAccept = {
+                            deleteFile(
+                                position,
+                                onSuccess = {
+                                    sendBroadCast(
+                                        action = DownloadService.ACTION_UPDATE_STATE,
+                                        position = position,
+                                        state = DownloadService.DownloadState.IDLE
+                                    )
+                                }
+                            )
+                        })
+                } else if (state == DownloadService.DownloadState.QUEUED) {
+                    showDialog(
+                        title = "Hủy tải xuống?",
+                        message = "Nội dung này đang được chờ để được tải xuống. Bạn có muốn hủy bỏ việc tải xuống nội dung này?",
+                        onAccept = {
 
-                    })
-            })
+                        })
+                } else {
+                    val intent = Intent(requireContext(), DownloadService::class.java).apply {
+                        setPackage(requireContext().packageName)
+                        action = DownloadService.ACTION_START
+                        putExtra(DownloadService.EXTRA_URL, list[position].linkM3u8)
+                        putExtra(DownloadService.EXTRA_SLUG, slug)
+                        putExtra(DownloadService.EXTRA_MOVIE_NAME, detailMovie?.movie?.name)
+                        putExtra(DownloadService.EXTRA_POSITION, position)
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        requireContext().startForegroundService(intent)
+                    } else {
+                        requireContext().startService(intent)
+                    }
+                }
+
+            },
+        )
         binding.recyclerView.adapter = adapter
         binding.recyclerView.setHasFixedSize(true)
         initObserver()
@@ -153,12 +165,41 @@ class LIstVideoFragment : Fragment() {
         }
     }
 
+    fun sendBroadCast(
+        action: String,
+        state: DownloadService.DownloadState? = null,
+        position: Int = -1,
+        url: String = "",
+        slug: String = "",
+        movieName: String? = null
+    ) {
+        val intent = Intent(action).apply {
+            setPackage(requireContext().packageName)
+            if (state != null) {
+                putExtra(DownloadService.EXTRA_STATE, state)
+            }
+            if (position != -1) {
+                putExtra(DownloadService.EXTRA_INDEX, position)
+            }
+            if (url.isNotEmpty()) {
+                putExtra(DownloadService.EXTRA_URL, url)
+            }
+            if (slug.isNotEmpty()) {
+                putExtra(DownloadService.EXTRA_SLUG, slug)
+            }
+            if (!movieName.isNullOrEmpty()) {
+                putExtra(DownloadService.EXTRA_MOVIE_NAME, slug)
+            }
+        }
+        requireContext().sendBroadcast(intent)
+    }
+
 
     override fun onResume() {
         binding.root.requestLayout()
         val filter = IntentFilter().apply {
-            addAction(DownloadService.ACTION_PROGRESS)
-            addAction(DownloadService.ACTION_STATE)
+            addAction(DownloadService.ACTION_UPDATE_PROGRESS)
+            addAction(DownloadService.ACTION_UPDATE_STATE)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             activity?.registerReceiver(downloadReceiver, filter, Context.RECEIVER_EXPORTED)
@@ -173,7 +214,7 @@ class LIstVideoFragment : Fragment() {
         super.onStop()
     }
 
-    private fun deleteFile(position: Int) {
+    private fun deleteFile(position: Int, onSuccess: () -> Unit) {
         val privateDir = requireContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
         val file = File(privateDir, "$slug/Tập${position + 1}.mp4")
         if (file.exists()) {
@@ -182,6 +223,7 @@ class LIstVideoFragment : Fragment() {
                 Toast.makeText(
                     context, "Xóa thành công", Toast.LENGTH_SHORT
                 ).show()
+                onSuccess()
             } else {
                 Toast.makeText(
                     context, "Xóa thất bại", Toast.LENGTH_SHORT

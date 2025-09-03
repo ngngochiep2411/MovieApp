@@ -1,10 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
     id ("kotlin-parcelize")
     alias(libs.plugins.google.gms.google.services)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -37,9 +37,6 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    kapt {
-        correctErrorTypes = true
-    }
     buildFeatures {
         viewBinding = true
     }
@@ -62,8 +59,8 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
+    implementation("com.google.dagger:hilt-android:2.56.2")
+    ksp("com.google.dagger:hilt-android-compiler:2.56.2")
     implementation(libs.retrofit)
     implementation (libs.gson)
     implementation (libs.retrofit2.converter.gson)
@@ -105,8 +102,8 @@ dependencies {
     implementation ("com.github.CarGuo.GSYVideoPlayer:gsyvideoplayer-aliplay:v10.2.0")
     // Room
     implementation ("androidx.room:room-runtime:2.7.1")
-    kapt ("androidx.room:room-compiler:2.7.1")
     implementation ("androidx.room:room-ktx:2.7.1")
+    ksp ("androidx.room:room-compiler:2.7.1")
     implementation ("com.mikhaellopez:circularprogressbar:3.1.0")
     implementation ("com.github.animsh:AnimatedCheckBox:1.0.0")
     implementation ("org.ocpsoft.prettytime:prettytime:5.0.8.Final")

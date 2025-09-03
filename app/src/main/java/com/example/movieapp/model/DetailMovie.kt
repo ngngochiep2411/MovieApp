@@ -1,10 +1,8 @@
 package com.example.movieapp.model
 
-import android.os.Parcel
 import android.os.Parcelable
-import com.example.movieapp.ui.listvideo.adapter.DownloadState
+import com.example.movieapp.service.DownloadService
 import com.google.gson.annotations.SerializedName
-import java.io.Serializable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -40,7 +38,7 @@ data class ServerData(
     @field:SerializedName("slug")
     val slug: String? = null,
     var progress: Int = 0,
-    var downloadState: DownloadState = DownloadState.IDLE,
+    var downloadState: DownloadService.DownloadState = DownloadService.DownloadState.IDLE,
 ) : Parcelable
 
 @Parcelize
