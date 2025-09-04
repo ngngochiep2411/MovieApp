@@ -124,7 +124,7 @@ class VideoDownloader(
                 Log.d("testing", "downloadvideo")
                 val durationMs = parseDurationToMs(videoDuration)
                 downloadVideo(
-                    url = url,
+                    url = downloadUrl,
                     movieName = movieName,
                     slug = slug,
                     position = position,
