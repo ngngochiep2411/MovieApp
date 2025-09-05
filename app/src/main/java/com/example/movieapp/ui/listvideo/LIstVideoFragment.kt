@@ -29,6 +29,7 @@ import com.example.movieapp.util.Extension.parcelable
 import com.example.movieapp.util.Extension.parcelableArrayList
 import com.example.movieapp.util.SharedViewModel
 import com.example.movieapp.util.VideoDownloader
+import com.google.android.play.integrity.internal.ac
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.File
@@ -122,15 +123,20 @@ class LIstVideoFragment : Fragment() {
                         message = "Nội dung này sẽ không có sẵn trên thiết bị để xem khi không có Internet.",
                         onAccept = {
                             deleteFile(
-                                position,
-                                onSuccess = {
+                                position, onSuccess = {
                                     sendBroadCast(
                                         action = DownloadService.ACTION_UPDATE_STATE,
                                         position = position,
                                         state = DownloadService.DownloadState.IDLE
                                     )
-                                }
-                            )
+                                    startService(
+                                        act = DownloadService.ACTION_REMOVE_QUEUE,
+                                        url = list[position].linkM3u8,
+                                        slug = this.slug,
+                                        movieName = detailMovie?.movie?.name,
+                                        position = position
+                                    )
+                                })
                         })
                 } else if (state == DownloadService.DownloadState.QUEUED) {
                     showDialog(
@@ -144,19 +150,13 @@ class LIstVideoFragment : Fragment() {
                             )
                         })
                 } else {
-                    val intent = Intent(requireContext(), DownloadService::class.java).apply {
-                        setPackage(requireContext().packageName)
-                        action = DownloadService.ACTION_START
-                        putExtra(DownloadService.EXTRA_URL, list[position].linkM3u8)
-                        putExtra(DownloadService.EXTRA_SLUG, slug)
-                        putExtra(DownloadService.EXTRA_MOVIE_NAME, detailMovie?.movie?.name)
-                        putExtra(DownloadService.EXTRA_POSITION, position)
-                    }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        requireContext().startForegroundService(intent)
-                    } else {
-                        requireContext().startService(intent)
-                    }
+                    startService(
+                        act = DownloadService.ACTION_START,
+                        url = list[position].linkM3u8,
+                        slug = this.slug,
+                        movieName = detailMovie?.movie?.name,
+                        position = position
+                    )
                 }
 
             },
@@ -166,6 +166,36 @@ class LIstVideoFragment : Fragment() {
         initObserver()
         binding.download.setOnClickListener {
             downloadVideos(this.list[0].linkM3u8, 0)
+        }
+    }
+
+    fun startService(
+        act: String,
+        url: String = "",
+        slug: String = "",
+        movieName: String? = null,
+        position: Int = -1
+    ) {
+        val intent = Intent(requireContext(), DownloadService::class.java).apply {
+            setPackage(requireContext().packageName)
+            action = act
+            if (url.isNotEmpty()) {
+                putExtra(DownloadService.EXTRA_URL, url)
+            }
+            if (slug.isNotEmpty()) {
+                putExtra(DownloadService.EXTRA_SLUG, slug)
+            }
+            if (!movieName.isNullOrEmpty()) {
+                putExtra(DownloadService.EXTRA_MOVIE_NAME, movieName)
+            }
+            if (position != -1) {
+                putExtra(DownloadService.EXTRA_POSITION, position)
+            }
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            requireContext().startForegroundService(intent)
+        } else {
+            requireContext().startService(intent)
         }
     }
 
@@ -213,9 +243,9 @@ class LIstVideoFragment : Fragment() {
         super.onResume()
     }
 
-    override fun onStop() {
+    override fun onDestroy() {
         activity?.unregisterReceiver(downloadReceiver)
-        super.onStop()
+        super.onDestroy()
     }
 
     private fun deleteFile(position: Int, onSuccess: () -> Unit) {

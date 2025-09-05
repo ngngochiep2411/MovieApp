@@ -147,13 +147,26 @@ class DownloadService : Service() {
             }
         }
 
+        if (intent?.action == ACTION_REMOVE_QUEUE) {
+            videoDownloader.removeQueue(
+                downloadTask = DownloadTask(
+                    url = intent.getStringExtra(EXTRA_URL) ?: "",
+                    position = intent.getIntExtra(EXTRA_POSITION, -1),
+                    movieName = intent.getStringExtra(EXTRA_MOVIE_NAME) ?: "",
+                    slug = intent.getStringExtra(EXTRA_SLUG) ?: ""
+                )
+            )
+        }
         return START_STICKY
     }
 
     companion object {
+
+        const val ACTION_CANCEL = "ACTION_CANCEL"
         const val ACTION_UPDATE_PROGRESS = "ACTION_UPDATE_PROGRESS"
         const val ACTION_UPDATE_STATE = "ACTION_UPDATE_STATE"
         const val ACTION_START = "ACTION_START"
+        const val ACTION_REMOVE_QUEUE = "ACTION_REMOVE_QUEUE"
 
         const val EXTRA_PROGRESS = "EXTRA_PROGRESS"
         const val EXTRA_INDEX = "EXTRA_INDEX"

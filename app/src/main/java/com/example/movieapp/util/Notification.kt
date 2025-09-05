@@ -1,13 +1,17 @@
 package com.example.movieapp.util
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
+import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import com.example.movieapp.service.DownloadService
 
-class Notification(context: Context) {
+class Notification(val context: Context) {
     private val channelId = "movie_app"
     var notificationId: Int = 1234
         internal set
@@ -34,31 +38,38 @@ class Notification(context: Context) {
 
     fun getBuilder() = builder
 
+    @SuppressLint("RestrictedApi")
     fun updateProgress(progress: Double, movieName: String, position: Int) {
+        val cancelIntent = Intent(context, DownloadService::class.java).apply {
+            action = DownloadService.ACTION_CANCEL
+            putExtra(DownloadService.EXTRA_POSITION, position)
+        }
+        val cancelPendingIntent = PendingIntent.getService(
+            context,
+            position,
+            cancelIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        builder.mActions.clear()
+
         builder
             .setContentTitle("Tải xuống $movieName - Tập ${position + 1}")
-            .setContentText("${progress.toInt()} %")
+            .setSubText("${progress.toInt()} %")
             .setProgress(100, progress.toInt(), false)
+            .addAction(android.R.drawable.ic_delete, "Hủy", cancelPendingIntent)
+
         notificationManager.notify(notificationId, builder.build())
     }
 
+    @SuppressLint("RestrictedApi")
     fun complete(movieName: String, position: Int?, success: Boolean) {
-        if (success) {
-            builder.setContentTitle("Tải xuống $movieName - Tập ${position?.plus(1)}")
-                .setContentText("Đã tải xuống video")
-                .setProgress(0, 0, false)
-                .setOngoing(true)
-                .setSmallIcon(android.R.drawable.stat_sys_download_done)
-            notificationManager.notify(notificationId, builder.build())
-        } else {
-            builder.setContentTitle("Tải xuống $movieName - Tập ${position?.plus(1)}")
-                .setContentText("Có lỗi xảy ra")
-                .setProgress(0, 0, false)
-                .setOngoing(true)
-                .setSmallIcon(android.R.drawable.stat_sys_download_done)
-            notificationManager.notify(notificationId, builder.build())
-        }
-
+        builder.mActions.clear()
+        builder.setContentTitle("Tải xuống $movieName - Tập ${position?.plus(1)}")
+            .setContentText(if (!success) "Có lỗi xảy ra" else "Đã tải xuống video")
+            .setProgress(0, 0, false)
+            .setOngoing(true)
+            .setSmallIcon(android.R.drawable.stat_sys_download_done)
+        notificationManager.notify(notificationId, builder.build())
     }
-
 }

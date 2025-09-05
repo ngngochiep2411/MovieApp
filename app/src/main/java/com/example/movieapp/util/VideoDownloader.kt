@@ -21,7 +21,11 @@ class VideoDownloader(
         privateDir?.mkdirs()
     }
 
-    fun removeQueue() {
+    fun removeQueue(downloadTask: DownloadTask) {
+        queue.remove(downloadTask)
+    }
+
+    fun removeQueueFirst() {
         queue.removeFirst()
     }
 
@@ -90,7 +94,7 @@ class VideoDownloader(
         FFmpegKit.executeAsync(probeCmd, { session ->
             val returnCode = session.returnCode
             if (!ReturnCode.isSuccess(returnCode)) {
-                removeQueue()
+                removeQueueFirst()
                 processNext(
                     onDownloadStart = onDownloadStart,
                     onProgress = onProgress,
@@ -175,7 +179,7 @@ class VideoDownloader(
         FFmpegKit.executeAsync(cmd, { session ->
             val returnCode = session.returnCode
             if (ReturnCode.isSuccess(returnCode)) {
-                removeQueue()
+                removeQueueFirst()
                 isDownloading = false
                 Log.d("FFMPEGLOG", "Tải thành công: ${outputFile.absolutePath}")
                 onDownloadComplete(position, movieName, true)
@@ -183,7 +187,7 @@ class VideoDownloader(
                 isDownloading = false
                 Log.e("FFMPEGLOG", "Lỗi tải video: $returnCode")
                 Log.e("FFMPEGLOG", "Output: ${session.allLogsAsString}")
-                removeQueue()
+                removeQueueFirst()
                 onDownloadComplete(position, movieName, false)
             }
         }, { log ->
