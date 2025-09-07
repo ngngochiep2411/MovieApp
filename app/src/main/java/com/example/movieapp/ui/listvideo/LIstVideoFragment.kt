@@ -148,6 +148,13 @@ class LIstVideoFragment : Fragment() {
                                 position = position,
                                 state = DownloadService.DownloadState.IDLE
                             )
+                            startService(
+                                act = DownloadService.ACTION_REMOVE_QUEUE,
+                                url = list[position].linkM3u8,
+                                slug = this.slug,
+                                movieName = detailMovie?.movie?.name,
+                                position = position
+                            )
                         })
                 } else {
                     startService(

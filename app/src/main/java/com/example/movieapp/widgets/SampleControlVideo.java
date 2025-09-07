@@ -3,9 +3,12 @@ package com.example.movieapp.widgets;
 import android.content.Context;
 import android.graphics.Matrix;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 
@@ -24,12 +27,10 @@ import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer;
  */
 
 public class SampleControlVideo extends StandardGSYVideoPlayer {
-
-    private TextView mMoreScale;
-
-    private TextView mChangeRotate;
-
-    private TextView mChangeTransform;
+    private ImageView imgNext;
+    private ImageView imgPrevious;
+    private ImageView imgForward;
+    private ImageView imgReplay;
 
     //记住切换数据源类型
     private int mType = 0;
@@ -61,98 +62,46 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
     }
 
     private void initView() {
-        mMoreScale = (TextView) findViewById(R.id.moreScale);
-        mChangeRotate = (TextView) findViewById(R.id.change_rotate);
-        mChangeTransform = (TextView) findViewById(R.id.change_transform);
+        imgForward = findViewById(R.id.forward);
+        imgNext = findViewById(R.id.next);
+        imgPrevious = findViewById(R.id.previous);
+        imgReplay = findViewById(R.id.replay);
 
-        findViewById(R.id.next).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (videoControlListener != null) {
-                    videoControlListener.onNextVideo();
-                }
+        imgForward.setOnClickListener(view -> {
+            if (mHadPlay) {
+                long current = getCurrentPositionWhenPlaying();
+                seekTo(current + 10000);
             }
         });
 
-        findViewById(R.id.previous).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (videoControlListener != null) {
-                    videoControlListener.onPreviousVideo();
-                }
+        imgReplay.setOnClickListener(view -> {
+            if (mHadPlay) {
+                long current = getCurrentPositionWhenPlaying();
+                seekTo(current - 10000);
             }
         });
 
-        //切换清晰度
-        mMoreScale.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!mHadPlay) {
-                    return;
-                }
-                if (mType == 0) {
-                    mType = 1;
-                } else if (mType == 1) {
-                    mType = 2;
-                } else if (mType == 2) {
-                    mType = 3;
-                } else if (mType == 3) {
-                    mType = 4;
-                } else if (mType == 4) {
-                    mType = 0;
-                }
-                resolveTypeUI();
+        imgNext.setOnClickListener(v -> {
+            if (videoControlListener != null) {
+                videoControlListener.onNextVideo();
             }
         });
 
-        //旋转播放角度
-        mChangeRotate.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!mHadPlay) {
-                    return;
-                }
-                if ((mTextureView.getRotation() - mRotate) == 270) {
-                    mTextureView.setRotation(mRotate);
-                    mTextureView.requestLayout();
-                } else {
-                    mTextureView.setRotation(mTextureView.getRotation() + 90);
-                    mTextureView.requestLayout();
-                }
+        imgPrevious.setOnClickListener(v -> {
+            if (videoControlListener != null) {
+                videoControlListener.onPreviousVideo();
             }
         });
-
-        //镜像旋转
-        mChangeTransform.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!mHadPlay) {
-                    return;
-                }
-                if (mTransformSize == 0) {
-                    mTransformSize = 1;
-                } else if (mTransformSize == 1) {
-                    mTransformSize = 2;
-                } else if (mTransformSize == 2) {
-                    mTransformSize = 0;
-                }
-                resolveTransform();
-            }
-        });
-
     }
 
-    @Override
-    public void onSurfaceSizeChanged(Surface surface, int width, int height) {
-        super.onSurfaceSizeChanged(surface, width, height);
-        resolveTransform();
-    }
 
     @Override
     protected void hideAllWidget() {
         super.hideAllWidget();
-        findViewById(R.id.next).setVisibility(INVISIBLE);
-        findViewById(R.id.previous).setVisibility(INVISIBLE);
+        imgNext.setVisibility(View.INVISIBLE);
+        imgPrevious.setVisibility(View.INVISIBLE);
+        imgReplay.setVisibility(View.INVISIBLE);
+        imgForward.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -161,28 +110,45 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
         updateNextPrevVisibility();
     }
 
+    @Override
+    protected void onClickUiToggle(MotionEvent e) {
+        super.onClickUiToggle(e);
+    }
 
     @Override
     protected void changeUiToPlayingShow() {
+        imgNext.setVisibility(View.VISIBLE);
+        imgPrevious.setVisibility(View.VISIBLE);
+        imgReplay.setVisibility(View.VISIBLE);
+        imgForward.setVisibility(View.VISIBLE);
         super.changeUiToPlayingShow();
-        updateNextPrevVisibility();
+
     }
 
     @Override
-    protected void changeUiToPauseShow() {
-        super.changeUiToPauseShow();
-        updateNextPrevVisibility();
+    protected void changeUiToPlayingClear() {
+        imgNext.setVisibility(View.INVISIBLE);
+        imgPrevious.setVisibility(View.INVISIBLE);
+        imgReplay.setVisibility(View.INVISIBLE);
+        imgForward.setVisibility(View.INVISIBLE);
+        super.changeUiToPlayingClear();
+
     }
+
 
     private void updateNextPrevVisibility() {
         if (mLockCurScreen) {
-            findViewById(R.id.next).setVisibility(View.INVISIBLE);
-            findViewById(R.id.previous).setVisibility(View.INVISIBLE);
             findViewById(R.id.start).setVisibility(View.INVISIBLE);
+            imgNext.setVisibility(View.INVISIBLE);
+            imgPrevious.setVisibility(View.INVISIBLE);
+            imgReplay.setVisibility(View.INVISIBLE);
+            imgForward.setVisibility(View.INVISIBLE);
         } else {
-            findViewById(R.id.next).setVisibility(View.VISIBLE);
-            findViewById(R.id.previous).setVisibility(View.VISIBLE);
             findViewById(R.id.start).setVisibility(View.VISIBLE);
+            imgNext.setVisibility(View.VISIBLE);
+            imgPrevious.setVisibility(View.VISIBLE);
+            imgReplay.setVisibility(View.VISIBLE);
+            imgForward.setVisibility(View.VISIBLE);
         }
     }
 
@@ -193,40 +159,6 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
     public void onSurfaceAvailable(Surface surface) {
         super.onSurfaceAvailable(surface);
         resolveRotateUI();
-        resolveTransform();
-    }
-
-    /**
-     * 处理镜像旋转
-     * 注意，暂停时
-     */
-    protected void resolveTransform() {
-        switch (mTransformSize) {
-            case 1: {
-                Matrix transform = new Matrix();
-                transform.setScale(-1, 1, mTextureView.getWidth() / 2, 0);
-                mTextureView.setTransform(transform);
-                mChangeTransform.setText("左右镜像");
-                mTextureView.invalidate();
-            }
-            break;
-            case 2: {
-                Matrix transform = new Matrix();
-                transform.setScale(1, -1, 0, mTextureView.getHeight() / 2);
-                mTextureView.setTransform(transform);
-                mChangeTransform.setText("上下镜像");
-                mTextureView.invalidate();
-            }
-            break;
-            case 0: {
-                Matrix transform = new Matrix();
-                transform.setScale(1, 1, mTextureView.getWidth() / 2, 0);
-                mTextureView.setTransform(transform);
-                mChangeTransform.setText("旋转镜像");
-                mTextureView.invalidate();
-            }
-            break;
-        }
     }
 
     @Override
@@ -250,7 +182,6 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
         sampleVideo.mType = mType;
         sampleVideo.mTransformSize = mTransformSize;
         //sampleVideo.resolveTransform();
-        sampleVideo.resolveTypeUI();
         //sampleVideo.resolveRotateUI();
         //这个播放器的demo配置切换到全屏播放器
         //这只是单纯的作为全屏播放显示，如果需要做大小屏幕切换，请记得在这里耶设置上视频全屏的需要的自定义配置
@@ -274,7 +205,6 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
             mSourcePosition = sampleVideo.mSourcePosition;
             mType = sampleVideo.mType;
             mTransformSize = sampleVideo.mTransformSize;
-            resolveTypeUI();
         }
     }
 
@@ -287,35 +217,6 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
         }
         mTextureView.setRotation(mRotate);
         mTextureView.requestLayout();
-    }
-
-    /**
-     * 显示比例
-     * 注意，GSYVideoType.setShowType是全局静态生效，除非重启APP。
-     */
-    private void resolveTypeUI() {
-        if (!mHadPlay) {
-            return;
-        }
-        if (mType == 1) {
-            mMoreScale.setText("16:9");
-            GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_16_9);
-        } else if (mType == 2) {
-            mMoreScale.setText("4:3");
-            GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_4_3);
-        } else if (mType == 3) {
-            mMoreScale.setText("全屏");
-            GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_FULL);
-        } else if (mType == 4) {
-            mMoreScale.setText("拉伸全屏");
-            GSYVideoType.setShowType(GSYVideoType.SCREEN_MATCH_FULL);
-        } else if (mType == 0) {
-            mMoreScale.setText("默认比例");
-            GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_DEFAULT);
-        }
-        changeTextureViewShowType();
-        if (mTextureView != null)
-            mTextureView.requestLayout();
     }
 
     public interface OnVideoControlListener {

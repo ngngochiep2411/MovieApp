@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@android:color/black">
 
     <FrameLayout
@@ -96,7 +97,8 @@
         android:layout_height="1.5dp"
         android:layout_alignParentBottom="true"
         android:max="100"
-        android:progressDrawable="@drawable/video_progress" />
+        android:progressDrawable="@drawable/video_seek_progress"
+        android:progressTint="@color/primaryColor" />
 
     <ImageView
         android:id="@+id/back_tiny"
@@ -108,19 +110,37 @@
 
     <ImageView
         android:id="@+id/previous"
-        android:layout_width="@dimen/dp40"
-        android:layout_height="@dimen/dp40"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="60dp"
+        android:layout_marginEnd="20dp"
         android:layout_toStartOf="@id/loading"
         android:src="@drawable/media3_icon_previous" />
 
     <ImageView
-        android:id="@+id/next"
-        android:layout_width="@dimen/dp40"
-        android:layout_height="@dimen/dp40"
+        android:id="@+id/forward"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_centerVertical="true"
-        android:layout_marginStart="60dp"
+        android:layout_marginStart="20dp"
+        android:layout_toEndOf="@id/next"
+        android:src="@drawable/forward" />
+
+    <ImageView
+        android:id="@+id/replay"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="20dp"
+        android:layout_toStartOf="@id/previous"
+        android:src="@drawable/replay" />
+
+    <ImageView
+        android:id="@+id/next"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="20dp"
         android:layout_toEndOf="@id/loading"
         android:src="@drawable/media3_icon_next" />
 
@@ -134,8 +154,8 @@
 
     <moe.codeest.enviews.ENPlayView
         android:id="@+id/start"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_gravity="center_vertical" />
@@ -162,7 +182,7 @@
         android:src="@drawable/unlock"
         android:visibility="gone" />
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/layout_top"
         android:layout_width="match_parent"
         android:layout_height="48dp"
@@ -174,57 +194,34 @@
 
         <ImageView
             android:id="@+id/back"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_centerVertical="true"
             android:paddingLeft="10dp"
             android:scaleType="centerInside"
             android:src="@drawable/video_back" />
 
         <TextView
             android:id="@+id/title"
+            tools:text="@string/appbar_scrolling_view_behavior"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingLeft="10dp"
-            android:textColor="@android:color/white"
-            android:textSize="18sp" />
+            android:layout_centerVertical="true"
+            android:layout_marginHorizontal="10dp"
+            android:layout_toLeftOf="@+id/setting"
+            android:layout_toRightOf="@id/back"
+            android:textColor="@color/white" />
 
-        <TextView
-            android:id="@+id/change_transform"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:minEms="5"
-            android:paddingLeft="10dp"
-            android:text="旋转镜像"
-            android:textColor="@android:color/white"
-            android:textSize="13sp"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/change_rotate"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:minEms="5"
-            android:paddingLeft="10dp"
-            android:text="旋转画面"
-            android:textColor="@android:color/white"
-            android:textSize="13sp"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/moreScale"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:minEms="5"
-            android:paddingLeft="10dp"
-            android:text="默认比例"
-            android:textColor="@android:color/white"
-            android:textSize="13sp"
-            android:visibility="gone" />
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/setting"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="10dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/setting" />
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/preview_layout"

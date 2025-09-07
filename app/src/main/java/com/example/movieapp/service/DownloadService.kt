@@ -31,9 +31,7 @@ class DownloadService : Service() {
         videoDownloader = VideoDownloader(this)
         notificationHelper = Notification(this)
         startForeground(
-            notificationHelper.notificationId,
-            notificationHelper.getBuilder()
-                .build()
+            notificationHelper.notificationId, notificationHelper.getBuilder().build()
         )
         super.onCreate()
     }
@@ -77,10 +75,7 @@ class DownloadService : Service() {
             val position = intent.getIntExtra(EXTRA_POSITION, -1)
             if (url != null && slug != null && movieName != null && position != -1) {
                 val downloadTask = DownloadTask(
-                    url = url,
-                    position = position,
-                    movieName = movieName,
-                    slug = slug
+                    url = url, position = position, movieName = movieName, slug = slug
                 )
                 if (videoDownloader.isDownloading) {
                     videoDownloader.addQueue(
@@ -93,15 +88,10 @@ class DownloadService : Service() {
                     )
                 } else {
                     videoDownloader.download(
-                        url = url,
-                        position = position,
-                        movieName = movieName,
-                        slug = slug,
+                        downloadTask = downloadTask,
                         onProgress = { index, fileName, progress ->
                             notificationHelper.updateProgress(
-                                progress = progress,
-                                movieName = movieName,
-                                position = position
+                                progress = progress, movieName = movieName, position = position
                             )
                             val intent = Intent(ACTION_UPDATE_PROGRESS).apply {
                                 intent.setPackage(packageName)
@@ -112,9 +102,7 @@ class DownloadService : Service() {
                         },
                         onDownloadStart = { index, fileName ->
                             notificationHelper.updateProgress(
-                                progress = 0.0,
-                                movieName = movieName,
-                                position = position
+                                progress = 0.0, movieName = movieName, position = position
                             )
                             val intent = Intent(ACTION_UPDATE_STATE).apply {
                                 intent.setPackage(packageName)
@@ -125,9 +113,7 @@ class DownloadService : Service() {
                         },
                         onDownloadComplete = { index, fileName, success ->
                             notificationHelper.complete(
-                                movieName = movieName,
-                                position = position,
-                                success = success
+                                movieName = movieName, position = position, success = success
                             )
                             val intent = Intent(ACTION_UPDATE_STATE).apply {
                                 intent.setPackage(packageName)
@@ -139,8 +125,7 @@ class DownloadService : Service() {
                         onFinish = {
                             Log.d("DownloadService", "onFinish")
                             stopSelf()
-                        },
-                        downloadTask = downloadTask
+                        }
                     )
 
                 }
@@ -149,14 +134,26 @@ class DownloadService : Service() {
 
         if (intent?.action == ACTION_REMOVE_QUEUE) {
             videoDownloader.removeQueue(
-                downloadTask = DownloadTask(
-                    url = intent.getStringExtra(EXTRA_URL) ?: "",
-                    position = intent.getIntExtra(EXTRA_POSITION, -1),
-                    movieName = intent.getStringExtra(EXTRA_MOVIE_NAME) ?: "",
-                    slug = intent.getStringExtra(EXTRA_SLUG) ?: ""
-                )
+                url = intent.getStringExtra(EXTRA_URL) ?: ""
             )
         }
+
+        if (intent?.action == ACTION_CANCEL) {
+            val url = intent.getStringExtra(EXTRA_URL)
+            val slug = intent.getStringExtra(EXTRA_SLUG)
+            val movieName = intent.getStringExtra(EXTRA_MOVIE_NAME)
+            val position = intent.getIntExtra(EXTRA_POSITION, -1)
+            if (url != null && slug != null && movieName != null && position != -1) {
+                val downloadTask = DownloadTask(
+                    url = url, position = position, movieName = movieName, slug = slug
+                )
+                videoDownloader.cancelDownload()
+                videoDownloader.deleteFile(downloadTask)
+            }
+
+        }
+
+
         return START_STICKY
     }
 

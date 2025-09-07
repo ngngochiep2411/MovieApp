@@ -257,8 +257,9 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
                 }
             })
         }
-//        GSYVideoType.setShowType(GSYVideoType.SCREEN_MATCH_FULL)
-        GSYVideoOptionBuilder().setCacheWithPlay(true).setVideoTitle(" ").setIsTouchWiget(true)
+        GSYVideoOptionBuilder().setCacheWithPlay(true)
+            .setVideoTitle("VKL LUON")
+            .setIsTouchWiget(true)
             .setRotateViewAuto(false).setLockLand(false).setShowFullAnimation(false)
             .setNeedLockFull(true).setSeekRatio(1F).setVideoAllCallBack(this)
             .build(binding.playerView)
@@ -296,8 +297,8 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
 
     private fun resolveNormalVideoUI() {
         //增加title
-        binding.playerView.titleTextView.visibility = View.GONE
-        binding.playerView.backButton.setVisibility(View.GONE)
+        binding.playerView.titleTextView.visibility = View.VISIBLE
+        binding.playerView.backButton.visibility = View.VISIBLE
     }
 
 
