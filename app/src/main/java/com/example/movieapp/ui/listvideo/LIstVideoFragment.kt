@@ -29,6 +29,7 @@ import com.example.movieapp.util.Extension.parcelable
 import com.example.movieapp.util.Extension.parcelableArrayList
 import com.example.movieapp.util.SharedViewModel
 import com.example.movieapp.util.VideoDownloader
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.play.integrity.internal.ac
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -173,6 +174,12 @@ class LIstVideoFragment : Fragment() {
         initObserver()
         binding.download.setOnClickListener {
             downloadVideos(this.list[0].linkM3u8, 0)
+        }
+
+        binding.down.setOnClickListener {
+            val dialog = MovieDetailBottomSheet()
+
+            dialog.show(requireActivity().supportFragmentManager, "MovieDetail")
         }
     }
 
@@ -335,7 +342,6 @@ class LIstVideoFragment : Fragment() {
         binding.tvInfo.text = info
         val category = getCategory(detailMovie.movie?.category)
         binding.tvCategory.text = category
-        binding.content.text = detailMovie.movie?.content.toString()
     }
 
 

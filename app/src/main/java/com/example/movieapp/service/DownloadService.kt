@@ -91,7 +91,7 @@ class DownloadService : Service() {
                         downloadTask = downloadTask,
                         onProgress = { index, fileName, progress ->
                             notificationHelper.updateProgress(
-                                progress = progress, movieName = movieName, position = position
+                                progress = progress, movieName = movieName, position = index
                             )
                             val intent = Intent(ACTION_UPDATE_PROGRESS).apply {
                                 intent.setPackage(packageName)

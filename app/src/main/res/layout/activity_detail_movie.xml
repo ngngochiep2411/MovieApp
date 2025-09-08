@@ -24,7 +24,7 @@
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginStart="10dp"
@@ -32,7 +32,10 @@
             android:tag="sticky"
             app:tabIndicatorColor="@color/primaryColor"
             app:tabMode="scrollable"
+            app:tabPadding="0dp"
+            app:tabPaddingBottom="0dp"
             app:tabPaddingStart="0dp"
+            app:tabPaddingTop="0dp"
             app:tabSelectedTextColor="@color/white"
             app:tabTextColor="@color/textGray" />
 

@@ -5,12 +5,12 @@ import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.util.UnstableApi
 import androidx.viewpager2.widget.ViewPager2
@@ -22,7 +22,6 @@ import com.example.movieapp.widgets.SampleControlVideo
 import com.google.android.material.tabs.TabLayoutMediator
 import com.shuyu.gsyvideoplayer.GSYVideoManager
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder
-import com.shuyu.gsyvideoplayer.listener.LockClickListener
 import com.shuyu.gsyvideoplayer.listener.VideoAllCallBack
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils
@@ -36,10 +35,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import androidx.core.view.isVisible
-import com.arthenica.ffmpegkit.FFmpegKit
-import com.arthenica.ffmpegkit.ReturnCode
-import java.io.File
 
 
 @AndroidEntryPoint
@@ -193,24 +188,20 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
     private fun initView() {
         binding.playerView.layoutParams.height =
             Resources.getSystem().displayMetrics.heightPixels / 4
+        GSYVideoType.setShowType(GSYVideoType.SCREEN_MATCH_FULL)
         backupRendType = GSYVideoType.getRenderType()
         resolveNormalVideoUI()
         initVideoBuilderMode()
 
-        binding.playerView.setLockClickListener(object : LockClickListener {
-            override fun onClick(view: View?, lock: Boolean) {
-                if (orientationUtils != null) {
-                    //配合下方的onConfigurationChanged
-                    orientationUtils!!.setEnable(!lock)
-                }
+        binding.playerView.setLockClickListener { view, lock ->
+            if (orientationUtils != null) {
+                //配合下方的onConfigurationChanged
+                orientationUtils!!.setEnable(!lock)
             }
-        })
+        }
         //使用GL播放的话，用这种方式可以解决退出全屏黑屏的问题
-        binding.playerView.setBackFromFullScreenListener(object : View.OnClickListener {
-            override fun onClick(v: View?) {
-                this@DetailMovieActivity.onBackPressed()
-            }
-        })
+        binding.playerView.setBackFromFullScreenListener { this@DetailMovieActivity.onBackPressed() }
+
 
         binding.playerView.setVideoControlListener(object :
             SampleControlVideo.OnVideoControlListener {
@@ -251,14 +242,10 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
         //初始化不打开外部的旋转
         orientationUtils!!.setEnable(false)
         if (binding.playerView.fullscreenButton != null) {
-            binding.playerView.fullscreenButton.setOnClickListener(object : View.OnClickListener {
-                override fun onClick(v: View?) {
-                    showFull()
-                }
-            })
+            binding.playerView.fullscreenButton.setOnClickListener { showFull() }
         }
         GSYVideoOptionBuilder().setCacheWithPlay(true)
-            .setVideoTitle("VKL LUON")
+            .setVideoTitle(" ")
             .setIsTouchWiget(true)
             .setRotateViewAuto(false).setLockLand(false).setShowFullAnimation(false)
             .setNeedLockFull(true).setSeekRatio(1F).setVideoAllCallBack(this)

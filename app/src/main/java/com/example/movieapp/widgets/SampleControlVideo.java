@@ -1,7 +1,9 @@
 package com.example.movieapp.widgets;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.media.MediaMetadataRetriever;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -9,14 +11,24 @@ import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.movieapp.R;
+import com.shuyu.gsyvideoplayer.GSYVideoManager;
+import com.shuyu.gsyvideoplayer.utils.CommonUtil;
+import com.shuyu.gsyvideoplayer.utils.Debuger;
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType;
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer;
+
+import java.io.File;
+import java.util.HashMap;
 
 
 /**
@@ -31,18 +43,22 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
     private ImageView imgPrevious;
     private ImageView imgForward;
     private ImageView imgReplay;
-
-    //记住切换数据源类型
     private int mType = 0;
-
     private int mTransformSize = 0;
-
-    //数据源
     private int mSourcePosition = 0;
 
-    /**
-     * 1.5.0开始加入，如果需要不同布局区分功能，需要重载
-     */
+    private RelativeLayout mPreviewLayout;
+
+    private ImageView mPreView;
+
+    //是否因为用户点击
+    private boolean mIsFromUser;
+
+    //是否打开滑动预览
+    private boolean mOpenPreView = true;
+
+    private int mPreProgress = -2;
+
     public SampleControlVideo(Context context, Boolean fullFlag) {
         super(context, fullFlag);
     }
@@ -66,6 +82,9 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
         imgNext = findViewById(R.id.next);
         imgPrevious = findViewById(R.id.previous);
         imgReplay = findViewById(R.id.replay);
+        mPreviewLayout = (RelativeLayout) findViewById(R.id.preview_layout);
+        mPreView = (ImageView) findViewById(R.id.preview_image);
+
 
         imgForward.setOnClickListener(view -> {
             if (mHadPlay) {
@@ -93,7 +112,70 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
             }
         });
     }
+//
+//    @Override
+//    public void onStartTrackingTouch(SeekBar seekBar) {
+//        super.onStartTrackingTouch(seekBar);
+//        if (mOpenPreView) {
+//            mIsFromUser = true;
+//            mPreviewLayout.setVisibility(VISIBLE);
+//            mPreProgress = -2;
+//        }
+//    }
 
+
+//    @Override
+//    public void onStopTrackingTouch(SeekBar seekBar) {
+//        if (mOpenPreView) {
+//            if (mPreProgress >= 0) {
+//                seekBar.setProgress(mPreProgress);
+//            }
+//            super.onStopTrackingTouch(seekBar);
+//            mIsFromUser = false;
+//            mPreviewLayout.setVisibility(GONE);
+//        } else {
+//            super.onStopTrackingTouch(seekBar);
+//        }
+//    }
+
+
+//    @Override
+//    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//        super.onProgressChanged(seekBar, progress, fromUser);
+//        if (fromUser && mOpenPreView) {
+//            int width = seekBar.getWidth();
+//            long time = progress * getDuration() / 100;
+//            int offset = (int) (width - (getResources().getDimension(R.dimen.dp150) / 2)) / 100 * progress;
+//            Debuger.printfError("***************** " + progress);
+//            Debuger.printfError("***************** " + time);
+//            showPreView(mOriginUrl, time);
+//            Log.d("mOriginUrl", mOriginUrl);
+//            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) mPreviewLayout.getLayoutParams();
+//            layoutParams.leftMargin = offset;
+//            //设置帧预览图的显示位置
+//            mPreviewLayout.setLayoutParams(layoutParams);
+//            if (mHadPlay && mOpenPreView) {
+//                mPreProgress = progress;
+//            }
+//        }
+//    }
+
+
+    private void showPreView(String url, long time) {
+        int width = CommonUtil.dip2px(getContext(), 150);
+        int height = CommonUtil.dip2px(getContext(), 100);
+        Glide.with(getContext().getApplicationContext())
+                .setDefaultRequestOptions(
+                        new RequestOptions()
+                                //这里限制了只从缓存读取
+                                .onlyRetrieveFromCache(true)
+                                .frame(1000 * time)
+                                .override(width, height)
+                                .dontAnimate()
+                                .centerCrop())
+                .load(url)
+                .into(mPreView);
+    }
 
     @Override
     protected void hideAllWidget() {

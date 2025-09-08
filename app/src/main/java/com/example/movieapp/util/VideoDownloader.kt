@@ -37,12 +37,18 @@ class VideoDownloader(
         if (!exits) {
             queue.add(downloadTask)
         }
+        queue.forEachIndexed { index, task ->
+            Log.d(
+                "VideoDownloader",
+                "[$index] url=${task.url}, slug=${task.slug}, movieName=${task.movieName}, position=${task.position}"
+            )
+        }
     }
 
     fun download(
-        onDownloadStart: (position: Int?, fileName: String) -> Unit,
-        onProgress: (position: Int?, fileName: String, progress: Double) -> Unit,
-        onDownloadComplete: (position: Int?, fileName: String, success: Boolean) -> Unit,
+        onDownloadStart: (position: Int, fileName: String) -> Unit,
+        onProgress: (position: Int, fileName: String, progress: Double) -> Unit,
+        onDownloadComplete: (position: Int, fileName: String, success: Boolean) -> Unit,
         onFinish: () -> Unit,
         downloadTask: DownloadTask
     ) {
@@ -59,9 +65,9 @@ class VideoDownloader(
     }
 
     private fun processNext(
-        onDownloadStart: (position: Int?, fileName: String) -> Unit,
-        onProgress: (position: Int?, fileName: String, progress: Double) -> Unit,
-        onDownloadComplete: (position: Int?, fileName: String, success: Boolean) -> Unit,
+        onDownloadStart: (position: Int, fileName: String) -> Unit,
+        onProgress: (position: Int, fileName: String, progress: Double) -> Unit,
+        onDownloadComplete: (position: Int, fileName: String, success: Boolean) -> Unit,
         onFinish: () -> Unit
     ) {
         if (queue.isEmpty()) {
@@ -140,10 +146,10 @@ class VideoDownloader(
     private fun downloadVideo(
         downloadUrl: String,
         movieName: String,
-        position: Int?,
-        onDownloadStart: (position: Int?, fileName: String) -> Unit,
-        onProgress: (position: Int?, fileName: String, progress: Double) -> Unit,
-        onDownloadComplete: (position: Int?, fileName: String, success: Boolean) -> Unit,
+        position: Int,
+        onDownloadStart: (position: Int, fileName: String) -> Unit,
+        onProgress: (position: Int, fileName: String, progress: Double) -> Unit,
+        onDownloadComplete: (position: Int, fileName: String, success: Boolean) -> Unit,
         duration: Double,
         slug: String,
         url: String?
