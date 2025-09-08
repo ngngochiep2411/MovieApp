@@ -16,6 +16,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.viewpager2.widget.ViewPager2
 import com.example.movieapp.R
 import com.example.movieapp.databinding.ActivityDetailMovieBinding
+import com.example.movieapp.model.Category
 import com.example.movieapp.model.DetailMovie
 import com.example.movieapp.util.SharedViewModel
 import com.example.movieapp.widgets.SampleControlVideo
@@ -35,6 +36,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.collections.forEach
 
 
 @AndroidEntryPoint
@@ -144,6 +146,7 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
                     viewPagerAdapter.notifyItemChanged(0, "change")
                     viewPagerAdapter.notifyItemChanged(1, "change")
                     isApiLoaded.value = true
+                    setData(data)
                 }
             }
             launch {
@@ -168,6 +171,30 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
         }
     }
 
+    fun setData(detailMovie: DetailMovie) {
+        binding.name.text = detailMovie.movie?.name
+        binding.content1.text = detailMovie.movie?.content
+        binding.time.text = "Thời lượng : ${detailMovie.movie?.time}"
+        binding.country.text = "Quốc gia : ${detailMovie.movie?.country[0]?.name}"
+        binding.category.text = "Thể loại: ${getCategory(detailMovie.movie?.category)}"
+        binding.episode.text = "Số tập : ${detailMovie.movie?.episodeTotal} tập"
+        binding.year.text = "Năm phát hành : ${detailMovie.movie?.year}"
+        binding.quality.text = "Quality : ${detailMovie.movie?.quality}"
+        binding.type.text = "Lang: ${detailMovie.movie?.lang}"
+        binding.actor.text = "${detailMovie.movie?.actor?.joinToString("\n") { "• $it" }}"
+    }
+
+    private fun getCategory(list: List<Category>?): String {
+        var category = ""
+        list?.forEach {
+            category += "${it.name} | "
+        }
+        if (category.endsWith("| ")) {
+            return category.substring(0, category.length - 3)
+        }
+        return category
+    }
+
 
     @UnstableApi
     private fun playVideo(url: String?) {
@@ -188,7 +215,6 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
     private fun initView() {
         binding.playerView.layoutParams.height =
             Resources.getSystem().displayMetrics.heightPixels / 4
-        GSYVideoType.setShowType(GSYVideoType.SCREEN_MATCH_FULL)
         backupRendType = GSYVideoType.getRenderType()
         resolveNormalVideoUI()
         initVideoBuilderMode()
@@ -212,8 +238,11 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
             override fun onPreviousVideo() {
                 previousVideo()
             }
-
         })
+
+        binding.hideInfo.setOnClickListener {
+            binding.info.visibility = View.GONE
+        }
     }
 
     private var updateJob: Job? = null
@@ -475,6 +504,10 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
 
     fun updateChangVideo(seekTo: Boolean) {
         this.seekTo = seekTo
+    }
+
+    fun showInfo() {
+        binding.info.visibility = View.VISIBLE
     }
 
 }

@@ -172,15 +172,11 @@ class LIstVideoFragment : Fragment() {
         binding.recyclerView.adapter = adapter
         binding.recyclerView.setHasFixedSize(true)
         initObserver()
-        binding.download.setOnClickListener {
-            downloadVideos(this.list[0].linkM3u8, 0)
-        }
-
         binding.down.setOnClickListener {
-            val dialog = MovieDetailBottomSheet()
-
-            dialog.show(requireActivity().supportFragmentManager, "MovieDetail")
+            val activity = activity as DetailMovieActivity
+            activity.showInfo()
         }
+
     }
 
     fun startService(

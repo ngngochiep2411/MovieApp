@@ -61,8 +61,10 @@ data class Movie(
     val originName: String? = null,
 
     @field:SerializedName("content")
-    val content: String? = null
+    val content: String? = null,
 
+    @field:SerializedName("actor")
+    val actor: ArrayList<String> = ArrayList(),
 ) : MultiViewItem, Parcelable {
     override val id: String
         get() = _id
