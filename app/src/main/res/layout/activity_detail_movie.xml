@@ -27,28 +27,34 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tabLayout"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="10dp"
-                android:background="@color/black"
-                android:tag="sticky"
-                app:tabIndicatorColor="@color/primaryColor"
-                app:tabMode="scrollable"
-                app:tabPadding="0dp"
-                app:tabPaddingBottom="0dp"
-                app:tabPaddingStart="0dp"
-                app:tabPaddingTop="0dp"
-                app:tabSelectedTextColor="@color/white"
-                app:tabTextColor="@color/textGray" />
+                android:orientation="vertical">
 
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/viewPager2"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="@dimen/dp8" />
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tabLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="10dp"
+                    android:background="@color/black"
+                    android:tag="sticky"
+                    app:tabIndicatorColor="@color/primaryColor"
+                    app:tabMode="scrollable"
+                    app:tabPadding="0dp"
+                    app:tabPaddingBottom="0dp"
+                    app:tabPaddingStart="0dp"
+                    app:tabPaddingTop="0dp"
+                    app:tabSelectedTextColor="@color/white"
+                    app:tabTextColor="@color/textGray" />
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/viewPager2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="@dimen/dp8" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/info"
