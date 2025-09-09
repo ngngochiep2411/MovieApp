@@ -240,8 +240,7 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
 
     @UnstableApi
     private fun playVideo(url: String?) {
-        binding.playerView.setUp(url, true, "")
-        binding.playerView.startPlayLogic()
+        binding.playerView.setupURL(url)
     }
 
 

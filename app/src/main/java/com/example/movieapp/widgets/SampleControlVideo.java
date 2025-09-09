@@ -74,6 +74,7 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
     private int mPreProgress = -2;
     private Dialog dialog;
     private SharedViewModel sharedViewModel;
+    SampleControlVideo sampleVideo;
 
     public void setSharedViewModel(SharedViewModel viewModel) {
         this.sharedViewModel = viewModel;
@@ -109,6 +110,17 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
     protected void init(Context context) {
         super.init(context);
         initView();
+    }
+
+    public void setupURL(String url) {
+        if (mIfCurrentIsFullscreen) {
+            sampleVideo.setUp(url, true, "");
+            sampleVideo.startPlayLogic();
+        } else {
+            setUp(url, true, "");
+            startPlayLogic();
+        }
+
     }
 
     private void initView() {
@@ -173,7 +185,6 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
             }
         });
     }
-
 
 
     OnChangeTypeClick onChangeType;
@@ -391,7 +402,7 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
      */
     @Override
     public GSYBaseVideoPlayer startWindowFullscreen(Context context, boolean actionBar, boolean statusBar) {
-        SampleControlVideo sampleVideo = (SampleControlVideo) super.startWindowFullscreen(context, actionBar, statusBar);
+        sampleVideo = (SampleControlVideo) super.startWindowFullscreen(context, actionBar, statusBar);
         sampleVideo.mSourcePosition = mSourcePosition;
         sampleVideo.mType = mType;
         sampleVideo.mTransformSize = mTransformSize;
@@ -406,7 +417,6 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
         sampleVideo.setVideoControlListener(videoControlListener);
         return sampleVideo;
     }
-
 
 
     /**
