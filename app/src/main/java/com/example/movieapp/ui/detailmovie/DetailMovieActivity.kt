@@ -7,6 +7,7 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -21,6 +22,7 @@ import com.example.movieapp.model.DetailMovie
 import com.example.movieapp.util.SharedViewModel
 import com.example.movieapp.widgets.SampleControlVideo
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.protobuf.LazyStringArrayList.emptyList
 import com.shuyu.gsyvideoplayer.GSYVideoManager
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder
 import com.shuyu.gsyvideoplayer.listener.VideoAllCallBack
@@ -42,6 +44,7 @@ import kotlin.collections.forEach
 @AndroidEntryPoint
 class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
 
+    private var position: Int = -1
     private lateinit var binding: ActivityDetailMovieBinding
     private var type: Int = -1
     private var movieName = ""
@@ -50,7 +53,9 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
     private lateinit var detailMovie: DetailMovie
     private val sharedViewModel: SharedViewModel by viewModels()
     private var index = 0
-    private var videos: List<String?> = ArrayList()
+    var typePlay: SharedViewModel.PlayType = SharedViewModel.PlayType.LONG_TIENG
+    private var videos: List<String> = emptyList()
+    private var videoURL: VideoURL? = null
 
     var backupRendType: Int = 0
     var orientationUtils: OrientationUtils? = null
@@ -73,6 +78,8 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
         setOnClick()
         initObserver()
         initViewPager()
+
+
     }
 
     private fun initViewPager() {
@@ -94,7 +101,18 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
                 binding.tabLayout.selectTab(binding.tabLayout.getTabAt(position))
             }
         })
+        Log.d("testing","setOnChangeType")
+        binding.playerView.setOnChangeType(object : OnChangeTypeClick {
+
+            @SuppressLint("UnsafeOptInUsageError")
+            override fun onChangeType(type: SharedViewModel.PlayType) {
+                typePlay = type
+                getVideos()
+                playVideo(videos[position])
+            }
+        })
     }
+
 
     override fun onPause() {
         super.onPause()
@@ -114,10 +132,11 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
 
             launch {
                 viewModel.videoUrls.filterNotNull().collect { urls ->
-                    videos = urls
+                    videoURL = urls
                     updateCurrentVideo(index)
                 }
             }
+
 
             launch {
                 viewModel.lastWatchedEpisode.collect { episode ->
@@ -149,14 +168,17 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
                     setData(data)
                 }
             }
+
             launch {
                 sharedViewModel.videoIndex.collect { current ->
-                    if (current != -1 && videos.isNotEmpty()) {
-                        index = current
-                        playVideo(videos[index])
+                    if (current != -1) {
+                        getVideos()
+                        position = current
+                        playVideo(videos[current])
                     }
                 }
             }
+
             launch {
                 combine(isVideoLoaded, isApiLoaded) { video, api ->
                     video && api
@@ -168,6 +190,26 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
                 }
             }
 
+        }
+    }
+
+    fun getVideos() {
+        videoURL?.let {
+            videos = when (typePlay) {
+                SharedViewModel.PlayType.LONG_TIENG -> {
+                    it.videoLongTieng.ifEmpty {
+                        typePlay = SharedViewModel.PlayType.VIETSUB
+                        it.videoVietSub
+                    }
+                }
+
+                SharedViewModel.PlayType.VIETSUB -> {
+                    it.videoVietSub.ifEmpty {
+                        typePlay = SharedViewModel.PlayType.LONG_TIENG
+                        it.videoLongTieng
+                    }
+                }
+            }
         }
     }
 
@@ -215,6 +257,7 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
     private fun initView() {
         binding.playerView.layoutParams.height =
             Resources.getSystem().displayMetrics.heightPixels / 4
+        binding.playerView.setSharedViewModel(sharedViewModel)
         backupRendType = GSYVideoType.getRenderType()
         resolveNormalVideoUI()
         initVideoBuilderMode()
@@ -507,7 +550,10 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
     }
 
     fun showInfo() {
+        val animation = AnimationUtils.loadAnimation(this, R.anim.slide_up)
         binding.info.visibility = View.VISIBLE
+        binding.info.startAnimation(animation)
     }
+
 
 }

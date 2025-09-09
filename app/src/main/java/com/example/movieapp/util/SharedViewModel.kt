@@ -18,8 +18,20 @@ class SharedViewModel @Inject constructor(
     private val movieDao: MovieDao
 ) : ViewModel() {
 
+    enum class PlayType {
+        LONG_TIENG,
+        VIETSUB
+    }
+
     private var _videoIndex = MutableStateFlow(-1)
     val videoIndex: StateFlow<Int> = _videoIndex
+
+    private val _typePlay = MutableStateFlow(PlayType.LONG_TIENG) // giá trị mặc định
+    val typePlay: StateFlow<PlayType> = _typePlay
+
+    fun setTypePlay(type: PlayType) {
+        _typePlay.value = type
+    }
 
     private val _login = MutableStateFlow(false)
     val login: MutableStateFlow<Boolean> get() = _login

@@ -1,24 +1,34 @@
 package com.example.movieapp.widgets;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.graphics.drawable.ColorDrawable;
 import android.media.MediaMetadataRetriever;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.movieapp.R;
+import com.example.movieapp.ui.detailmovie.ChooseSpeedAdapter;
+import com.example.movieapp.ui.detailmovie.OnChangeTypeClick;
+import com.example.movieapp.ui.detailmovie.Speed;
+import com.example.movieapp.util.SharedViewModel;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
 import com.shuyu.gsyvideoplayer.utils.CommonUtil;
 import com.shuyu.gsyvideoplayer.utils.Debuger;
@@ -28,7 +38,10 @@ import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 
 /**
@@ -43,6 +56,7 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
     private ImageView imgPrevious;
     private ImageView imgForward;
     private ImageView imgReplay;
+    private ImageView imgMenu;
     private int mType = 0;
     private int mTransformSize = 0;
     private int mSourcePosition = 0;
@@ -58,6 +72,26 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
     private boolean mOpenPreView = true;
 
     private int mPreProgress = -2;
+    private Dialog dialog;
+    private SharedViewModel sharedViewModel;
+
+    public void setSharedViewModel(SharedViewModel viewModel) {
+        this.sharedViewModel = viewModel;
+    }
+
+    List<Speed> speedList = Arrays.asList(
+            new Speed("0.5x", false),
+            new Speed("0.75x", false),
+            new Speed("1x", true),
+            new Speed("1.25x", false),
+            new Speed("1.5x", false),
+            new Speed("2x", false)
+    );
+
+    List<Speed> typeList = Arrays.asList(
+            new Speed("Lồng tiếng", true),
+            new Speed("Việt sub", false)
+    );
 
     public SampleControlVideo(Context context, Boolean fullFlag) {
         super(context, fullFlag);
@@ -84,6 +118,33 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
         imgReplay = findViewById(R.id.replay);
         mPreviewLayout = (RelativeLayout) findViewById(R.id.preview_layout);
         mPreView = (ImageView) findViewById(R.id.preview_image);
+        imgMenu = findViewById(R.id.setting);
+
+        dialog = new Dialog(getContext());
+
+        imgMenu.setOnClickListener(v -> {
+            dialog.setContentView(R.layout.layout_setting_dialog);
+            dialog.findViewById(R.id.chooseSpeed).setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showDialogChooseSpeed();
+                }
+            });
+            dialog.findViewById(R.id.chooseType).setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showDialogChooseType();
+                }
+            });
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+
+            Window window = dialog.getWindow();
+            if (window != null) {
+                window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                window.setGravity(Gravity.BOTTOM);
+            }
+            dialog.show();
+        });
 
 
         imgForward.setOnClickListener(view -> {
@@ -111,6 +172,77 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
                 videoControlListener.onPreviousVideo();
             }
         });
+    }
+
+
+
+    OnChangeTypeClick onChangeType;
+
+    public void setOnChangeType(OnChangeTypeClick onChangeType) {
+        this.onChangeType = onChangeType;
+    }
+
+    private void showDialogChooseType() {
+        dialog.setContentView(R.layout.layout_choose_speed_dialog);
+        TextView title = dialog.findViewById(R.id.title);
+        title.setText("Chế độ xem");
+        RecyclerView recyclerView = dialog.findViewById(R.id.recyclerView);
+        ChooseSpeedAdapter adapter = new ChooseSpeedAdapter(position -> {
+            if (!typeList.get(position).isSelected()) {
+                typeList.get(position).setSelected(true);
+                for (int i = 0; i < typeList.size(); i++) {
+                    if (i != position) {
+                        typeList.get(i).setSelected(false);
+                    }
+                }
+                if (position == 0) {
+                    onChangeType.onChangeType(SharedViewModel.PlayType.LONG_TIENG);
+                } else if (position == 1) {
+                    onChangeType.onChangeType(SharedViewModel.PlayType.VIETSUB);
+                }
+            }
+            dialog.dismiss();
+            return null;
+        });
+        recyclerView.setAdapter(adapter);
+        adapter.submitList(typeList);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            window.setGravity(Gravity.BOTTOM);
+        }
+        dialog.show();
+    }
+
+
+    private void showDialogChooseSpeed() {
+        dialog.setContentView(R.layout.layout_choose_speed_dialog);
+        TextView title = dialog.findViewById(R.id.title);
+        title.setText("Tốc độ phát");
+        RecyclerView recyclerView = dialog.findViewById(R.id.recyclerView);
+        ChooseSpeedAdapter adapter = new ChooseSpeedAdapter(position -> {
+            speedList.get(position).setSelected(true);
+            for (int i = 0; i < speedList.size(); i++) {
+                if (i != position) {
+                    speedList.get(i).setSelected(false);
+                }
+            }
+            dialog.dismiss();
+            String value = speedList.get(position).getValue();
+            float speed = Float.parseFloat(value.replace("x", ""));
+            setSpeedPlaying(speed, true);
+            return null;
+        });
+        recyclerView.setAdapter(adapter);
+        adapter.submitList(speedList);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            window.setGravity(Gravity.BOTTOM);
+        }
+        dialog.show();
     }
 //
 //    @Override
@@ -269,8 +401,13 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
         //这只是单纯的作为全屏播放显示，如果需要做大小屏幕切换，请记得在这里耶设置上视频全屏的需要的自定义配置
         //比如已旋转角度之类的等等
         //可参考super中的实现
+        sampleVideo.setOnChangeType(onChangeType);
+        sampleVideo.setSharedViewModel(sharedViewModel);
+        sampleVideo.setVideoControlListener(videoControlListener);
         return sampleVideo;
     }
+
+
 
     /**
      * 推出全屏时将对应处理参数逻辑返回给非播放器
@@ -287,6 +424,10 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
             mSourcePosition = sampleVideo.mSourcePosition;
             mType = sampleVideo.mType;
             mTransformSize = sampleVideo.mTransformSize;
+
+            setOnChangeType(sampleVideo.onChangeType);
+            setSharedViewModel(sampleVideo.sharedViewModel);
+            setVideoControlListener(sampleVideo.videoControlListener);
         }
     }
 

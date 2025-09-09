@@ -20,12 +20,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailMovieViewModel @Inject constructor(
-    private val mainRepository: MainRepository,
-    val movieDao: MovieDao
+    private val mainRepository: MainRepository, val movieDao: MovieDao
 ) : ViewModel() {
 
-    private val _videoUrls = MutableStateFlow<List<String?>?>(null)
-    val videoUrls: StateFlow<List<String?>?> = _videoUrls
+    //vietsub
+    private val _videoUrls = MutableStateFlow<VideoURL?>(null)
+    val videoUrls: StateFlow<VideoURL?> = _videoUrls
+
 
     private val _detailMovie = MutableStateFlow<DetailMovie?>(null)
     val detailMovie: StateFlow<DetailMovie?> = _detailMovie
@@ -63,20 +64,31 @@ class DetailMovieViewModel @Inject constructor(
         mainRepository.getDetailMovie(name = slug).collect { response ->
             if (response is NetworkResult.Success) {
                 _detailMovie.value = response.data
-                val urls = response.data.episodes?.get(0)?.serverData?.map {
-                    it.linkM3u8
-                } ?: emptyList()
-                _videoUrls.value = urls
+                val episodes = response.data.episodes ?: emptyList()
+                var vietsub = emptyList<String>()
+                var longTieng = emptyList<String>()
+
+                episodes.take(2).forEach { ep ->
+                    when (ep.serverName) {
+                        "#Hà Nội (Vietsub)" -> {
+                            vietsub = ep.serverData.map { it.linkM3u8 }
+                        }
+
+                        "#Hà Nội (Thuyết Minh)" -> {
+                            longTieng = ep.serverData.map { it.linkM3u8 }
+                        }
+                    }
+                }
+                _videoUrls.value = VideoURL(
+                    videoLongTieng = longTieng,
+                    videoVietSub = vietsub
+                )
             }
         }
     }
 
     fun saveMovieWatched(
-        thumbUrl: String?,
-        slug: String?,
-        name: String?,
-        duration: Long,
-        total: String
+        thumbUrl: String?, slug: String?, name: String?, duration: Long, total: String
     ) {
         viewModelScope.launch {
             val movie = MovieHistory(
@@ -104,3 +116,8 @@ class DetailMovieViewModel @Inject constructor(
 
 
 }
+
+data class VideoURL(
+    val videoLongTieng: List<String>,
+    val videoVietSub: List<String>
+)
