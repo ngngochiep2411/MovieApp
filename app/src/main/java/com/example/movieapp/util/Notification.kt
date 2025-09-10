@@ -37,10 +37,11 @@ class Notification(val context: Context) {
     fun getBuilder() = builder
 
     @SuppressLint("RestrictedApi")
-    fun updateProgress(progress: Double, movieName: String, position: Int) {
+    fun updateProgress(progress: Double, movieName: String, position: Int, slug: String?) {
         val cancelIntent = Intent(context, DownloadService::class.java).apply {
             action = DownloadService.ACTION_CANCEL
             putExtra(DownloadService.EXTRA_POSITION, position)
+            putExtra(DownloadService.EXTRA_SLUG, slug)
         }
         val cancelPendingIntent = PendingIntent.getService(
             context,

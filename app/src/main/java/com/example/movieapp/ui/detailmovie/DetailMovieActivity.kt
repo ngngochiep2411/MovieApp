@@ -73,18 +73,15 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
         setContentView(binding.root)
         movieName = intent.getStringExtra("name").toString()
         type = intent.getIntExtra("type", -1)
-        fetchData()
-        initView()
-        setOnClick()
-        initObserver()
         initViewPager()
-
+        initView()
+        initObserver()
 
     }
 
     private fun initViewPager() {
         binding.viewPager2.isUserInputEnabled = true
-        binding.viewPager2.offscreenPageLimit = 1
+        binding.viewPager2.offscreenPageLimit = 2
         viewPagerAdapter = ViewPagerAdapter(this)
         binding.viewPager2.adapter = viewPagerAdapter
 
@@ -101,26 +98,14 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
                 binding.tabLayout.selectTab(binding.tabLayout.getTabAt(position))
             }
         })
-        Log.d("testing","setOnChangeType")
-        binding.playerView.setOnChangeType(object : OnChangeTypeClick {
 
-            @SuppressLint("UnsafeOptInUsageError")
-            override fun onChangeType(type: SharedViewModel.PlayType) {
-                typePlay = type
-                getVideos()
-                playVideo(videos[position])
-            }
-        })
+        fetchData()
     }
 
 
     override fun onPause() {
         super.onPause()
         binding.playerView.onVideoPause()
-    }
-
-    private fun setOnClick() {
-
     }
 
     var watchedAt: Long = 0
@@ -155,17 +140,17 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
                 }
             }
             launch {
-                viewModel.detailMovie.filterNotNull().collect { data ->
-                    detailMovie = data
-                    viewPagerAdapter.submitList(
-                        detailMovie.episodes?.get(0)?.serverData!!,
-                        detailMovie.movie?.thumbUrl,
-                        detailMovie
-                    )
-                    viewPagerAdapter.notifyItemChanged(0, "change")
-                    viewPagerAdapter.notifyItemChanged(1, "change")
-                    isApiLoaded.value = true
-                    setData(data)
+                viewModel.detailMovie.collect { data ->
+                    if (data != null) {
+                        detailMovie = data
+                        viewPagerAdapter.submitList(
+                            detailMovie.episodes?.get(0)?.serverData!!,
+                            detailMovie.movie?.thumbUrl,
+                            detailMovie
+                        )
+                        isApiLoaded.value = true
+                        setData(data)
+                    }
                 }
             }
 
@@ -285,6 +270,13 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
         binding.hideInfo.setOnClickListener {
             binding.info.visibility = View.GONE
         }
+        binding.playerView.setOnChangeType(object : OnChangeTypeClick {
+            override fun onChangeType(type: SharedViewModel.PlayType) {
+                typePlay = type
+                getVideos()
+                playVideo(videos[position])
+            }
+        })
     }
 
     private var updateJob: Job? = null

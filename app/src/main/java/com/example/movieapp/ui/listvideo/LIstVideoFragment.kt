@@ -44,7 +44,7 @@ class LIstVideoFragment : Fragment() {
     private var thumb: String = ""
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private var detailMovie: DetailMovie? = null
-    private var slug: String = ""
+    private var slug: String? = ""
     private lateinit var videoDownloader: VideoDownloader
 
     private val downloadReceiver = object : BroadcastReceiver() {
@@ -55,7 +55,6 @@ class LIstVideoFragment : Fragment() {
 
                     val index = intent.getIntExtra(DownloadService.EXTRA_INDEX, -1)
                     val progress = intent.getDoubleExtra(DownloadService.EXTRA_PROGRESS, 0.0)
-                    Log.d("DownloadService", "onReceive $progress")
                     if (index >= 0) {
                         adapter.updateProgress(index, progress)
                     }
@@ -82,6 +81,14 @@ class LIstVideoFragment : Fragment() {
             fragment.arguments = bundle
             return fragment
         }
+
+        fun newInstance(
+        ): LIstVideoFragment {
+            val fragment = LIstVideoFragment()
+            val bundle = Bundle()
+            fragment.arguments = bundle
+            return fragment
+        }
     }
 
 
@@ -100,13 +107,6 @@ class LIstVideoFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         videoDownloader = VideoDownloader(requireContext())
-        list = arguments?.parcelableArrayList("data")!!
-        thumb = arguments?.getString("thumb").toString()
-        detailMovie = arguments?.parcelable("detailMovie")
-        if (detailMovie != null) {
-            setData(detailMovie!!)
-        }
-        arguments?.getString("thumb")
         adapter = ListVideoAdapter(
             list = list,
             thumb = thumb,
@@ -182,7 +182,7 @@ class LIstVideoFragment : Fragment() {
     fun startService(
         act: String,
         url: String = "",
-        slug: String = "",
+        slug: String? = "",
         movieName: String? = null,
         position: Int = -1
     ) {
@@ -192,7 +192,7 @@ class LIstVideoFragment : Fragment() {
             if (url.isNotEmpty()) {
                 putExtra(DownloadService.EXTRA_URL, url)
             }
-            if (slug.isNotEmpty()) {
+            if (!slug.isNullOrEmpty()) {
                 putExtra(DownloadService.EXTRA_SLUG, slug)
             }
             if (!movieName.isNullOrEmpty()) {
@@ -316,11 +316,11 @@ class LIstVideoFragment : Fragment() {
         }
     }
 
-    private fun updateCurrentVideo(position: Int, slug: String) {
+    private fun updateCurrentVideo(position: Int, slug: String?) {
         sharedViewModel.changeVideoIndex(position)
     }
 
-    fun updateEpisode(slug: String, position: Int) {
+    fun updateEpisode(slug: String?, position: Int) {
         sharedViewModel.updateEpisode(slug, position)
     }
 
@@ -363,9 +363,10 @@ class LIstVideoFragment : Fragment() {
 
     }
 
-    fun updateList(
-        list: ArrayList<ServerData>, thumb: String?, detailMovie: DetailMovie?, slug: String
+    fun updateData(
+        list: ArrayList<ServerData>, thumb: String?, detailMovie: DetailMovie?, slug: String?
     ) {
+        Log.d("testing", "updateList")
         this.list = list
         adapter.submitList(list, thumb, slug)
         this.slug = slug

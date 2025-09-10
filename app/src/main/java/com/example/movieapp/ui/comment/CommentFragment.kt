@@ -74,6 +74,7 @@ class CommentFragment : Fragment() {
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private lateinit var dialog: BottomSheetDialog
     private var uri: Uri? = null
+    private var slug: String? = ""
 
     companion object {
 
@@ -85,6 +86,12 @@ class CommentFragment : Fragment() {
             return fragment
         }
 
+        fun newInstance(): CommentFragment {
+            val bundle = Bundle()
+            val fragment = CommentFragment()
+            fragment.arguments = bundle
+            return fragment
+        }
     }
 
 
@@ -99,11 +106,6 @@ class CommentFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        videoName = arguments?.getString("videoName", null)
-        if (videoName != null) {
-            fetchData()
-        }
-
         commentAdapter = CommentAdapter(
             reduceBlock = reducerBlock(),
             reply = ::reply,
@@ -115,7 +117,7 @@ class CommentFragment : Fragment() {
             RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         initObserver()
         setOnClick()
-        Log.d("testing", "videoName $videoName")
+
 
 
         replyDialog = ReplyDialog(requireContext(), callback = ::onReply)
@@ -364,14 +366,14 @@ class CommentFragment : Fragment() {
         binding.root.requestLayout()
     }
 
-    fun updateVideoName(slug: String?) {
-        if (videoName == null) {
-            viewModel.getComment(slug)
-        }
-        this.videoName = slug
-        Log.d("testing", "$videoName")
-    }
 
+    fun updateData(slug: String?) {
+        this.videoName = slug
+        if (videoName != null) {
+            Log.d("testing", "videoName $videoName")
+            fetchData()
+        }
+    }
 }
 
 

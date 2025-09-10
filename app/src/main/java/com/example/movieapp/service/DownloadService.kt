@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
+import com.example.movieapp.util.DownloadCallback
 import com.example.movieapp.util.DownloadTask
 import com.example.movieapp.util.Notification
 import com.example.movieapp.util.VideoDownloader
@@ -89,43 +90,7 @@ class DownloadService : Service() {
                 } else {
                     videoDownloader.download(
                         downloadTask = downloadTask,
-                        onProgress = { index, fileName, progress ->
-                            notificationHelper.updateProgress(
-                                progress = progress, movieName = movieName, position = index
-                            )
-                            val intent = Intent(ACTION_UPDATE_PROGRESS).apply {
-                                intent.setPackage(packageName)
-                                putExtra(EXTRA_INDEX, index)
-                                putExtra(EXTRA_PROGRESS, progress)
-                            }
-                            sendBroadcast(intent)
-                        },
-                        onDownloadStart = { index, fileName ->
-                            notificationHelper.updateProgress(
-                                progress = 0.0, movieName = movieName, position = position
-                            )
-                            val intent = Intent(ACTION_UPDATE_STATE).apply {
-                                intent.setPackage(packageName)
-                                putExtra(EXTRA_INDEX, index)
-                                putExtra(EXTRA_STATE, DownloadState.DOWNLOADING.name)
-                            }
-                            sendBroadcast(intent)
-                        },
-                        onDownloadComplete = { index, fileName, success ->
-                            notificationHelper.complete(
-                                movieName = movieName, position = position, success = success
-                            )
-                            val intent = Intent(ACTION_UPDATE_STATE).apply {
-                                intent.setPackage(packageName)
-                                putExtra(EXTRA_INDEX, index)
-                                putExtra(EXTRA_STATE, DownloadState.DOWNLOADED.name)
-                            }
-                            sendBroadcast(intent)
-                        },
-                        onFinish = {
-                            Log.d("DownloadService", "onFinish")
-                            stopSelf()
-                        }
+                        downloadCallback = downloadCallBack
                     )
 
                 }
@@ -139,23 +104,64 @@ class DownloadService : Service() {
         }
 
         if (intent?.action == ACTION_CANCEL) {
-            val url = intent.getStringExtra(EXTRA_URL)
             val slug = intent.getStringExtra(EXTRA_SLUG)
-            val movieName = intent.getStringExtra(EXTRA_MOVIE_NAME)
             val position = intent.getIntExtra(EXTRA_POSITION, -1)
-            if (url != null && slug != null && movieName != null && position != -1) {
-                val downloadTask = DownloadTask(
-                    url = url, position = position, movieName = movieName, slug = slug
+            if (slug != null && position != -1 ) {
+                videoDownloader.cancelDownload(
+                    downloadCallback = downloadCallBack
                 )
-                videoDownloader.cancelDownload()
-                videoDownloader.deleteFile(downloadTask)
+                videoDownloader.deleteFile(slug = slug, position = position)
             }
-
         }
-
-
         return START_STICKY
     }
+
+    val downloadCallBack = object : DownloadCallback {
+        override fun onStart(position: Int, movieName: String, slug: String?) {
+            notificationHelper.updateProgress(
+                progress = 0.0, movieName = movieName, position = position, slug = slug
+            )
+            val intent = Intent(ACTION_UPDATE_STATE).apply {
+                setPackage(packageName)
+                putExtra(EXTRA_INDEX, position)
+                putExtra(EXTRA_STATE, DownloadState.DOWNLOADING.name)
+            }
+            sendBroadcast(intent)
+        }
+
+        override fun onProgress(position: Int, movieName: String, progress: Double, slug: String?) {
+            Log.d(
+                "DownloadService",
+                "Progress slug=$slug, movie=$movieName, pos=$position, progress=${progress.toInt()}%"
+            )
+            notificationHelper.updateProgress(
+                progress = progress, movieName = movieName, position = position, slug = slug
+            )
+            val intent = Intent(ACTION_UPDATE_PROGRESS).apply {
+                setPackage(packageName)
+                putExtra(EXTRA_INDEX, position)
+                putExtra(EXTRA_PROGRESS, progress)
+            }
+            sendBroadcast(intent)
+        }
+
+        override fun onComplete(position: Int, movieName: String, success: Boolean) {
+            notificationHelper.complete(
+                movieName = movieName, position = position, success = success
+            )
+            val intent = Intent(ACTION_UPDATE_STATE).apply {
+                setPackage(packageName)
+                putExtra(EXTRA_INDEX, position)
+                putExtra(EXTRA_STATE, DownloadState.DOWNLOADED.name)
+            }
+            sendBroadcast(intent)
+        }
+
+        override fun onFinish() {
+            stopSelf()
+        }
+    }
+
 
     companion object {
 

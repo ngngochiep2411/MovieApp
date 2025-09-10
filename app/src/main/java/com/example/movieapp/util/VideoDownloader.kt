@@ -16,7 +16,7 @@ class VideoDownloader(
     private val queue = ArrayDeque<DownloadTask>()
     var isDownloading = false
     private var session: FFmpegSession? = null
-
+    var isCanceled = false
 
     init {
         privateDir?.mkdirs()
@@ -46,41 +46,31 @@ class VideoDownloader(
     }
 
     fun download(
-        onDownloadStart: (position: Int, fileName: String) -> Unit,
-        onProgress: (position: Int, fileName: String, progress: Double) -> Unit,
-        onDownloadComplete: (position: Int, fileName: String, success: Boolean) -> Unit,
-        onFinish: () -> Unit,
-        downloadTask: DownloadTask
+        downloadTask: DownloadTask, downloadCallback: DownloadCallback
     ) {
         addQueue(downloadTask)
         if (!isDownloading) {
             processNext(
-                onDownloadStart = onDownloadStart,
-                onProgress = onProgress,
-                onDownloadComplete = onDownloadComplete,
-                onFinish = onFinish
+                downloadCallBack = downloadCallback
             )
         }
         isDownloading = true
     }
 
     private fun processNext(
-        onDownloadStart: (position: Int, fileName: String) -> Unit,
-        onProgress: (position: Int, fileName: String, progress: Double) -> Unit,
-        onDownloadComplete: (position: Int, fileName: String, success: Boolean) -> Unit,
-        onFinish: () -> Unit
+        downloadCallBack: DownloadCallback
     ) {
         if (queue.isEmpty()) {
-            onFinish()
+            downloadCallBack.onFinish()
             return
         }
         val task = queue.firstOrNull() ?: run {
             isDownloading = false
-            onFinish()
+            downloadCallBack.onFinish()
             return
         }
 
-        onDownloadStart(task.position, task.movieName)
+        downloadCallBack.onStart(task.position, task.movieName, task.slug)
         val logUrl = task.url
         val probeCmd = "-i $logUrl -c copy -f null -"
 
@@ -93,12 +83,7 @@ class VideoDownloader(
             val returnCode = session.returnCode
             if (!ReturnCode.isSuccess(returnCode)) {
                 removeQueue(logUrl)
-                processNext(
-                    onDownloadStart = onDownloadStart,
-                    onProgress = onProgress,
-                    onDownloadComplete = onDownloadComplete,
-                    onFinish = onFinish,
-                )
+                processNext(downloadCallBack = downloadCallBack)
             } else {
                 Log.e("FFMPEGLOG", "Lỗi khi tải video: $returnCode")
                 Log.e("FFMPEGLOG", "Fail stack trace: ${session.failStackTrace}")
@@ -127,15 +112,8 @@ class VideoDownloader(
                     movieName = task.movieName,
                     slug = task.slug,
                     position = task.position,
-                    onDownloadStart = onDownloadStart,
-                    onProgress = onProgress,
-                    onDownloadComplete = { i, fileName, success ->
-                        onDownloadComplete(i, fileName, success)
-                        processNext(
-                            onDownloadStart, onProgress, onDownloadComplete, onFinish
-                        )
-                    },
-                    duration = durationMs
+                    duration = durationMs,
+                    downloadCallback = downloadCallBack
                 )
             }
         }, {
@@ -147,15 +125,12 @@ class VideoDownloader(
         downloadUrl: String,
         movieName: String,
         position: Int,
-        onDownloadStart: (position: Int, fileName: String) -> Unit,
-        onProgress: (position: Int, fileName: String, progress: Double) -> Unit,
-        onDownloadComplete: (position: Int, fileName: String, success: Boolean) -> Unit,
         duration: Double,
         slug: String,
-        url: String?
+        url: String?,
+        downloadCallback: DownloadCallback
     ) {
-
-
+        Log.d("testing", "downloadVideo $url")
         val movieDir = File(privateDir, slug)
         if (movieDir.exists()) {
             movieDir.delete()
@@ -165,43 +140,52 @@ class VideoDownloader(
         }
         val outputFile = File(movieDir, "Tập${position?.plus(1)}.mp4")
         val cmd = "-i $downloadUrl -c copy -bsf:a aac_adtstoasc ${outputFile.absolutePath}"
+        isCanceled = false
         session = FFmpegKit.executeAsync(cmd, { session ->
             val returnCode = session.returnCode
             if (ReturnCode.isSuccess(returnCode)) {
                 removeQueue(url)
                 isDownloading = false
                 Log.d("FFMPEGLOG", "Tải thành công: ${outputFile.absolutePath}")
-                onDownloadComplete(position, movieName, true)
+                downloadCallback.onComplete(position, movieName, true)
+                processNext(downloadCallBack = downloadCallback)
             } else {
                 isDownloading = false
                 Log.e("FFMPEGLOG", "Lỗi tải video: $returnCode")
                 Log.e("FFMPEGLOG", "Output: ${session.allLogsAsString}")
                 removeQueue(url)
-                onDownloadComplete(position, movieName, false)
+                downloadCallback.onComplete(position, movieName, false)
+                processNext(downloadCallBack = downloadCallback)
             }
         }, { log ->
             val message = log.message
             Log.d("FFMPEGLOG", message)
 
         }, { statistics ->
-
-            if (duration > 0) {
+            if (duration > 0 && !isCanceled) {
                 val current = statistics.time
                 val progress = (current / duration) * 100
-                onProgress(position, movieName, progress)
+                downloadCallback.onProgress(position, movieName, progress, slug)
                 Log.d("FFMPEGLOG", "Progress: $progress%")
             }
         })
     }
 
-    fun cancelDownload() {
+    fun cancelDownload(downloadCallback: DownloadCallback) {
+        Log.d("DownloadService", "cancelDownload")
+        isCanceled = true
         session?.cancel()
+        if (queue.isNotEmpty()) {
+            queue.removeFirst()
+        }
+        isDownloading = false
+        processNext(downloadCallback)
     }
 
-    fun deleteFile(downloadTask: DownloadTask) {
+    fun deleteFile(slug: String, position: Int) {
         try {
-            val movieDir = File(privateDir, downloadTask.slug)
-            val outputFile = File(movieDir, "Tập${downloadTask.position + 1}.mp4")
+            val movieDir = File(privateDir, slug)
+            val outputFile = File(movieDir, "Tập${position + 1}.mp4")
             if (outputFile.exists()) {
                 outputFile.delete()
             }
@@ -232,6 +216,13 @@ class VideoDownloader(
             else -> 0.0
         }
     }
+}
+
+interface DownloadCallback {
+    fun onStart(position: Int, movieName: String, slug: String?)
+    fun onProgress(position: Int, movieName: String, progress: Double, slug: String?)
+    fun onComplete(position: Int, movieName: String, success: Boolean)
+    fun onFinish()
 }
 
 data class DownloadTask(

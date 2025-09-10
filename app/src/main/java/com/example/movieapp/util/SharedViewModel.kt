@@ -50,7 +50,7 @@ class SharedViewModel @Inject constructor(
         _videoIndex.value = videoIndex
     }
 
-    fun updateEpisode(slug: String, episode: Int) {
+    fun updateEpisode(slug: String?, episode: Int) {
         viewModelScope.launch {
             movieDao.updateEpisode(slug, episode)
         }

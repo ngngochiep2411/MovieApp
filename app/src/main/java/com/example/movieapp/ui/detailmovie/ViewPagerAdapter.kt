@@ -1,5 +1,6 @@
 package com.example.movieapp.ui.detailmovie
 
+import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -17,9 +18,12 @@ class ViewPagerAdapter(
 ) :
     FragmentStateAdapter(fragmentActivity) {
     fun submitList(list: ArrayList<ServerData>, thumbUrl: String?, detailMovie: DetailMovie) {
+        Log.d("ViewPagerAdapter", "submitList")
         this.list = list
         this.thumb = thumbUrl
         this.detailMovie = detailMovie
+        this.notifyItemChanged(0, "0")
+        this.notifyItemChanged(1, "1")
     }
 
     override fun getItemCount(): Int = 2
@@ -29,16 +33,19 @@ class ViewPagerAdapter(
         position: Int,
         payloads: MutableList<Any>
     ) {
+
         if (payloads.isNotEmpty()) {
+            Log.d("ViewPagerAdapter", "onBindViewHolder payloads: $position")
             val tag = "f" + holder.itemId
             val fragment = fragmentActivity.supportFragmentManager.findFragmentByTag(tag)
             if (fragment != null && (fragment is LIstVideoFragment || fragment is CommentFragment)) {
                 when (fragment) {
                     is LIstVideoFragment -> {
-                        fragment.updateList(list, thumb, detailMovie,detailMovie?.movie?.slug!!)
+                        fragment.updateData(list, thumb, detailMovie, detailMovie?.movie?.slug!!)
                     }
+
                     is CommentFragment -> {
-                        fragment.updateVideoName(detailMovie?.movie?.slug)
+                        fragment.updateData(detailMovie?.movie?.slug)
                     }
                 }
 
@@ -51,7 +58,9 @@ class ViewPagerAdapter(
     }
 
     override fun createFragment(position: Int): Fragment {
+        Log.d("ViewPagerAdapter", "createFragment $position")
         return when (position) {
+
             0 -> LIstVideoFragment.newInstance(list, thumb, detailMovie)
             1 -> CommentFragment.newInstance(detailMovie?.movie?.slug)
             else -> throw IllegalStateException("Unexpected position $position")

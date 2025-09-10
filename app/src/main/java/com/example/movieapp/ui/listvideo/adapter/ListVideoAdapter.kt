@@ -21,14 +21,14 @@ import java.io.File
 class ListVideoAdapter(
     var list: ArrayList<ServerData>,
     var thumb: String? = "",
-    var slug: String = "",
+    var slug: String? = "",
     var currentVideo: Int = 0,
     var onItemClick: ((Int) -> Unit)? = null,
     var onDownloadClick: (Int) -> Unit,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     @SuppressLint("NotifyDataSetChanged")
-    fun submitList(list: ArrayList<ServerData>, thumb: String?, slug: String) {
+    fun submitList(list: ArrayList<ServerData>, thumb: String?, slug: String?) {
         this.list = list
         this.thumb = thumb
         this.slug = slug
