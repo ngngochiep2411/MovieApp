@@ -43,6 +43,7 @@
         android:layout_marginBottom="@dimen/dp30"
         android:background="@drawable/bg_primary_circle"
         android:padding="@dimen/dp10"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 

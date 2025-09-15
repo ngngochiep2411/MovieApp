@@ -28,6 +28,13 @@
         android:theme="@style/Theme.MovieApp"
         tools:targetApi="31">
         <activity
+            android:name=".ui.download.PlayVideoDownloadActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="false"
+            android:screenOrientation="sensor"
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            tools:ignore="DiscouragedApi" />
+        <activity
             android:name=".ui.download.VideoDownloadActivity"
             android:exported="false" />
 

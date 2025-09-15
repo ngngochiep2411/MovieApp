@@ -1,5 +1,7 @@
 package com.example.movieapp.ui.download
 
+import android.content.Context
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -9,8 +11,9 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.movieapp.databinding.LayoutItemDownloadBinding
 import com.example.movieapp.model.VideoDownload
+import java.io.File
 
-class VideoDownloadAdapter :
+class VideoDownloadAdapter(val onItemClick: (VideoDownload) -> Unit) :
     ListAdapter<VideoDownload, VideoDownloadAdapter.VideoDownloadViewHolder>(DiffCallback) {
 
     inner class VideoDownloadViewHolder(
@@ -18,16 +21,17 @@ class VideoDownloadAdapter :
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(download: VideoDownload) {
             Glide.with(binding.root.context).load(download.thumb)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(binding.imgThumb)
+                .diskCacheStrategy(DiskCacheStrategy.ALL).into(binding.imgThumb)
             binding.name.text = download.name
-            binding.episode.text = download.slug
+            binding.episode.text = "${countMp4Files(binding.root.context, download.slug)} tập"
+            binding.root.setOnClickListener {
+                onItemClick(download)
+            }
         }
     }
 
     override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
+        parent: ViewGroup, viewType: Int
     ): VideoDownloadViewHolder {
         val binding = LayoutItemDownloadBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
@@ -46,11 +50,21 @@ class VideoDownloadAdapter :
             }
 
             override fun areContentsTheSame(
-                oldItem: VideoDownload,
-                newItem: VideoDownload
+                oldItem: VideoDownload, newItem: VideoDownload
             ): Boolean {
                 return oldItem == newItem
             }
         }
     }
+}
+
+fun countMp4Files(context: Context, slug: String): Int {
+    val privateDir = File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), slug)
+    if (!privateDir.exists() || !privateDir.isDirectory) {
+        return 0
+    }
+    val mp4Files = privateDir.listFiles { file ->
+        file.isFile && file.extension.equals("mp4", ignoreCase = true)
+    }
+    return mp4Files?.size ?: 0
 }

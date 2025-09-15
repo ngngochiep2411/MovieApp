@@ -25,7 +25,7 @@ class BannerAdapter(
                 Utils.getScreenHeight(binding.root.context) * 2 / 3
             )
             binding.name.text = banners[position].name
-            binding.play.setOnClickListener {
+            binding.root.setOnClickListener {
                 itemClick.invoke(banners[position])
             }
         }

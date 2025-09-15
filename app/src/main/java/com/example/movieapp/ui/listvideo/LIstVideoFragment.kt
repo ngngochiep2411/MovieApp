@@ -14,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -43,7 +44,7 @@ class LIstVideoFragment : Fragment() {
     private lateinit var binding: FragmentLIstVideoBinding
     private lateinit var adapter: ListVideoAdapter
     var list: ArrayList<ServerData> = ArrayList()
-    private var thumb: String = ""
+    private var thumb: String? = ""
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private val viewModel: ListVideoViewModel by viewModels()
     private var detailMovie: DetailMovie? = null
@@ -73,18 +74,6 @@ class LIstVideoFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(
-            list: ArrayList<ServerData>, thumb: String?, detailMovie: DetailMovie?
-        ): LIstVideoFragment {
-            val fragment = LIstVideoFragment()
-            val bundle = Bundle()
-            bundle.putParcelableArrayList("data", list)
-            bundle.putString("thumb", thumb)
-            bundle.putParcelable("detailMovie", detailMovie)
-            fragment.arguments = bundle
-            return fragment
-        }
-
         fun newInstance(
         ): LIstVideoFragment {
             val fragment = LIstVideoFragment()
@@ -187,9 +176,8 @@ class LIstVideoFragment : Fragment() {
         lifecycleScope.launch {
             viewModel.saveVideo(
                 download = VideoDownload(
-                    thumb = thumb,
-                    name = detailMovie?.movie?.name ?: "",
-                    slug = slug ?: ""
+                    thumb = thumb ?: "", name = detailMovie?.movie?.name ?: "", slug = slug ?: "",
+                    detailMovie = detailMovie ?: DetailMovie()
                 )
             )
         }
@@ -264,7 +252,9 @@ class LIstVideoFragment : Fragment() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             activity?.registerReceiver(downloadReceiver, filter, Context.RECEIVER_EXPORTED)
         } else {
-            activity?.registerReceiver(downloadReceiver, filter)
+            ContextCompat.registerReceiver(
+                requireActivity(), downloadReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED
+            )
         }
         super.onResume()
     }
@@ -384,6 +374,7 @@ class LIstVideoFragment : Fragment() {
     ) {
         Log.d("testing", "updateList")
         this.list = list
+        this.thumb = thumb
         adapter.submitList(list, thumb, slug)
         this.slug = slug
         if (detailMovie != null) {

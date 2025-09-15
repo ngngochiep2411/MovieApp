@@ -1,4 +1,4 @@
-package com.example.movieapp.ui.detailmovie
+package com.example.movieapp.ui.download
 
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -7,6 +7,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.adapter.FragmentViewHolder
 import com.example.movieapp.model.DetailMovie
 import com.example.movieapp.model.ServerData
+import com.example.movieapp.model.VideoDownload
 import com.example.movieapp.ui.comment.CommentFragment
 import com.example.movieapp.ui.listvideo.LIstVideoFragment
 
@@ -28,6 +29,15 @@ class ViewPagerAdapter(
 
     override fun getItemCount(): Int = 2
 
+    override fun createFragment(position: Int): Fragment {
+        Log.d("ViewPagerAdapter", "createFragment $position")
+        return when (position) {
+            0 -> ListVideoDownloadFragment.newInstance()
+            1 -> CommentFragment.newInstance()
+            else -> throw IllegalStateException("Unexpected position $position")
+        }
+    }
+
     override fun onBindViewHolder(
         holder: FragmentViewHolder,
         position: Int,
@@ -38,9 +48,9 @@ class ViewPagerAdapter(
             Log.d("ViewPagerAdapter", "onBindViewHolder payloads: $position")
             val tag = "f" + holder.itemId
             val fragment = fragmentActivity.supportFragmentManager.findFragmentByTag(tag)
-            if (fragment != null && (fragment is LIstVideoFragment || fragment is CommentFragment)) {
+            if (fragment != null && (fragment is ListVideoDownloadFragment || fragment is CommentFragment)) {
                 when (fragment) {
-                    is LIstVideoFragment -> {
+                    is ListVideoDownloadFragment -> {
                         fragment.updateData(list, thumb, detailMovie, detailMovie?.movie?.slug!!)
                     }
 
@@ -57,13 +67,8 @@ class ViewPagerAdapter(
         }
     }
 
-    override fun createFragment(position: Int): Fragment {
-        Log.d("ViewPagerAdapter", "createFragment $position")
-        return when (position) {
-            0 -> LIstVideoFragment.newInstance()
-            1 -> CommentFragment.newInstance()
-            else -> throw IllegalStateException("Unexpected position $position")
-        }
+    fun updateVideoDownload(download: VideoDownload) {
+
     }
 
 

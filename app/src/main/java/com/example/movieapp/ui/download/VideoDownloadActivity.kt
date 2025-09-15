@@ -1,5 +1,6 @@
 package com.example.movieapp.ui.download
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -26,10 +27,14 @@ class VideoDownloadActivity : AppCompatActivity() {
         binding = ActivityVideoDownloadBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.back.setOnClickListener {
+            finish()
+        }
+
         viewModel.getVideoDownload()
 
 
-        adapter = VideoDownloadAdapter()
+        adapter = VideoDownloadAdapter(::onItemClick)
         binding.recyclerView.adapter = adapter
 
         lifecycleScope.launch {
@@ -39,6 +44,12 @@ class VideoDownloadActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    fun onItemClick(videoDownload: VideoDownload) {
+        val intent = Intent(this, PlayVideoDownloadActivity::class.java)
+        intent.putExtra("videoDownload", videoDownload)
+        startActivity(intent)
     }
 
 
