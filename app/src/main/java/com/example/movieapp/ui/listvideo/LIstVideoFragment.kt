@@ -16,12 +16,14 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.movieapp.R
 import com.example.movieapp.databinding.FragmentLIstVideoBinding
 import com.example.movieapp.model.Category
 import com.example.movieapp.model.DetailMovie
 import com.example.movieapp.model.ServerData
+import com.example.movieapp.model.VideoDownload
 import com.example.movieapp.service.DownloadService
 import com.example.movieapp.ui.detailmovie.DetailMovieActivity
 import com.example.movieapp.ui.listvideo.adapter.ListVideoAdapter
@@ -43,6 +45,7 @@ class LIstVideoFragment : Fragment() {
     var list: ArrayList<ServerData> = ArrayList()
     private var thumb: String = ""
     private val sharedViewModel: SharedViewModel by activityViewModels()
+    private val viewModel: ListVideoViewModel by viewModels()
     private var detailMovie: DetailMovie? = null
     private var slug: String? = ""
     private lateinit var videoDownloader: VideoDownloader
@@ -117,6 +120,7 @@ class LIstVideoFragment : Fragment() {
                 updateWatchedAt()
             },
             onDownloadClick = { position ->
+                saveVideoDownload()
                 val state = adapter.list[position].downloadState
                 if (state == DownloadService.DownloadState.DOWNLOADED) {
                     showDialog(
@@ -177,6 +181,18 @@ class LIstVideoFragment : Fragment() {
             activity.showInfo()
         }
 
+    }
+
+    private fun saveVideoDownload() {
+        lifecycleScope.launch {
+            viewModel.saveVideo(
+                download = VideoDownload(
+                    thumb = thumb,
+                    name = detailMovie?.movie?.name ?: "",
+                    slug = slug ?: ""
+                )
+            )
+        }
     }
 
     fun startService(

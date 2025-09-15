@@ -17,6 +17,7 @@ import com.example.movieapp.databinding.FragmentProfileBinding
 import com.example.movieapp.model.MovieHistory
 import com.example.movieapp.ui.auth.BottomSheetAuthFragment
 import com.example.movieapp.ui.detailmovie.DetailMovieActivity
+import com.example.movieapp.ui.download.VideoDownloadActivity
 import com.example.movieapp.ui.history.AllHistoryActivity
 import com.example.movieapp.ui.home.adapter.OnItemClickListener
 import com.example.movieapp.ui.profile.adapter.MovieViewHistoryAdapter
@@ -84,9 +85,14 @@ class ProfileFragment : Fragment(), OnItemClickListener {
             )
         }
 
-        binding.tvMore.setOnClickListener {
-            val intent = Intent(context, AllHistoryActivity::class.java)
+//        binding.tvMore.setOnClickListener {
+//            val intent = Intent(context, AllHistoryActivity::class.java)
+//            startActivity(intent)
+//        }
+        binding.download.setOnClickListener {
+            val intent = Intent(context, VideoDownloadActivity::class.java)
             startActivity(intent)
+
         }
     }
 

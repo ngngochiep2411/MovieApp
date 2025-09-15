@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.movieapp.model.MovieHistory
+import com.example.movieapp.model.VideoDownload
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -30,4 +31,10 @@ interface MovieDao {
 
     @Query("DELETE FROM movie_view_history WHERE slug IN (:slugs)")
     suspend fun deleteMovies(slugs: List<String>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(video: VideoDownload): Long
+
+    @Query("SELECT * FROM video_downloads")
+    fun getAllDownloads(): Flow<List<VideoDownload>>
 }
