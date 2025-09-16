@@ -105,8 +105,9 @@ class ListVideoAdapter(
             }
         }
 
-        fun updateProgressOnly(progress: Int) {
-            binding.progressBar.progress = progress.toFloat()
+        fun updateProgressOnly(item: ServerData) {
+            binding.progressBar.progress = item.progress.toFloat()
+            setImageDrawable(item)
         }
 
         fun updateState(item: ServerData) {
@@ -141,7 +142,7 @@ class ListVideoAdapter(
                     EXTRA_PROGRESS -> {
                         val item = list[position]
                         val viewHolder = holder as ListVideoViewHolder
-                        viewHolder.updateProgressOnly(item.progress)
+                        viewHolder.updateProgressOnly(item)
                     }
 
                     EXTRA_STATE -> {
@@ -164,9 +165,11 @@ class ListVideoAdapter(
         (holder as ListVideoViewHolder).bind(position)
     }
 
-    fun updateProgress(index: Int, progress: Double) {
+    fun updateProgress(index: Int, progress: Double, state: String) {
         if (index in list.indices) {
             list[index].progress = progress.toInt()
+            list[index].downloadState =
+                DownloadState.valueOf(state)
             notifyItemChanged(index, EXTRA_PROGRESS)
         }
     }

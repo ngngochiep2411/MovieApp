@@ -13,12 +13,15 @@ import com.example.movieapp.util.VideoDownloader
 class DownloadService : Service() {
 
     private val binder = LocalBinder()
-    private lateinit var videoDownloader: VideoDownloader
+    lateinit var videoDownloader: VideoDownloader
     private lateinit var notificationHelper: Notification
 
     inner class LocalBinder : Binder() {
         fun getService(): DownloadService = this@DownloadService
     }
+
+
+    fun getQueue(): List<DownloadTask> = videoDownloader.currentQueue()
 
     fun isDownloading(): Boolean {
         return videoDownloader.isDownloading

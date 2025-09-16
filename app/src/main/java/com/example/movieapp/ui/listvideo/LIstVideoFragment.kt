@@ -2,12 +2,15 @@ package com.example.movieapp.ui.listvideo
 
 import android.app.Dialog
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.IBinder
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -28,12 +31,8 @@ import com.example.movieapp.model.VideoDownload
 import com.example.movieapp.service.DownloadService
 import com.example.movieapp.ui.detailmovie.DetailMovieActivity
 import com.example.movieapp.ui.listvideo.adapter.ListVideoAdapter
-import com.example.movieapp.util.Extension.parcelable
-import com.example.movieapp.util.Extension.parcelableArrayList
 import com.example.movieapp.util.SharedViewModel
 import com.example.movieapp.util.VideoDownloader
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.play.integrity.internal.ac
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.File
@@ -51,6 +50,26 @@ class LIstVideoFragment : Fragment() {
     private var slug: String? = ""
     private lateinit var videoDownloader: VideoDownloader
 
+    private var downloadService: DownloadService? = null
+
+    private val connection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            downloadService = (service as DownloadService.LocalBinder).getService()
+            val currentQueue =
+                downloadService?.getQueue()
+            currentQueue?.forEach { task ->
+                adapter.list.getOrNull(task.position)?.apply {
+                    downloadState = DownloadService.DownloadState.DOWNLOADING
+                }
+            }
+            adapter.notifyDataSetChanged()
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            downloadService = null
+        }
+    }
+
     private val downloadReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
 
@@ -60,7 +79,11 @@ class LIstVideoFragment : Fragment() {
                     val index = intent.getIntExtra(DownloadService.EXTRA_INDEX, -1)
                     val progress = intent.getDoubleExtra(DownloadService.EXTRA_PROGRESS, 0.0)
                     if (index >= 0) {
-                        adapter.updateProgress(index, progress)
+                        adapter.updateProgress(
+                            index,
+                            progress,
+                            DownloadService.DownloadState.DOWNLOADING.name
+                        )
                     }
                 }
 
@@ -91,9 +114,6 @@ class LIstVideoFragment : Fragment() {
         return binding.root
     }
 
-    override fun onStart() {
-        super.onStart()
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -111,53 +131,63 @@ class LIstVideoFragment : Fragment() {
             onDownloadClick = { position ->
                 saveVideoDownload()
                 val state = adapter.list[position].downloadState
-                if (state == DownloadService.DownloadState.DOWNLOADED) {
-                    showDialog(
-                        title = "Xóa nội dung đã tải?",
-                        message = "Nội dung này sẽ không có sẵn trên thiết bị để xem khi không có Internet.",
-                        onAccept = {
-                            deleteFile(
-                                position, onSuccess = {
-                                    sendBroadCast(
-                                        action = DownloadService.ACTION_UPDATE_STATE,
-                                        position = position,
-                                        state = DownloadService.DownloadState.IDLE
-                                    )
-                                    startService(
-                                        act = DownloadService.ACTION_REMOVE_QUEUE,
-                                        url = list[position].linkM3u8,
-                                        slug = this.slug,
-                                        movieName = detailMovie?.movie?.name,
-                                        position = position
-                                    )
-                                })
-                        })
-                } else if (state == DownloadService.DownloadState.QUEUED) {
-                    showDialog(
-                        title = "Hủy tải xuống?",
-                        message = "Nội dung này đang được chờ để được tải xuống. Bạn có muốn hủy bỏ việc tải xuống nội dung này?",
-                        onAccept = {
-                            sendBroadCast(
-                                action = DownloadService.ACTION_UPDATE_STATE,
-                                position = position,
-                                state = DownloadService.DownloadState.IDLE
-                            )
-                            startService(
-                                act = DownloadService.ACTION_REMOVE_QUEUE,
-                                url = list[position].linkM3u8,
-                                slug = this.slug,
-                                movieName = detailMovie?.movie?.name,
-                                position = position
-                            )
-                        })
-                } else {
-                    startService(
-                        act = DownloadService.ACTION_START,
-                        url = list[position].linkM3u8,
-                        slug = this.slug,
-                        movieName = detailMovie?.movie?.name,
-                        position = position
-                    )
+                when (state) {
+                    DownloadService.DownloadState.DOWNLOADED -> {
+                        showDialog(
+                            title = "Xóa nội dung đã tải?",
+                            message = "Nội dung này sẽ không có sẵn trên thiết bị để xem khi không có Internet.",
+                            onAccept = {
+                                deleteFile(
+                                    position, onSuccess = {
+                                        sendBroadCast(
+                                            action = DownloadService.ACTION_UPDATE_STATE,
+                                            position = position,
+                                            state = DownloadService.DownloadState.IDLE
+                                        )
+                                        startService(
+                                            act = DownloadService.ACTION_REMOVE_QUEUE,
+                                            url = list[position].linkM3u8,
+                                            slug = this.slug,
+                                            movieName = detailMovie?.movie?.name,
+                                            position = position
+                                        )
+                                    })
+                            })
+                    }
+
+                    DownloadService.DownloadState.QUEUED -> {
+                        showDialog(
+                            title = "Hủy tải xuống?",
+                            message = "Nội dung này đang được chờ để được tải xuống. Bạn có muốn hủy bỏ việc tải xuống nội dung này?",
+                            onAccept = {
+                                sendBroadCast(
+                                    action = DownloadService.ACTION_UPDATE_STATE,
+                                    position = position,
+                                    state = DownloadService.DownloadState.IDLE
+                                )
+                                startService(
+                                    act = DownloadService.ACTION_REMOVE_QUEUE,
+                                    url = list[position].linkM3u8,
+                                    slug = this.slug,
+                                    movieName = detailMovie?.movie?.name,
+                                    position = position
+                                )
+                            })
+                    }
+
+                    DownloadService.DownloadState.IDLE -> {
+                        startService(
+                            act = DownloadService.ACTION_START,
+                            url = list[position].linkM3u8,
+                            slug = this.slug,
+                            movieName = detailMovie?.movie?.name,
+                            position = position
+                        )
+                    }
+
+                    else -> {
+
+                    }
                 }
 
             },
@@ -256,13 +286,24 @@ class LIstVideoFragment : Fragment() {
                 requireActivity(), downloadReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED
             )
         }
+        requireContext().bindService(
+            Intent(requireContext(), DownloadService::class.java),
+            connection, Context.BIND_AUTO_CREATE
+        )
         super.onResume()
     }
 
     override fun onDestroy() {
         activity?.unregisterReceiver(downloadReceiver)
+        requireContext().unbindService(connection)
         super.onDestroy()
     }
+
+    override fun onStart() {
+        super.onStart()
+
+    }
+
 
     private fun deleteFile(position: Int, onSuccess: () -> Unit) {
         val privateDir = requireContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
@@ -374,11 +415,21 @@ class LIstVideoFragment : Fragment() {
     ) {
         Log.d("testing", "updateList")
         this.list = list
+        getNewList()
         this.thumb = thumb
         adapter.submitList(list, thumb, slug)
         this.slug = slug
         if (detailMovie != null) {
             setData(detailMovie)
+        }
+    }
+
+    private fun getNewList() {
+        val currentQueue = downloadService?.videoDownloader?.currentQueue()
+        currentQueue?.forEach { task ->
+            list.getOrNull(task.position)?.apply {
+                downloadState = DownloadService.DownloadState.QUEUED
+            }
         }
     }
 

@@ -18,9 +18,13 @@ class VideoDownloader(
     private var session: FFmpegSession? = null
     var isCanceled = false
 
+    private var currentTask: DownloadTask? = null
+
     init {
         privateDir?.mkdirs()
     }
+
+    fun currentQueue(): List<DownloadTask> = queue.toList()
 
     fun removeQueue(url: String?) {
         val removed = queue.removeIf { it.url == url }
@@ -70,6 +74,7 @@ class VideoDownloader(
             return
         }
 
+        currentTask = task
         downloadCallBack.onStart(task.position, task.movieName, task.slug)
         val logUrl = task.url
         val probeCmd = "-i $logUrl -c copy -f null -"
@@ -175,6 +180,7 @@ class VideoDownloader(
         Log.d("DownloadService", "cancelDownload")
         isCanceled = true
         session?.cancel()
+        session = null
         if (queue.isNotEmpty()) {
             queue.removeFirst()
         }
