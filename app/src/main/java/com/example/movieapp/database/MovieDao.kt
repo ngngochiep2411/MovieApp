@@ -39,5 +39,8 @@ interface MovieDao {
     fun getAllDownloads(): Flow<List<VideoDownload>>
 
     @Query("SELECT * FROM video_downloads WHERE slug = :slug LIMIT 1")
-    suspend fun getVideoDownload(slug: String): VideoDownload
+    suspend fun getVideoDownload(slug: String?): VideoDownload
+
+    @Query("DELETE FROM video_downloads WHERE slug = :slug ")
+    suspend fun deleteFile(slug: String): Int
 }

@@ -56,7 +56,7 @@ class Notification(val context: Context) {
             .setContentText("")
             .setSubText("${progress.toInt()} %").setProgress(100, progress.toInt(), false)
             .setOngoing(true)
-            .addAction(android.R.drawable.ic_delete, "Hủy", cancelPendingIntent)
+            .addAction(android.R.drawable.ic_delete, "Hủy tải xuống", cancelPendingIntent)
 
         Log.d("Notification", "Tải xuống $movieName - Tập ${position + 1}")
 
@@ -70,6 +70,20 @@ class Notification(val context: Context) {
             .setContentText(if (!success) "Có lỗi xảy ra" else "Đã tải xuống video")
             .setProgress(0, 0, false).setOngoing(true)
             .setSmallIcon(android.R.drawable.stat_sys_download_done)
+        notificationManager.notify(notificationId, builder.build())
+    }
+
+    @SuppressLint("RestrictedApi")
+    fun onStart(progress: Double, movieName: String, position: Int, slug: String?) {
+        builder.mActions.clear()
+
+        builder.setContentTitle("Tải xuống $movieName - Tập ${position + 1}")
+            .setContentText("")
+            .setSubText("${progress.toInt()} %").setProgress(100, progress.toInt(), false)
+            .setOngoing(true)
+
+        Log.d("Notification", "Tải xuống $movieName - Tập ${position + 1}")
+
         notificationManager.notify(notificationId, builder.build())
     }
 }

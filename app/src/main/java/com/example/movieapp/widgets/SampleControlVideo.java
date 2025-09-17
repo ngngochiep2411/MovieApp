@@ -57,6 +57,7 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
     private ImageView imgForward;
     private ImageView imgReplay;
     private ImageView imgMenu;
+    private TextView seekTime;
     private int mType = 0;
     private int mTransformSize = 0;
     private int mSourcePosition = 0;
@@ -131,6 +132,7 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
         mPreviewLayout = (RelativeLayout) findViewById(R.id.preview_layout);
         mPreView = (ImageView) findViewById(R.id.preview_image);
         imgMenu = findViewById(R.id.setting);
+        seekTime = findViewById(R.id.seekTime);
 
         dialog = new Dialog(getContext());
 
@@ -255,53 +257,32 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
         }
         dialog.show();
     }
-//
-//    @Override
-//    public void onStartTrackingTouch(SeekBar seekBar) {
-//        super.onStartTrackingTouch(seekBar);
-//        if (mOpenPreView) {
-//            mIsFromUser = true;
-//            mPreviewLayout.setVisibility(VISIBLE);
-//            mPreProgress = -2;
-//        }
-//    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+        super.onStartTrackingTouch(seekBar);
+
+        seekTime.setVisibility(View.VISIBLE);
+    }
 
 
-//    @Override
-//    public void onStopTrackingTouch(SeekBar seekBar) {
-//        if (mOpenPreView) {
-//            if (mPreProgress >= 0) {
-//                seekBar.setProgress(mPreProgress);
-//            }
-//            super.onStopTrackingTouch(seekBar);
-//            mIsFromUser = false;
-//            mPreviewLayout.setVisibility(GONE);
-//        } else {
-//            super.onStopTrackingTouch(seekBar);
-//        }
-//    }
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        super.onStopTrackingTouch(seekBar);
+        seekTime.setVisibility(View.GONE);
+    }
 
 
-//    @Override
-//    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//        super.onProgressChanged(seekBar, progress, fromUser);
-//        if (fromUser && mOpenPreView) {
-//            int width = seekBar.getWidth();
-//            long time = progress * getDuration() / 100;
-//            int offset = (int) (width - (getResources().getDimension(R.dimen.dp150) / 2)) / 100 * progress;
-//            Debuger.printfError("***************** " + progress);
-//            Debuger.printfError("***************** " + time);
-//            showPreView(mOriginUrl, time);
-//            Log.d("mOriginUrl", mOriginUrl);
-//            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) mPreviewLayout.getLayoutParams();
-//            layoutParams.leftMargin = offset;
-//            //设置帧预览图的显示位置
-//            mPreviewLayout.setLayoutParams(layoutParams);
-//            if (mHadPlay && mOpenPreView) {
-//                mPreProgress = progress;
-//            }
-//        }
-//    }
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        super.onProgressChanged(seekBar, progress, fromUser);
+        if (fromUser) {
+            long duration = getDuration();
+            long newPos   = duration * progress / 100;
+            String currentStr = CommonUtil.stringForTime((int) newPos);
+            seekTime.setText(currentStr);
+        }
+    }
 
 
     private void showPreView(String url, long time) {

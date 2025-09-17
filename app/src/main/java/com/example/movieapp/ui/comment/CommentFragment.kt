@@ -121,13 +121,13 @@ class CommentFragment : Fragment() {
 
 
         replyDialog = ReplyDialog(requireContext(), callback = ::onReply)
-        replyDialog.setOnDismissListener {
-            if (uri != null) {
-                binding.textView.text = "[ảnh]"
-            } else {
-                binding.textView.text = "Viết bình luận"
-            }
-        }
+//        replyDialog.setOnDismissListener {
+//            if (uri != null) {
+//                binding.textView.text = "[ảnh]"
+//            } else {
+//                binding.textView.text = "Viết bình luận"
+//            }
+//        }
     }
 
     private fun onReply(reply: String, uri: Uri?) {

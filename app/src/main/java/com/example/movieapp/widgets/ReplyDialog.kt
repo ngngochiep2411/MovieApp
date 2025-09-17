@@ -54,19 +54,19 @@ class ReplyDialog(
     init {
         setContentView(binding.root)
 
-        window?.setSoftInputMode(
-            android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-        )
-
-        // Ép bottom sheet mở full height
-        setOnShowListener {
-            val bottomSheet =
-                findViewById<ViewGroup>(com.google.android.material.R.id.design_bottom_sheet)
-//            bottomSheet?.layoutParams?.ww = ViewGroup.LayoutParams.MATCH_PARENT
-            val behavior = BottomSheetBehavior.from(bottomSheet!!)
-            behavior.state = BottomSheetBehavior.STATE_EXPANDED
-            behavior.skipCollapsed = true
-        }
+//        window?.setSoftInputMode(
+//            android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+//        )
+//
+//        // Ép bottom sheet mở full height
+//        setOnShowListener {
+//            val bottomSheet =
+//                findViewById<ViewGroup>(com.google.android.material.R.id.design_bottom_sheet)
+////            bottomSheet?.layoutParams?.ww = ViewGroup.LayoutParams.MATCH_PARENT
+//            val behavior = BottomSheetBehavior.from(bottomSheet!!)
+//            behavior.state = BottomSheetBehavior.STATE_EXPANDED
+//            behavior.skipCollapsed = true
+//        }
 
         binding.dialogCommentBt.setOnClickListener {
             callback.invoke(binding.dialogCommentEt.text.toString(), uri)

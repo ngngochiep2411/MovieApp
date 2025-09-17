@@ -24,36 +24,97 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/tabLayout"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="10dp"
-                    android:background="@color/black"
-                    android:tag="sticky"
-                    app:tabIndicatorColor="@color/primaryColor"
-                    app:tabMode="scrollable"
-                    app:tabPadding="0dp"
-                    app:tabPaddingBottom="0dp"
-                    app:tabPaddingStart="0dp"
-                    app:tabPaddingTop="0dp"
-                    app:tabSelectedTextColor="@color/white"
-                    app:tabTextColor="@color/textGray" />
+                    android:orientation="vertical"
+                    android:visibility="visible">
 
-                <androidx.viewpager2.widget.ViewPager2
-                    android:id="@+id/viewPager2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/dp8" />
-            </LinearLayout>
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp">
+
+                        <TextView
+                            android:id="@+id/tvMovieName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:textColor="@color/white"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            tools:text="Cỏ Chanh Ngày Hè" />
+
+                        <ImageView
+                            android:id="@+id/down"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/down" />
+
+                    </RelativeLayout>
+
+
+                    <TextView
+                        android:id="@+id/tvInfo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginEnd="10dp"
+                        android:textColor="@color/textGray"
+                        android:textSize="13sp"
+                        tools:text="2019 | K | 25/25 tap | Nhat Ban" />
+
+                    <TextView
+                        android:id="@+id/tvCategory"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginEnd="10dp"
+                        android:textColor="@color/textGray"
+                        android:textSize="13sp"
+                        tools:text="2019 | K | 25/25 tap | Nhat Ban" />
+
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginEnd="10dp"
+                        android:background="@android:color/black"
+                        android:paddingBottom="4dp"
+                        android:tag="sticky"
+                        android:text="Danh sách tập phim"
+                        android:textColor="@color/white"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:orientation="vertical"
+                        android:paddingBottom="20dp"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                </LinearLayout>
+
+
+            </RelativeLayout>
 
             <LinearLayout
                 android:id="@+id/info"

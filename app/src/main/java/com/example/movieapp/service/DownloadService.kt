@@ -3,11 +3,13 @@ package com.example.movieapp.service
 import android.app.Service
 import android.content.Intent
 import android.os.Binder
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import com.example.movieapp.util.DownloadCallback
 import com.example.movieapp.util.DownloadTask
 import com.example.movieapp.util.Notification
+import com.example.movieapp.util.SendBroadCast.Companion.sendBroadCast
 import com.example.movieapp.util.VideoDownloader
 
 class DownloadService : Service() {
@@ -40,35 +42,6 @@ class DownloadService : Service() {
 
     override fun onBind(intent: Intent?): IBinder = binder
 
-    fun sendBroadCast(
-        action: String,
-        state: String? = null,
-        position: Int = -1,
-        url: String = "",
-        slug: String = "",
-        movieName: String? = null
-    ) {
-        val intent = Intent(action).apply {
-            setPackage(packageName)
-            if (state != null) {
-                putExtra(EXTRA_STATE, state)
-            }
-            if (position != -1) {
-                putExtra(EXTRA_INDEX, position)
-            }
-            if (url.isNotEmpty()) {
-                putExtra(EXTRA_URL, url)
-            }
-            if (slug.isNotEmpty()) {
-                putExtra(EXTRA_SLUG, slug)
-            }
-            if (!movieName.isNullOrEmpty()) {
-                putExtra(EXTRA_MOVIE_NAME, slug)
-            }
-        }
-        sendBroadcast(intent)
-    }
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_START) {
             val url = intent.getStringExtra(EXTRA_URL)
@@ -76,9 +49,6 @@ class DownloadService : Service() {
             val movieName = intent.getStringExtra(EXTRA_MOVIE_NAME)
             val position = intent.getIntExtra(EXTRA_POSITION, -1)
             if (url != null && slug != null && movieName != null && position != -1) {
-                startForeground(
-                    notificationHelper.notificationId, notificationHelper.getBuilder().build()
-                )
                 val downloadTask = DownloadTask(
                     url = url, position = position, movieName = movieName, slug = slug
                 )
@@ -87,11 +57,16 @@ class DownloadService : Service() {
                         downloadTask = downloadTask
                     )
                     sendBroadCast(
+                        context = this,
                         action = ACTION_UPDATE_STATE,
                         position = position,
-                        state = DownloadState.QUEUED.name
+                        state = DownloadState.QUEUED.name,
+                        slug = slug
                     )
                 } else {
+                    startForeground(
+                        notificationHelper.notificationId, notificationHelper.getBuilder().build()
+                    )
                     videoDownloader.download(
                         downloadTask = downloadTask,
                         downloadCallback = downloadCallBack
@@ -110,10 +85,8 @@ class DownloadService : Service() {
         if (intent?.action == ACTION_CANCEL) {
             val slug = intent.getStringExtra(EXTRA_SLUG)
             val position = intent.getIntExtra(EXTRA_POSITION, -1)
-            if (slug != null && position != -1 ) {
-                videoDownloader.cancelDownload(
-                    downloadCallback = downloadCallBack
-                )
+            if (slug != null && position != -1) {
+                videoDownloader.cancelDownload()
                 videoDownloader.deleteFile(slug = slug, position = position)
             }
         }
@@ -122,15 +95,16 @@ class DownloadService : Service() {
 
     val downloadCallBack = object : DownloadCallback {
         override fun onStart(position: Int, movieName: String, slug: String?) {
-            notificationHelper.updateProgress(
+            notificationHelper.onStart(
                 progress = 0.0, movieName = movieName, position = position, slug = slug
             )
-            val intent = Intent(ACTION_UPDATE_STATE).apply {
-                setPackage(packageName)
-                putExtra(EXTRA_INDEX, position)
-                putExtra(EXTRA_STATE, DownloadState.DOWNLOADING.name)
-            }
-            sendBroadcast(intent)
+            sendBroadCast(
+                context = this@DownloadService,
+                action = ACTION_UPDATE_STATE,
+                position = position,
+                state = DownloadState.DOWNLOADING.name,
+                slug = slug
+            )
         }
 
         override fun onProgress(position: Int, movieName: String, progress: Double, slug: String?) {
@@ -141,27 +115,35 @@ class DownloadService : Service() {
             notificationHelper.updateProgress(
                 progress = progress, movieName = movieName, position = position, slug = slug
             )
-            val intent = Intent(ACTION_UPDATE_PROGRESS).apply {
-                setPackage(packageName)
-                putExtra(EXTRA_INDEX, position)
-                putExtra(EXTRA_PROGRESS, progress)
-            }
-            sendBroadcast(intent)
+            sendBroadCast(
+                context = this@DownloadService,
+                action = ACTION_UPDATE_PROGRESS,
+                position = position,
+                state = DownloadState.DOWNLOADING.name,
+                slug = slug
+            )
         }
 
-        override fun onComplete(position: Int, movieName: String, success: Boolean) {
+        override fun onComplete(position: Int, movieName: String, success: Boolean, slug: String?) {
             notificationHelper.complete(
                 movieName = movieName, position = position, success = success
             )
-            val intent = Intent(ACTION_UPDATE_STATE).apply {
-                setPackage(packageName)
-                putExtra(EXTRA_INDEX, position)
-                putExtra(EXTRA_STATE, DownloadState.DOWNLOADED.name)
-            }
-            sendBroadcast(intent)
+            sendBroadCast(
+                context = this@DownloadService,
+                action = ACTION_UPDATE_STATE,
+                position = position,
+                state = DownloadState.DOWNLOADED.name,
+                slug = slug
+            )
         }
 
         override fun onFinish() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                stopForeground(STOP_FOREGROUND_REMOVE)
+            } else {
+                @Suppress("DEPRECATION")
+                stopForeground(true)
+            }
             stopSelf()
         }
     }

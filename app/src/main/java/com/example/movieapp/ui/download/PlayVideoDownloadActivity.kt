@@ -1,11 +1,14 @@
 package com.example.movieapp.ui.download
 
+import android.app.Dialog
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.View
 import android.view.animation.AnimationUtils
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -13,8 +16,11 @@ import androidx.media3.common.util.UnstableApi
 import androidx.viewpager2.widget.ViewPager2
 import com.example.movieapp.R
 import com.example.movieapp.databinding.ActivityPlayVideoDownloadBinding
+import com.example.movieapp.databinding.FragmentListVideoDownloadBinding
 import com.example.movieapp.model.Category
 import com.example.movieapp.model.DetailMovie
+import com.example.movieapp.model.Film
+import com.example.movieapp.model.ServerData
 import com.example.movieapp.model.VideoDownload
 import com.example.movieapp.util.SharedViewModel
 import com.example.movieapp.widgets.SampleControlVideo
@@ -25,6 +31,7 @@ import com.shuyu.gsyvideoplayer.listener.VideoAllCallBack
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils
 import dagger.hilt.android.AndroidEntryPoint
+import java.io.File
 import kotlin.collections.forEach
 
 @AndroidEntryPoint
@@ -39,16 +46,33 @@ class PlayVideoDownloadActivity : AppCompatActivity(), VideoAllCallBack {
     private var index = 0
     var isPlay: Boolean = false
     var isPause: Boolean = false
-    private lateinit var viewPagerAdapter: ViewPagerAdapter
     private lateinit var videoDownload: VideoDownload
+
+    var list: ArrayList<ServerData> = ArrayList()
+    private var thumb: String? = ""
+    private var detailMovie: DetailMovie? = null
+    private lateinit var adapter: ListVideoDownloadAdapter
+    private var slug: String? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPlayVideoDownloadBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        slug = intent.getParcelableExtra<VideoDownload>("videoDownload")?.slug ?: ""
+        thumb = intent.getParcelableExtra<VideoDownload>("videoDownload")?.thumb ?: ""
+        if (intent.getParcelableExtra<VideoDownload>("videoDownload") != null) {
+            val detailMovie = intent.getParcelableExtra<VideoDownload>("videoDownload")?.detailMovie
+            this.detailMovie = detailMovie
+            binding.tvMovieName.text = detailMovie?.movie?.name
+            val info = "${detailMovie?.movie?.year} | ${detailMovie?.movie?.episodeTotal} tập | ${
+                detailMovie?.movie?.country?.get(0)?.name
+            } "
+            binding.tvInfo.text = info
+            val category = getCategory(detailMovie?.movie?.category)
+            binding.tvCategory.text = category
+        }
         initView()
-        initViewPager2()
-        val slug = intent.getParcelableExtra<VideoDownload>("videoDownload")?.slug ?: ""
         viewModel.getVideo(slug)
         viewModel.getVideoDownload(
             slug
@@ -56,28 +80,6 @@ class PlayVideoDownloadActivity : AppCompatActivity(), VideoAllCallBack {
         observer()
     }
 
-    private fun initViewPager2() {
-
-
-        binding.viewPager2.isUserInputEnabled = true
-        binding.viewPager2.offscreenPageLimit = 2
-        viewPagerAdapter = ViewPagerAdapter(this)
-        binding.viewPager2.adapter = viewPagerAdapter
-
-        TabLayoutMediator(binding.tabLayout, binding.viewPager2) { tab, position ->
-            tab.text = when (position) {
-                0 -> "Giới thiệu"
-                1 -> "Các phim khác"
-                else -> ""
-            }
-        }.attach()
-
-        binding.viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                binding.tabLayout.selectTab(binding.tabLayout.getTabAt(position))
-            }
-        })
-    }
 
     private fun initView() {
         binding.playerView.layoutParams.height =
@@ -120,6 +122,65 @@ class PlayVideoDownloadActivity : AppCompatActivity(), VideoAllCallBack {
 //                playVideo(videos[position])
 //            }
 //        })
+        adapter = ListVideoDownloadAdapter(
+            onItemClick = ::onItemClick,
+            onDelete = ::onDelete
+        )
+        binding.recyclerView.adapter = adapter
+        getFilm(slug = slug)
+        binding.down.setOnClickListener {
+            binding.info.visibility = View.VISIBLE
+        }
+    }
+
+    private fun onItemClick(position: Int) {
+        viewModel._position.value = position
+        adapter.updateCurrentVideo(position)
+    }
+
+    private fun onDelete(position: Int) {
+        showDialog(
+            title = "Xóa nội dung đã tải?",
+            message = "Bạn có muốn xóa nội dung đã tải xuống này không?",
+            onAccept = {
+                deleteFile(videoDownload.slug, position)
+            })
+    }
+
+    private fun deleteFile(slug: String, position: Int) {
+        viewModel.deleteFile(
+            file = File(
+                File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), slug),
+                "Tập${position + 1}.mp4"
+            ),
+            position = position,
+            onSuccess = { position ->
+                adapter.list.removeAt(position)
+                adapter.notifyDataSetChanged()
+            }
+        )
+    }
+
+    private fun showDialog(
+        title: String,
+        message: String,
+        onAccept: () -> Unit,
+    ) {
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.layout_dialog_confirm)
+        dialog.setCancelable(false)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.findViewById<TextView>(R.id.cancel).setOnClickListener {
+            dialog.dismiss()
+        }
+        dialog.findViewById<TextView>(R.id.accept).setOnClickListener {
+            dialog.dismiss()
+            onAccept()
+        }
+        dialog.findViewById<TextView>(R.id.title).text = title
+        dialog.findViewById<TextView>(R.id.message).text = message
+        dialog.show()
+
     }
 
     private fun resolveNormalVideoUI() {
@@ -148,21 +209,46 @@ class PlayVideoDownloadActivity : AppCompatActivity(), VideoAllCallBack {
     private fun observer() {
         viewModel.videos.observe(this) {
             videos = it
-            playVideo(videos[viewModel.position.value ?: 0])
+            if (videos.isNotEmpty()) {
+                playVideo(videos[viewModel.position.value ?: 0])
+            }
         }
         viewModel.position.observe(this) {
             this.index = it
-            playVideo(videos[index])
+            if (videos.isNotEmpty()) {
+                playVideo(videos[index])
+            }
         }
         viewModel.videoDownload.observe(this) {
             this.videoDownload = it
-            viewPagerAdapter.submitList(
-                videoDownload.detailMovie.episodes?.get(0)?.serverData!!,
-                videoDownload.detailMovie.movie?.thumbUrl,
-                videoDownload.detailMovie
-            )
             setData(videoDownload.detailMovie)
         }
+    }
+
+    private fun getFilm(slug: String?) {
+        val list = ArrayList<Film>()
+        val file = File(
+            getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
+            slug.toString()
+        )
+
+        val mp4Files = file.listFiles { f ->
+            f.isFile && f.extension.equals("mp4", ignoreCase = true)
+        } ?: emptyArray()
+
+
+        mp4Files.forEachIndexed { index, f ->
+            val film = Film(
+                name = "",
+                slug = slug.toString(),
+                episode = f.name.split(".")[0],
+                thumb = ""
+            )
+            list.add(film)
+        }
+
+        adapter.submitList(list, thumb, slug)
+
     }
 
     private fun setData(detailMovie: DetailMovie) {

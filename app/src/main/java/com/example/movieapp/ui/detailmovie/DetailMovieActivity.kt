@@ -362,7 +362,7 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
         }
 
         //开始播放了才能旋转和全屏
-        orientationUtils?.setEnable(true && !isAutoFullWithSize())
+        orientationUtils?.setEnable(!isAutoFullWithSize())
         isPlay = true
         isVideoLoaded.value = true
 

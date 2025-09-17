@@ -13,7 +13,10 @@ import com.example.movieapp.databinding.LayoutItemDownloadBinding
 import com.example.movieapp.model.VideoDownload
 import java.io.File
 
-class VideoDownloadAdapter(val onItemClick: (VideoDownload) -> Unit) :
+class VideoDownloadAdapter(
+    val onItemClick: (VideoDownload) -> Unit,
+    val onDelete: (VideoDownload, Int) -> Unit,
+) :
     ListAdapter<VideoDownload, VideoDownloadAdapter.VideoDownloadViewHolder>(DiffCallback) {
 
     inner class VideoDownloadViewHolder(
@@ -26,6 +29,9 @@ class VideoDownloadAdapter(val onItemClick: (VideoDownload) -> Unit) :
             binding.episode.text = "${countMp4Files(binding.root.context, download.slug)} tập"
             binding.root.setOnClickListener {
                 onItemClick(download)
+            }
+            binding.delete.setOnClickListener {
+                onDelete(download, bindingAdapterPosition)
             }
         }
     }
@@ -45,7 +51,10 @@ class VideoDownloadAdapter(val onItemClick: (VideoDownload) -> Unit) :
 
     companion object {
         private val DiffCallback = object : DiffUtil.ItemCallback<VideoDownload>() {
-            override fun areItemsTheSame(oldItem: VideoDownload, newItem: VideoDownload): Boolean {
+            override fun areItemsTheSame(
+                oldItem: VideoDownload,
+                newItem: VideoDownload
+            ): Boolean {
                 return oldItem.id == newItem.id
             }
 

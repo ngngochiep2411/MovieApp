@@ -31,6 +31,8 @@ import com.example.movieapp.model.VideoDownload
 import com.example.movieapp.service.DownloadService
 import com.example.movieapp.ui.detailmovie.DetailMovieActivity
 import com.example.movieapp.ui.listvideo.adapter.ListVideoAdapter
+import com.example.movieapp.util.SendBroadCast.Companion.sendBroadCast
+import com.example.movieapp.util.SendBroadCast.Companion.startService
 import com.example.movieapp.util.SharedViewModel
 import com.example.movieapp.util.VideoDownloader
 import dagger.hilt.android.AndroidEntryPoint
@@ -78,19 +80,27 @@ class LIstVideoFragment : Fragment() {
 
                     val index = intent.getIntExtra(DownloadService.EXTRA_INDEX, -1)
                     val progress = intent.getDoubleExtra(DownloadService.EXTRA_PROGRESS, 0.0)
-                    if (index >= 0) {
-                        adapter.updateProgress(
-                            index,
-                            progress,
-                            DownloadService.DownloadState.DOWNLOADING.name
-                        )
+                    val slug = intent.getStringExtra(DownloadService.EXTRA_SLUG)
+                    if (slug != null && slug == this@LIstVideoFragment.slug) {
+                        if (index >= 0) {
+                            adapter.updateProgress(
+                                index,
+                                progress,
+                                DownloadService.DownloadState.DOWNLOADING.name
+                            )
+                        }
                     }
+
                 }
 
                 DownloadService.ACTION_UPDATE_STATE -> {
+                    val slug = intent.getStringExtra(DownloadService.EXTRA_SLUG)
                     val state = intent.getStringExtra(DownloadService.EXTRA_STATE)
                     val index = intent.getIntExtra(DownloadService.EXTRA_INDEX, -1)
-                    adapter.updateState(state, index)
+                    if (slug != null && slug == this@LIstVideoFragment.slug) {
+                        adapter.updateState(state, index)
+                    }
+
                 }
             }
         }
@@ -140,11 +150,14 @@ class LIstVideoFragment : Fragment() {
                                 deleteFile(
                                     position, onSuccess = {
                                         sendBroadCast(
+                                            context = requireContext(),
                                             action = DownloadService.ACTION_UPDATE_STATE,
                                             position = position,
-                                            state = DownloadService.DownloadState.IDLE
+                                            state = DownloadService.DownloadState.IDLE.name,
+                                            slug = slug
                                         )
                                         startService(
+                                            context = requireContext(),
                                             act = DownloadService.ACTION_REMOVE_QUEUE,
                                             url = list[position].linkM3u8,
                                             slug = this.slug,
@@ -161,11 +174,14 @@ class LIstVideoFragment : Fragment() {
                             message = "Nội dung này đang được chờ để được tải xuống. Bạn có muốn hủy bỏ việc tải xuống nội dung này?",
                             onAccept = {
                                 sendBroadCast(
+                                    context = requireContext(),
                                     action = DownloadService.ACTION_UPDATE_STATE,
                                     position = position,
-                                    state = DownloadService.DownloadState.IDLE
+                                    state = DownloadService.DownloadState.IDLE.name,
+                                    slug = slug
                                 )
                                 startService(
+                                    context = requireContext(),
                                     act = DownloadService.ACTION_REMOVE_QUEUE,
                                     url = list[position].linkM3u8,
                                     slug = this.slug,
@@ -177,6 +193,7 @@ class LIstVideoFragment : Fragment() {
 
                     DownloadService.DownloadState.IDLE -> {
                         startService(
+                            context = requireContext(),
                             act = DownloadService.ACTION_START,
                             url = list[position].linkM3u8,
                             slug = this.slug,
@@ -211,65 +228,6 @@ class LIstVideoFragment : Fragment() {
                 )
             )
         }
-    }
-
-    fun startService(
-        act: String,
-        url: String = "",
-        slug: String? = "",
-        movieName: String? = null,
-        position: Int = -1
-    ) {
-        val intent = Intent(requireContext(), DownloadService::class.java).apply {
-            setPackage(requireContext().packageName)
-            action = act
-            if (url.isNotEmpty()) {
-                putExtra(DownloadService.EXTRA_URL, url)
-            }
-            if (!slug.isNullOrEmpty()) {
-                putExtra(DownloadService.EXTRA_SLUG, slug)
-            }
-            if (!movieName.isNullOrEmpty()) {
-                putExtra(DownloadService.EXTRA_MOVIE_NAME, movieName)
-            }
-            if (position != -1) {
-                putExtra(DownloadService.EXTRA_POSITION, position)
-            }
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            requireContext().startForegroundService(intent)
-        } else {
-            requireContext().startService(intent)
-        }
-    }
-
-    fun sendBroadCast(
-        action: String,
-        state: DownloadService.DownloadState? = null,
-        position: Int = -1,
-        url: String = "",
-        slug: String = "",
-        movieName: String? = null
-    ) {
-        val intent = Intent(action).apply {
-            setPackage(requireContext().packageName)
-            if (state != null) {
-                putExtra(DownloadService.EXTRA_STATE, state)
-            }
-            if (position != -1) {
-                putExtra(DownloadService.EXTRA_INDEX, position)
-            }
-            if (url.isNotEmpty()) {
-                putExtra(DownloadService.EXTRA_URL, url)
-            }
-            if (slug.isNotEmpty()) {
-                putExtra(DownloadService.EXTRA_SLUG, slug)
-            }
-            if (!movieName.isNullOrEmpty()) {
-                putExtra(DownloadService.EXTRA_MOVIE_NAME, slug)
-            }
-        }
-        requireContext().sendBroadcast(intent)
     }
 
 

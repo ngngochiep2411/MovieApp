@@ -34,15 +34,14 @@ class PlayVideoDownloadViewModel @Inject constructor(
     val _videoDownload = MutableLiveData<VideoDownload>()
     val videoDownload: LiveData<VideoDownload> get() = _videoDownload
 
-    fun getVideoDownload(slug: String) {
+    fun getVideoDownload(slug: String?) {
         viewModelScope.launch {
             val video = movieDao.getVideoDownload(slug)
             _videoDownload.value = video
         }
     }
 
-    fun getVideo(slug: String) {
-
+    fun getVideo(slug: String?) {
 
         val movieDir = File(
             getApplication<Application>().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
@@ -62,5 +61,19 @@ class PlayVideoDownloadViewModel @Inject constructor(
 
     fun updatePosition(position: Int) {
         _position.value = position
+    }
+
+    fun deleteFile(
+        file: File,
+        position: Int,
+        onSuccess: (position: Int) -> Unit
+    ) {
+        viewModelScope.launch {
+            if (file.exists()) {
+                file.delete()
+            }
+            onSuccess(position)
+        }
+
     }
 }

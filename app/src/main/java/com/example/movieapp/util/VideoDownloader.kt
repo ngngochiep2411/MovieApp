@@ -6,6 +6,8 @@ import android.util.Log
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.FFmpegSession
 import com.arthenica.ffmpegkit.ReturnCode
+import com.example.movieapp.service.DownloadService
+import com.example.movieapp.util.SendBroadCast.Companion.sendBroadCast
 import java.io.File
 
 class VideoDownloader(
@@ -16,9 +18,8 @@ class VideoDownloader(
     private val queue = ArrayDeque<DownloadTask>()
     var isDownloading = false
     private var currentSension: FFmpegSession? = null
-    var isCanceled = false
-
     private var currentTask: DownloadTask? = null
+    var probeSession: FFmpegSession? = null
 
     init {
         privateDir?.mkdirs()
@@ -27,12 +28,7 @@ class VideoDownloader(
     fun currentQueue(): List<DownloadTask> = queue.toList()
 
     fun removeQueue(url: String?) {
-        val removed = queue.removeIf { it.url == url }
-        if (removed) {
-            Log.d("DownloadQueue", "Removed task with url=$url")
-        } else {
-            Log.d("DownloadQueue", "No task found with url=$url")
-        }
+        queue.removeIf { it.url == url }
     }
 
 
@@ -41,12 +37,6 @@ class VideoDownloader(
         if (!exits) {
             queue.add(downloadTask)
         }
-        queue.forEachIndexed { index, task ->
-            Log.d(
-                "VideoDownloader",
-                "[$index] url=${task.url}, slug=${task.slug}, movieName=${task.movieName}, position=${task.position}"
-            )
-        }
     }
 
     fun download(
@@ -54,18 +44,20 @@ class VideoDownloader(
     ) {
         addQueue(downloadTask)
         if (!isDownloading) {
+            isDownloading = true
             processNext(
                 downloadCallBack = downloadCallback
             )
         }
-        isDownloading = true
     }
 
     private fun processNext(
         downloadCallBack: DownloadCallback
     ) {
         if (queue.isEmpty()) {
+            isDownloading = false
             downloadCallBack.onFinish()
+            Log.d("testing", " downloadCallBack.onFinish()")
             return
         }
         val task = queue.firstOrNull() ?: run {
@@ -73,7 +65,6 @@ class VideoDownloader(
             downloadCallBack.onFinish()
             return
         }
-
         currentTask = task
         downloadCallBack.onStart(task.position, task.movieName, task.slug)
         val logUrl = task.url
@@ -84,18 +75,12 @@ class VideoDownloader(
         var downloadUrl = ""
         var started = false
 
-        FFmpegKit.executeAsync(probeCmd, { session ->
-            val returnCode = session.returnCode
-            if (!ReturnCode.isSuccess(returnCode)) {
-                removeQueue(logUrl)
-                processNext(downloadCallBack = downloadCallBack)
-            } else {
-                Log.e("FFMPEGLOG", "Lỗi khi tải video: $returnCode")
-                Log.e("FFMPEGLOG", "Fail stack trace: ${session.failStackTrace}")
-            }
+
+
+        probeSession = FFmpegKit.executeAsync(probeCmd, { session ->
+
         }, { log ->
             val message = log.message
-            Log.d("zmmsfdsfs", "$message")
             if (message.contains("Opening") && message.contains(".m3u8")) {
                 val regex = Regex("https?://[^\\s']+\\.m3u8")
                 regex.find(message)?.let { downloadUrl = it.value }
@@ -108,24 +93,20 @@ class VideoDownloader(
             if (message.contains("Duration:")) waitingForDuration = true
 
             if (!started && downloadUrl.isNotEmpty() && videoDuration.isNotEmpty()) {
+                probeSession?.cancel()
                 started = true
-                if (!isCanceled) {
-                    Log.d("testing", "downloadvideo")
-                    val durationMs = parseDurationToMs(videoDuration)
-                    downloadVideo(
-                        url = task.url,
-                        downloadUrl = downloadUrl,
-                        movieName = task.movieName,
-                        slug = task.slug,
-                        position = task.position,
-                        duration = durationMs,
-                        downloadCallback = downloadCallBack
-                    )
-                }
-
+                val durationMs = parseDurationToMs(videoDuration)
+                downloadVideo(
+                    url = task.url,
+                    downloadUrl = downloadUrl,
+                    movieName = task.movieName,
+                    slug = task.slug,
+                    position = task.position,
+                    duration = durationMs,
+                    downloadCallback = downloadCallBack
+                )
             }
         }, {
-            Log.e("FFMPEGLOG", "$it")
         })
     }
 
@@ -138,7 +119,7 @@ class VideoDownloader(
         url: String?,
         downloadCallback: DownloadCallback
     ) {
-        Log.d("testing", "downloadVideo $url")
+        Log.d("testing", "downloadVideo $downloadUrl")
         val movieDir = File(privateDir, slug)
         if (movieDir.exists()) {
             movieDir.delete()
@@ -148,49 +129,46 @@ class VideoDownloader(
         }
         val outputFile = File(movieDir, "Tập${position.plus(1)}.mp4")
         val cmd = "-i $downloadUrl -c copy -bsf:a aac_adtstoasc ${outputFile.absolutePath}"
-        isCanceled = false
         val session = FFmpegKit.executeAsync(cmd, { session ->
             val returnCode = session.returnCode
-            if (ReturnCode.isSuccess(returnCode)) {
+            if (ReturnCode.isCancel(returnCode)) {
+                Log.d("testing", "downloadVideo isCancel")
+                sendBroadCast(
+                    context = context,
+                    action = DownloadService.ACTION_UPDATE_STATE,
+                    position = position,
+                    state = DownloadService.DownloadState.IDLE.name,
+                    slug = slug
+                )
                 removeQueue(url)
-                isDownloading = false
-                Log.d("FFMPEGLOG", "Tải thành công: ${outputFile.absolutePath}")
-                downloadCallback.onComplete(position, movieName, true)
                 processNext(downloadCallBack = downloadCallback)
-            } else {
-                isDownloading = false
-                Log.e("FFMPEGLOG", "Lỗi tải video: $returnCode")
-                Log.e("FFMPEGLOG", "Output: ${session.allLogsAsString}")
+            } else if (ReturnCode.isSuccess(returnCode)) {
+                Log.d("testing", "downloadVideo isSuccess")
                 removeQueue(url)
-                downloadCallback.onComplete(position, movieName, false)
+                downloadCallback.onComplete(position, movieName, true, slug)
+                processNext(downloadCallBack = downloadCallback)
+            } else if (!ReturnCode.isSuccess(returnCode)) {
+                Log.d("testing", "downloadVideo !isSuccess")
+                removeQueue(url)
                 processNext(downloadCallBack = downloadCallback)
             }
         }, { log ->
             val message = log.message
-            Log.d("FFMPEGLOG", message)
-
+            Log.e("testing", message)
         }, { statistics ->
             if (duration > 0) {
                 val current = statistics.time
                 val progress = (current / duration) * 100
                 downloadCallback.onProgress(position, movieName, progress, slug)
-                Log.d("DownloadService", "$movieName - $position  Progress: $progress%")
             }
         })
 
         this.currentSension = session
     }
 
-    fun cancelDownload(downloadCallback: DownloadCallback) {
-        Log.d("DownloadService", "cancelDownload")
-        isCanceled = true
+    fun cancelDownload() {
         currentSension?.cancel()
         currentSension = null
-        if (queue.isNotEmpty()) {
-            queue.removeFirst()
-        }
-        isDownloading = false
-        processNext(downloadCallback)
     }
 
     fun deleteFile(slug: String, position: Int) {
@@ -201,7 +179,6 @@ class VideoDownloader(
                 outputFile.delete()
             }
         } catch (e: Exception) {
-            Log.e("DeleteFile", "Lỗi khi xóa file", e)
         }
     }
 
@@ -232,7 +209,7 @@ class VideoDownloader(
 interface DownloadCallback {
     fun onStart(position: Int, movieName: String, slug: String?)
     fun onProgress(position: Int, movieName: String, progress: Double, slug: String?)
-    fun onComplete(position: Int, movieName: String, success: Boolean)
+    fun onComplete(position: Int, movieName: String, success: Boolean, slug: String?)
     fun onFinish()
 }
 
