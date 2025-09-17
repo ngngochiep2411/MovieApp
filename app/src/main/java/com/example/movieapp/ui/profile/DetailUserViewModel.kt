@@ -40,7 +40,6 @@ class DetailUserViewModel @Inject constructor(
                 password = createRequestBody(password)
             ).collect {
                 _isLoading.value = false
-                Log.d("testing", Gson().toJson(it))
                 _message.value = it.message
                 if (it.success()) {
                     databaseManager.saveUser(Gson().toJson(it.user))

@@ -58,7 +58,6 @@ class Notification(val context: Context) {
             .setOngoing(true)
             .addAction(android.R.drawable.ic_delete, "Hủy tải xuống", cancelPendingIntent)
 
-        Log.d("Notification", "Tải xuống $movieName - Tập ${position + 1}")
 
         notificationManager.notify(notificationId, builder.build())
     }
@@ -82,7 +81,6 @@ class Notification(val context: Context) {
             .setSubText("${progress.toInt()} %").setProgress(100, progress.toInt(), false)
             .setOngoing(true)
 
-        Log.d("Notification", "Tải xuống $movieName - Tập ${position + 1}")
 
         notificationManager.notify(notificationId, builder.build())
     }

@@ -109,7 +109,6 @@ class MainRepository @Inject constructor(
             year = year
         )
         emit(NetworkResult.Success(response))
-        Log.d("testing", Gson().toJson(response))
     }.catch { e ->
         emit(NetworkResult.Failure(e.message))
 
@@ -126,7 +125,6 @@ class MainRepository @Inject constructor(
             year = year
         )
         emit(NetworkResult.Success(response))
-        Log.d("testing", Gson().toJson(response))
     }.catch { e ->
         emit(NetworkResult.Failure(e.message))
     }
@@ -143,7 +141,6 @@ class MainRepository @Inject constructor(
             year = year
         )
         emit(NetworkResult.Success(response))
-        Log.d("testing", Gson().toJson(response))
     }.catch { e ->
         emit(NetworkResult.Failure(e.message))
     }
@@ -160,7 +157,6 @@ class MainRepository @Inject constructor(
             country = country
         )
         emit(NetworkResult.Success(response))
-        Log.d("testing", Gson().toJson(response))
     }.catch { e ->
         emit(NetworkResult.Failure(e.message))
     }
@@ -201,7 +197,6 @@ class MainRepository @Inject constructor(
         val comments = commentApiService.getComment(video_id = video, page = page)
         emit(comments)
     }.catch { e ->
-        Log.d("testing", "$e")
     }
 
     suspend fun comment(
@@ -218,7 +213,6 @@ class MainRepository @Inject constructor(
         )
         emit(response)
     }.catch { e ->
-        Log.d("testing", "$e")
     }
 
     suspend fun reply(
@@ -236,9 +230,8 @@ class MainRepository @Inject constructor(
             image = image
         )
         emit(response)
-        Log.d("testing", Gson().toJson(response))
+
     }.catch { e ->
-        Log.d("testing", "$e")
     }
 
 
@@ -246,7 +239,6 @@ class MainRepository @Inject constructor(
         val response = commentApiService.login(Login(email, password))
         emit(response)
     }.catch { e ->
-        Log.d("testing", "$e")
     }
 
     suspend fun register(email: String, password: String, userName: String) =
@@ -254,7 +246,6 @@ class MainRepository @Inject constructor(
             val response = commentApiService.register(Register(email, password, userName))
             emit(response)
         }.catch { e ->
-            Log.d("testing", "$e")
         }
 
     fun getReply(video_id: String?, comment_id: Int, page: Int) =
@@ -266,7 +257,6 @@ class MainRepository @Inject constructor(
             )
             emit(response)
         }.catch { e ->
-            Log.d("testing", "$e")
         }
 
 
@@ -274,14 +264,12 @@ class MainRepository @Inject constructor(
         val response = movieApiService.getCategory()
         emit(response)
     }.catch { e ->
-        Log.d("testing", "$e")
     }
 
     fun getCountry() = flow<List<CountryMovie>> {
         val response = movieApiService.getCountry()
         emit(response)
     }.catch { e ->
-        Log.d("testing", "$e")
     }
 
 //    fun updateUser(
@@ -318,7 +306,6 @@ class MainRepository @Inject constructor(
         )
         emit(response)
     }.catch { e ->
-        Log.d("testing", "$e")
     }
 
 //    fun getWatchedEpisodes(string: String): Flow<List<Int>> {

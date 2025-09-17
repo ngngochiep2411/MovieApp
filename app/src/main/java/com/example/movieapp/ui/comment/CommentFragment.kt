@@ -60,7 +60,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
-//import gun0912.tedimagepicker.builder.TedImagePicker
+
 
 @AndroidEntryPoint
 class CommentFragment : Fragment() {
@@ -121,13 +121,6 @@ class CommentFragment : Fragment() {
 
 
         replyDialog = ReplyDialog(requireContext(), callback = ::onReply)
-//        replyDialog.setOnDismissListener {
-//            if (uri != null) {
-//                binding.textView.text = "[ảnh]"
-//            } else {
-//                binding.textView.text = "Viết bình luận"
-//            }
-//        }
     }
 
     private fun onReply(reply: String, uri: Uri?) {
@@ -370,7 +363,6 @@ class CommentFragment : Fragment() {
     fun updateData(slug: String?) {
         this.videoName = slug
         if (videoName != null) {
-            Log.d("testing", "videoName $videoName")
             fetchData()
         }
     }

@@ -57,7 +57,6 @@ class VideoDownloader(
         if (queue.isEmpty()) {
             isDownloading = false
             downloadCallBack.onFinish()
-            Log.d("testing", " downloadCallBack.onFinish()")
             return
         }
         val task = queue.firstOrNull() ?: run {
@@ -119,7 +118,6 @@ class VideoDownloader(
         url: String?,
         downloadCallback: DownloadCallback
     ) {
-        Log.d("testing", "downloadVideo $downloadUrl")
         val movieDir = File(privateDir, slug)
         if (movieDir.exists()) {
             movieDir.delete()
@@ -132,7 +130,6 @@ class VideoDownloader(
         val session = FFmpegKit.executeAsync(cmd, { session ->
             val returnCode = session.returnCode
             if (ReturnCode.isCancel(returnCode)) {
-                Log.d("testing", "downloadVideo isCancel")
                 sendBroadCast(
                     context = context,
                     action = DownloadService.ACTION_UPDATE_STATE,
@@ -143,12 +140,10 @@ class VideoDownloader(
                 removeQueue(url)
                 processNext(downloadCallBack = downloadCallback)
             } else if (ReturnCode.isSuccess(returnCode)) {
-                Log.d("testing", "downloadVideo isSuccess")
                 removeQueue(url)
                 downloadCallback.onComplete(position, movieName, true, slug)
                 processNext(downloadCallBack = downloadCallback)
             } else if (!ReturnCode.isSuccess(returnCode)) {
-                Log.d("testing", "downloadVideo !isSuccess")
                 removeQueue(url)
                 processNext(downloadCallBack = downloadCallback)
             }

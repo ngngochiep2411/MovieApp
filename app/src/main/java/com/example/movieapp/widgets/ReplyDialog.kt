@@ -1,19 +1,14 @@
 package com.example.movieapp.widgets
 
 import android.content.Context
-import android.content.DialogInterface
 import android.net.Uri
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import com.bumptech.glide.Glide
 import com.example.movieapp.databinding.CommentDialogLayoutBinding
-import com.example.movieapp.ui.comment.CommentFragment
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import gun0912.tedimagepicker.builder.TedImagePicker
 
@@ -53,21 +48,6 @@ class ReplyDialog(
 
     init {
         setContentView(binding.root)
-
-//        window?.setSoftInputMode(
-//            android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-//        )
-//
-//        // Ép bottom sheet mở full height
-//        setOnShowListener {
-//            val bottomSheet =
-//                findViewById<ViewGroup>(com.google.android.material.R.id.design_bottom_sheet)
-////            bottomSheet?.layoutParams?.ww = ViewGroup.LayoutParams.MATCH_PARENT
-//            val behavior = BottomSheetBehavior.from(bottomSheet!!)
-//            behavior.state = BottomSheetBehavior.STATE_EXPANDED
-//            behavior.skipCollapsed = true
-//        }
-
         binding.dialogCommentBt.setOnClickListener {
             callback.invoke(binding.dialogCommentEt.text.toString(), uri)
             clearAll()
@@ -104,6 +84,4 @@ class ReplyDialog(
             }
         }
     }
-
-
 }

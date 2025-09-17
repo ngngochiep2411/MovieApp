@@ -26,9 +26,7 @@ class ListVideoViewModel @Inject constructor(
             try {
                 val rowId = movieDao.insert(video = download)
                 if (rowId > 0) {
-                    Log.d("RoomDB", "Save thành công với rowId = $rowId")
                 } else {
-                    Log.w("RoomDB", "Save thất bại (rowId = $rowId)")
                 }
             } catch (e: Exception) {
                 Log.e("RoomDB", "Lỗi khi save: ${e.message}", e)

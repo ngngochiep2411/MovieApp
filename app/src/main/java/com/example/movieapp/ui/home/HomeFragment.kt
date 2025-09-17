@@ -121,7 +121,6 @@ class HomeFragment : Fragment(), OnItemClickListener, ToolbarHome.OnItemClickLis
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Log.d("testing", "onDestroyView")
     }
 
     private fun initView() {

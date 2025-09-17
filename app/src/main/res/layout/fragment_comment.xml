@@ -82,8 +82,8 @@
                 android:id="@+id/pickImage"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
+                android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_marginEnd="15dp"
                 android:layout_toStartOf="@id/emoji"
                 android:src="@drawable/ic_image"
                 app:tint="@color/white" />
@@ -96,6 +96,7 @@
                 android:layout_centerVertical="true"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_face"
+                android:visibility="invisible"
                 app:tint="@color/white" />
         </RelativeLayout>
 

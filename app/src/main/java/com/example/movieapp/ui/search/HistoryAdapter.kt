@@ -30,7 +30,6 @@ class HistoryAdapter :
         fun bind(position: Int) {
             binding.text.text = getItem(position)
             binding.delete.setOnClickListener {
-                Log.d("testing", "remove pos:  $position")
             }
         }
     }

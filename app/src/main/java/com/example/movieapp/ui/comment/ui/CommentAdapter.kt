@@ -374,13 +374,7 @@ class LoadingVH(
     reduceBlock: Reducer.() -> Unit,
     private val loadMore: (item: CommentItem) -> Unit,
 ) : VH(binding.root, reduceBlock) {
-    //    private val state: TextView = itemView.findViewById(R.id.state)
     override fun onBind(item: CommentItem) {
-//        state.text = item.content
-//        if ((item as CommentItem.Loading).state == CommentItem.Loading.State.IDLE) {
-//            reduceBlock.invoke(StartLoadLv1Reducer())
-//            reduceBlock.invoke(LoadLv1Reducer())
-//        }
         loadMore(item)
     }
 }

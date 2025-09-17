@@ -33,7 +33,6 @@ class HomeViewModel @Inject constructor(
         get() = _isLoading
 
     fun getData() {
-        Log.d("testing", "getData")
         _isLoading.value = true
         viewModelScope.launch {
 //            delay(10000L)

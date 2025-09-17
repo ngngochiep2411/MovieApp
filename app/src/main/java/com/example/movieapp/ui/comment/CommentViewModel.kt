@@ -56,7 +56,8 @@ class CommentViewModel @Inject constructor(
 
     fun getComment(videoName: String?) {
         viewModelScope.launch {
-            mainRepository.getComment(videoName, currentPage++).collect {
+            Log.d("testing", "getComment $currentPage")
+            mainRepository.getComment(videoName, currentPage).collect {
                 currentPage = it.pagination.currentPage
                 nextPage = it.pagination.nextPage
                 _comments.value = it.data
@@ -67,7 +68,8 @@ class CommentViewModel @Inject constructor(
 
     fun getMoreComment(videoName: String?) {
         viewModelScope.launch {
-            mainRepository.getComment(videoName, currentPage++).collect {
+            Log.d("testing", "getMoreComment $currentPage")
+            mainRepository.getComment(videoName, currentPage + 1).collect {
                 currentPage = it.pagination.currentPage
                 nextPage = it.pagination.nextPage
                 _moreComments.value = it.data
@@ -88,7 +90,6 @@ class CommentViewModel @Inject constructor(
                 userId = userIdBody,
                 image = imagePart
             ).collect {
-                Log.d("testing", Gson().toJson(it))
                 emit(it)
             }
         }
@@ -104,7 +105,6 @@ class CommentViewModel @Inject constructor(
                     .toRequestBody("text/plain".toMediaType()),
                 image = imagePart
             ).collect {
-                Log.d("testing", Gson().toJson(it))
                 emit(it)
             }
         }
@@ -113,7 +113,6 @@ class CommentViewModel @Inject constructor(
         mainRepository.getReply(
             video_id = video_id, comment_id = comment_id, page = page
         ).collect {
-            Log.d("testing", Gson().toJson(it))
             emit(it)
         }
     }

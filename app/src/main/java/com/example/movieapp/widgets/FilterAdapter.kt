@@ -41,7 +41,6 @@ class FilterAdapter(
                 binding.text.setTextColor(binding.root.context.getColor(R.color.white))
             }
 
-            Log.d("testing", "current $currentIndex")
 
             binding.root.setOnClickListener {
                 currentIndex = if (currentIndex == position) -1 else position

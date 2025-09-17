@@ -19,7 +19,6 @@ class ViewPagerAdapter(
 ) :
     FragmentStateAdapter(fragmentActivity) {
     fun submitList(list: ArrayList<ServerData>, thumbUrl: String?, detailMovie: DetailMovie) {
-        Log.d("ViewPagerAdapter", "submitList")
         this.list = list
         this.thumb = thumbUrl
         this.detailMovie = detailMovie
@@ -30,7 +29,6 @@ class ViewPagerAdapter(
     override fun getItemCount(): Int = 2
 
     override fun createFragment(position: Int): Fragment {
-        Log.d("ViewPagerAdapter", "createFragment $position")
         return when (position) {
             0 -> ListVideoDownloadFragment.newInstance()
             1 -> CommentFragment.newInstance()
@@ -45,7 +43,6 @@ class ViewPagerAdapter(
     ) {
 
         if (payloads.isNotEmpty()) {
-            Log.d("ViewPagerAdapter", "onBindViewHolder payloads: $position")
             val tag = "f" + holder.itemId
             val fragment = fragmentActivity.supportFragmentManager.findFragmentByTag(tag)
             if (fragment != null && (fragment is ListVideoDownloadFragment || fragment is CommentFragment)) {

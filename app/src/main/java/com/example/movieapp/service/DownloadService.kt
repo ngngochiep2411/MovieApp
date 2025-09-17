@@ -30,10 +30,6 @@ class DownloadService : Service() {
     }
 
     override fun onCreate() {
-        Log.d(
-            "DownloadService",
-            "onCreate instance = ${this.hashCode()}, thread = ${Thread.currentThread().name}"
-        )
         videoDownloader = VideoDownloader(this)
         notificationHelper = Notification(this)
 
@@ -108,10 +104,6 @@ class DownloadService : Service() {
         }
 
         override fun onProgress(position: Int, movieName: String, progress: Double, slug: String?) {
-            Log.d(
-                "DownloadService",
-                "Progress slug=$slug, movie=$movieName, pos=$position, progress=${progress.toInt()}%"
-            )
             notificationHelper.updateProgress(
                 progress = progress, movieName = movieName, position = position, slug = slug
             )

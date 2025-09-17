@@ -371,7 +371,6 @@ class LIstVideoFragment : Fragment() {
     fun updateData(
         list: ArrayList<ServerData>, thumb: String?, detailMovie: DetailMovie?, slug: String?
     ) {
-        Log.d("testing", "updateList")
         this.list = list
         getNewList()
         this.thumb = thumb

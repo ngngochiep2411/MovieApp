@@ -466,12 +466,10 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
     }
 
     override fun onClickBlank(url: String?, vararg objects: Any?) {
-        Log.d("testing", "aaa")
         updateView()
     }
 
     fun updateView() {
-        Log.d("testing", "${binding.playerView.startButton.isVisible}")
         if (binding.playerView.startButton.isVisible) {
             binding.playerView.findViewById<View>(R.id.next).visibility = View.INVISIBLE
             binding.playerView.findViewById<View>(R.id.previous).visibility = View.INVISIBLE

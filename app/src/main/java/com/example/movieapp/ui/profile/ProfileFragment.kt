@@ -100,7 +100,6 @@ class ProfileFragment : Fragment(), OnItemClickListener {
         lifecycleScope.launch {
             launch {
                 viewModel.userDetail.collect { userDetail ->
-                    Log.d("testing", "avatarurl ${userDetail?.avatar_url}")
                     Utils.loadImage(requireContext(), userDetail?.avatar_url, binding.avatar)
                     binding.tvUserName.text = userDetail?.name
                     binding.info.visibility = if (userDetail != null) View.VISIBLE else View.GONE

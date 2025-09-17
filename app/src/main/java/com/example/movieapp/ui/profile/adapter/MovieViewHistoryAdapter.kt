@@ -47,7 +47,6 @@ class MovieViewHistoryAdapter() : ListAdapter<MovieHistory, RecyclerView.ViewHol
 
             val progress =
                 (movie?.watchedAt ?: 0).toDouble() / (movie?.duration ?: 0).toDouble() * 100
-            Log.d("testing", "progress $progress")
             binding.progressBar.progress = (progress).toInt()
             binding.episode.text = "Xem đến tập ${(movie?.episode)?.plus(1)}"
             binding.root.layoutParams.width =
