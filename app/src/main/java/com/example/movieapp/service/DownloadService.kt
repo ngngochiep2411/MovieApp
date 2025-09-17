@@ -34,9 +34,7 @@ class DownloadService : Service() {
         )
         videoDownloader = VideoDownloader(this)
         notificationHelper = Notification(this)
-        startForeground(
-            notificationHelper.notificationId, notificationHelper.getBuilder().build()
-        )
+
         super.onCreate()
     }
 
@@ -78,6 +76,9 @@ class DownloadService : Service() {
             val movieName = intent.getStringExtra(EXTRA_MOVIE_NAME)
             val position = intent.getIntExtra(EXTRA_POSITION, -1)
             if (url != null && slug != null && movieName != null && position != -1) {
+                startForeground(
+                    notificationHelper.notificationId, notificationHelper.getBuilder().build()
+                )
                 val downloadTask = DownloadTask(
                     url = url, position = position, movieName = movieName, slug = slug
                 )

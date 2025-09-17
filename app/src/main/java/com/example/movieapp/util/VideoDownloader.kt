@@ -15,7 +15,7 @@ class VideoDownloader(
     private val privateDir = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
     private val queue = ArrayDeque<DownloadTask>()
     var isDownloading = false
-    private var session: FFmpegSession? = null
+    private var currentSension: FFmpegSession? = null
     var isCanceled = false
 
     private var currentTask: DownloadTask? = null
@@ -109,17 +109,20 @@ class VideoDownloader(
 
             if (!started && downloadUrl.isNotEmpty() && videoDuration.isNotEmpty()) {
                 started = true
-                Log.d("testing", "downloadvideo")
-                val durationMs = parseDurationToMs(videoDuration)
-                downloadVideo(
-                    url = task.url,
-                    downloadUrl = downloadUrl,
-                    movieName = task.movieName,
-                    slug = task.slug,
-                    position = task.position,
-                    duration = durationMs,
-                    downloadCallback = downloadCallBack
-                )
+                if (!isCanceled) {
+                    Log.d("testing", "downloadvideo")
+                    val durationMs = parseDurationToMs(videoDuration)
+                    downloadVideo(
+                        url = task.url,
+                        downloadUrl = downloadUrl,
+                        movieName = task.movieName,
+                        slug = task.slug,
+                        position = task.position,
+                        duration = durationMs,
+                        downloadCallback = downloadCallBack
+                    )
+                }
+
             }
         }, {
             Log.e("FFMPEGLOG", "$it")
@@ -143,10 +146,10 @@ class VideoDownloader(
         if (!movieDir.exists()) {
             movieDir.mkdirs()
         }
-        val outputFile = File(movieDir, "Tập${position?.plus(1)}.mp4")
+        val outputFile = File(movieDir, "Tập${position.plus(1)}.mp4")
         val cmd = "-i $downloadUrl -c copy -bsf:a aac_adtstoasc ${outputFile.absolutePath}"
         isCanceled = false
-        session = FFmpegKit.executeAsync(cmd, { session ->
+        val session = FFmpegKit.executeAsync(cmd, { session ->
             val returnCode = session.returnCode
             if (ReturnCode.isSuccess(returnCode)) {
                 removeQueue(url)
@@ -167,20 +170,22 @@ class VideoDownloader(
             Log.d("FFMPEGLOG", message)
 
         }, { statistics ->
-            if (duration > 0 && !isCanceled) {
+            if (duration > 0) {
                 val current = statistics.time
                 val progress = (current / duration) * 100
                 downloadCallback.onProgress(position, movieName, progress, slug)
-                Log.d("FFMPEGLOG", "Progress: $progress%")
+                Log.d("DownloadService", "$movieName - $position  Progress: $progress%")
             }
         })
+
+        this.currentSension = session
     }
 
     fun cancelDownload(downloadCallback: DownloadCallback) {
         Log.d("DownloadService", "cancelDownload")
         isCanceled = true
-        session?.cancel()
-        session = null
+        currentSension?.cancel()
+        currentSension = null
         if (queue.isNotEmpty()) {
             queue.removeFirst()
         }

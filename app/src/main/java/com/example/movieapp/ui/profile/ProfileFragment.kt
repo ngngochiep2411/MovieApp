@@ -85,10 +85,10 @@ class ProfileFragment : Fragment(), OnItemClickListener {
             )
         }
 
-//        binding.tvMore.setOnClickListener {
-//            val intent = Intent(context, AllHistoryActivity::class.java)
-//            startActivity(intent)
-//        }
+        binding.recent.setOnClickListener {
+            val intent = Intent(context, AllHistoryActivity::class.java)
+            startActivity(intent)
+        }
         binding.download.setOnClickListener {
             val intent = Intent(context, VideoDownloadActivity::class.java)
             startActivity(intent)
