@@ -105,7 +105,6 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
 
     override fun onPause() {
         super.onPause()
-        binding.playerView.onVideoPause()
     }
 
     var watchedAt: Long = 0
@@ -542,6 +541,10 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
         val animation = AnimationUtils.loadAnimation(this, R.anim.slide_up)
         binding.info.visibility = View.VISIBLE
         binding.info.startAnimation(animation)
+    }
+
+    fun pauseVideo() {
+        binding.playerView.onVideoPause()
     }
 
 

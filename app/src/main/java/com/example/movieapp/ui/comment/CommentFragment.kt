@@ -55,11 +55,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.example.movieapp.ui.authen.LoginActivity
+import com.example.movieapp.ui.detailmovie.DetailMovieActivity
 import gun0912.tedimagepicker.builder.TedImagePicker
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
-
 
 
 @AndroidEntryPoint
@@ -69,12 +69,12 @@ class CommentFragment : Fragment() {
     private var videoName: String? = ""
     private lateinit var binding: FragmentCommentBinding
     private lateinit var commentAdapter: CommentAdapter
-    private lateinit var replyDialog: ReplyDialog
     private val viewModel: CommentViewModel by viewModels()
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private lateinit var dialog: BottomSheetDialog
     private var uri: Uri? = null
     private var slug: String? = ""
+    private var scrollPosition = 0
 
     companion object {
 
@@ -118,9 +118,67 @@ class CommentFragment : Fragment() {
         initObserver()
         setOnClick()
 
+    }
 
+    fun showReplyDialog(
+        userName: String = "",
+        isComment: Boolean = true,
+        isReply: Boolean = true,
+        commentItem: CommentItem? = null
+    ) {
+        val dialog =
+            ReplyDialog(requireContext(), userName, callback = { content: String, uri: Uri? ->
+                if (isComment) {
+                    lifecycleScope.launch {
+                        viewModel.comment(
+                            CommentData(
+                                content = content,
+                                userId = viewModel.userDetail.value?.id,
+                                videoName = videoName!!
+                            ), toMultiPart(uri)
+                        ).collect {
+                            if (it.success()) {
+                                commentAdapter.reduceBlock.invoke(AddCommentReducer(it.data))
+                            }
+                        }
+                    }
+                }
 
-        replyDialog = ReplyDialog(requireContext(), callback = ::onReply)
+                if (isReply) {
+                    lifecycleScope.launch {
+                        val replyData = ReplyData(
+                            content = content,
+                            comment_id = if (commentItem is CommentItem.Level1) commentItem.id
+                            else (commentItem as CommentItem.Level2).parentId,
+                            reply_user_id = commentItem.userId,
+                            user_id = viewModel.userDetail.value?.id
+                        )
+                        viewModel.repComment(
+                            replyData, toMultiPart(uri)
+                        ).collect {
+                            commentAdapter.reduceBlock.invoke(
+                                ReplyReducer(
+                                    commentItem, requireContext(), CommentItem.Level2(
+                                        id = it.data.id,
+                                        time = it.data.created_at,
+                                        userId = it.data.user.id,
+                                        userReply = if (it.data.user.id == it.data.reply_user?.id) null else it.data.reply_user?.name,
+                                        content = it.data.content,
+                                        unLike = false,
+                                        like = false,
+                                        parentId = it.data.comment_id,
+                                        userName = it.data.user.name,
+                                        likeCount = 22,
+                                        avatar_url = it.data.user.avatar_url,
+                                        image = it.data.image
+                                    )
+                                )
+                            )
+                        }
+                    }
+                }
+            })
+        dialog.show()
     }
 
     private fun onReply(reply: String, uri: Uri?) {
@@ -134,21 +192,18 @@ class CommentFragment : Fragment() {
             ).collect {
                 if (it.success()) {
                     commentAdapter.reduceBlock.invoke(AddCommentReducer(it.data))
-                    scrollToPosition(0)
                 }
             }
         }
     }
 
     private fun scrollToPosition(position: Int) {
-        val layoutManager = binding.rvComment.layoutManager as LinearLayoutManager
-        val smoothScroller = object : LinearSmoothScroller(binding.rvComment.context) {
-            override fun getVerticalSnapPreference(): Int {
-                return SNAP_TO_START
-            }
+        Log.d("testing", "scrollToPosition $position")
+        binding.rvComment.post {
+            (binding.rvComment.layoutManager as LinearLayoutManager)
+                .scrollToPositionWithOffset(position, 0)
         }
-        smoothScroller.targetPosition = position
-        layoutManager.startSmoothScroll(smoothScroller)
+
     }
 
     fun toMultiPart(uri: Uri?): MultipartBody.Part? {
@@ -194,49 +249,11 @@ class CommentFragment : Fragment() {
     }
 
     private fun reply(commentItem: CommentItem) {
-        lifecycleScope.launch {
-            val content = withContext(Dispatchers.Main) {
-                suspendCoroutine { continuation ->
-                    replyDialog.setUserName(commentItem.userName.toString())
-                    replyDialog.setCallback { comment, uri ->
-                        this@CommentFragment.uri = uri
-                        continuation.resume(comment)
-                    }
-                    replyDialog.show()
-                }
-            }
-            val replyData = ReplyData(
-                content = content,
-                comment_id = if (commentItem is CommentItem.Level1) commentItem.id
-                else (commentItem as CommentItem.Level2).parentId,
-                reply_user_id = commentItem.userId,
-                user_id = viewModel.userDetail.value?.id
-            )
-            viewModel.repComment(
-                replyData, toMultiPart(uri)
-            ).collect {
-                commentAdapter.reduceBlock.invoke(
-                    ReplyReducer(
-                        commentItem, requireContext(), CommentItem.Level2(
-                            id = it.data.id,
-                            time = it.data.created_at,
-                            userId = it.data.user.id,
-                            userReply = if (it.data.user.id == it.data.reply_user?.id) null else it.data.reply_user?.name,
-                            content = it.data.content,
-                            unLike = false,
-                            like = false,
-                            parentId = it.data.comment_id,
-                            userName = it.data.user.name,
-                            likeCount = 22,
-                            avatar_url = it.data.user.avatar_url,
-                            image = it.data.image
-                        )
-                    )
-                )
-            }
-        }
-
-
+        showReplyDialog(
+            userName = commentItem.userName.toString(),
+            isReply = true,
+            commentItem = commentItem
+        )
     }
 
     private fun reducerBlock(): Reducer.() -> Unit {
@@ -246,8 +263,10 @@ class CommentFragment : Fragment() {
                     val newList = withContext(Dispatchers.IO) {
                         reduce.invoke(commentAdapter.currentList)
                     }
-                    commentAdapter.submitList(newList)
-                    binding.rvComment.scrollToPosition(0)
+                    commentAdapter.submitList(newList) {
+                        scrollToPosition(position = scrollPosition)
+                    }
+
                 }
             }
         }
@@ -281,8 +300,10 @@ class CommentFragment : Fragment() {
             } else {
                 TedImagePicker.with(requireContext()).start { uri ->
                     this.uri = uri
-                    replyDialog.setImage(uri)
-                    replyDialog.show()
+                    showReplyDialog(
+                        userName = "",
+                        isComment = true
+                    )
                 }
             }
         }
@@ -299,9 +320,14 @@ class CommentFragment : Fragment() {
         dialog.findViewById<TextView>(R.id.login).setOnClickListener {
             dialog.dismiss()
             startActivity(Intent(requireContext(), LoginActivity::class.java))
+            pauseVideo()
         }
         dialog.show()
+    }
 
+    private fun pauseVideo() {
+        val activity = activity as DetailMovieActivity
+        activity.pauseVideo()
     }
 
     private fun initObserver() {
@@ -340,7 +366,7 @@ class CommentFragment : Fragment() {
                         commentAdapter.reduceBlock.invoke(StartLoadLv1Reducer())
                         commentAdapter.reduceBlock.invoke(
                             LoadLv1Reducer(
-                                it, viewModel.userDetail.value?.id
+                                it, viewModel.userDetail.value?.id, viewModel.nextPage
                             )
                         )
                     }
@@ -350,7 +376,10 @@ class CommentFragment : Fragment() {
     }
 
     private fun showCommentDialog() {
-        replyDialog.show()
+        showReplyDialog(
+            userName = "",
+            isComment = true
+        )
     }
 
 

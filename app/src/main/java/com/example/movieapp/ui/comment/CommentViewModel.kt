@@ -44,6 +44,8 @@ class CommentViewModel @Inject constructor(
     private val _userDetail = MutableStateFlow<User?>(null)
     val userDetail: StateFlow<User?> = _userDetail
 
+    private var isLoadMore = false
+
     init {
         viewModelScope.launch {
             databaseManager.userDetail.collect {
@@ -67,19 +69,20 @@ class CommentViewModel @Inject constructor(
     }
 
     fun getMoreComment(videoName: String?) {
-        viewModelScope.launch {
-            Log.d("testing", "getMoreComment $currentPage")
-            mainRepository.getComment(videoName, currentPage + 1).collect {
-                currentPage = it.pagination.currentPage
-                nextPage = it.pagination.nextPage
-                _moreComments.value = it.data
+        if (!isLoadMore) {
+            viewModelScope.launch {
+                Log.d("testing", "getMoreComment $currentPage")
+                mainRepository.getComment(videoName, currentPage + 1).collect {
+                    currentPage = it.pagination.currentPage
+                    nextPage = it.pagination.nextPage
+                    _moreComments.value = it.data
+                }
             }
         }
-
     }
 
     fun comment(comment: CommentData, imagePart: MultipartBody.Part?) =
-        flow<BaseResponse<CommentResponse>> {
+        flow {
             val contentBody = comment.content.toRequestBody("text/plain".toMediaType())
             val videoIdBody = comment.videoName.toRequestBody("text/plain".toMediaType())
             val userIdBody =

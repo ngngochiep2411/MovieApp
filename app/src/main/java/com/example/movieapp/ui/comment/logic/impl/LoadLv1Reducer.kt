@@ -4,7 +4,7 @@ import com.example.movieapp.model.Comment
 import com.example.movieapp.ui.comment.logic.Reducer
 import com.example.movieapp.ui.comment.ui.CommentItem
 
-class LoadLv1Reducer(comments: List<Comment>, userId: Int?) : Reducer {
+class LoadLv1Reducer(comments: List<Comment>, userId: Int?, val nextPage: Boolean) : Reducer {
     override val reduce: suspend List<CommentItem>.() -> List<CommentItem> = {
         val newList = mutableListOf<CommentItem>()
         for (comment in comments) {
@@ -43,6 +43,11 @@ class LoadLv1Reducer(comments: List<Comment>, userId: Int?) : Reducer {
             }
         }
 
+        if (nextPage) {
+            newList.add(
+                CommentItem.Loading()
+            )
+        }
 
 
         toMutableList().apply {

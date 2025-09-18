@@ -2,6 +2,7 @@ package com.example.movieapp.widgets
 
 import android.content.Context
 import android.net.Uri
+import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -18,41 +19,28 @@ class ReplyDialog(
     private var callback: (String, uri: Uri?) -> Unit
 ) : BottomSheetDialog(context) {
 
-
-    private var uri: Uri? = null
-
-    fun setImage(uri: Uri?) {
-        this.uri = uri
-        Glide.with(context).load(uri).into(binding.img)
-        binding.imageview.visibility = View.VISIBLE
-        binding.icRemove.visibility = View.VISIBLE
-    }
-
-    fun setUserName(userName: String) {
-        this.userName = userName
-        binding.dialogCommentEt.hint = "Trả lời $userName"
-    }
-
-    fun setCallback(callback: (String, uri: Uri?) -> Unit) {
-        this.callback = callback
-    }
-
-    fun clearAll() {
-        binding.dialogCommentEt.text.clear()
-        binding.imageview.visibility = View.GONE
-    }
-
     private var binding: CommentDialogLayoutBinding =
         CommentDialogLayoutBinding.inflate(LayoutInflater.from(context))
+    private var uri: Uri? = null
 
 
-    init {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+
+        binding.dialogCommentEt.hint =
+            if (userName.isEmpty()) "Thêm bình luận..." else "Trả lời $userName"
+
+        binding.dialogCommentEt.requestFocus()
+        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(binding.dialogCommentEt, InputMethodManager.SHOW_IMPLICIT)
         binding.dialogCommentBt.setOnClickListener {
             callback.invoke(binding.dialogCommentEt.text.toString(), uri)
             clearAll()
             this.dismiss()
         }
+
 
         binding.dialogCommentEt.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -69,11 +57,6 @@ class ReplyDialog(
             override fun afterTextChanged(s: Editable?) {}
         })
 
-
-        binding.dialogCommentEt.requestFocus()
-        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(binding.dialogCommentEt, InputMethodManager.SHOW_IMPLICIT)
-
         binding.icRemove.setOnClickListener {
             binding.imageview.visibility = View.GONE
             binding.icRemove.visibility = View.GONE
@@ -83,5 +66,17 @@ class ReplyDialog(
                 setImage(uri)
             }
         }
+    }
+
+    fun setImage(uri: Uri?) {
+        this.uri = uri
+        Glide.with(context).load(uri).into(binding.img)
+        binding.imageview.visibility = View.VISIBLE
+        binding.icRemove.visibility = View.VISIBLE
+    }
+
+    fun clearAll() {
+        binding.dialogCommentEt.text.clear()
+        binding.imageview.visibility = View.GONE
     }
 }
