@@ -16,12 +16,12 @@ import gun0912.tedimagepicker.builder.TedImagePicker
 class ReplyDialog(
     context: Context,
     private var userName: String = "",
-    private var callback: (String, uri: Uri?) -> Unit
+    private var callback: (String, uri: Uri?) -> Unit,
+    var uri: Uri? = null
 ) : BottomSheetDialog(context) {
 
     private var binding: CommentDialogLayoutBinding =
         CommentDialogLayoutBinding.inflate(LayoutInflater.from(context))
-    private var uri: Uri? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,12 +66,13 @@ class ReplyDialog(
                 setImage(uri)
             }
         }
+        setImage(uri = uri)
     }
 
     fun setImage(uri: Uri?) {
         this.uri = uri
         Glide.with(context).load(uri).into(binding.img)
-        binding.imageview.visibility = View.VISIBLE
+        binding.imageview.visibility = if (uri != null) View.VISIBLE else View.GONE
         binding.icRemove.visibility = View.VISIBLE
     }
 

@@ -1,20 +1,20 @@
 package com.example.movieapp.ui.comment
 
-import android.net.Uri
+import android.app.Application
 import android.util.Log
+import android.widget.Toast
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.movieapp.database.DatabaseManager
 import com.example.movieapp.model.BaseResponse
 import com.example.movieapp.model.Comment
 import com.example.movieapp.model.CommentData
-import com.example.movieapp.model.CommentResponse
 import com.example.movieapp.model.Reply
 import com.example.movieapp.model.ReplyData
 import com.example.movieapp.model.ReplyResponse
 import com.example.movieapp.model.User
 import com.example.movieapp.repository.MainRepository
-import com.example.movieapp.database.DatabaseManager
-import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,12 +28,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CommentViewModel @Inject constructor(
-    private val mainRepository: MainRepository, private val databaseManager: DatabaseManager
-) : ViewModel() {
+    private val mainRepository: MainRepository,
+    private val databaseManager: DatabaseManager,
+    application: Application
+) : AndroidViewModel
+    (
+    application
+) {
 
     private val _comments = MutableStateFlow<List<Comment>?>(null)
     val comments: StateFlow<List<Comment>?> = _comments
-
+    private val context = getApplication<Application>().applicationContext
 
     private val _moreComments = MutableStateFlow<List<Comment>?>(null)
     val moreComments: StateFlow<List<Comment>?> = _moreComments
@@ -52,7 +57,6 @@ class CommentViewModel @Inject constructor(
                 _userDetail.value = it
             }
         }
-
     }
 
 
@@ -60,12 +64,15 @@ class CommentViewModel @Inject constructor(
         viewModelScope.launch {
             Log.d("testing", "getComment $currentPage")
             mainRepository.getComment(videoName, currentPage).collect {
-                currentPage = it.pagination.currentPage
-                nextPage = it.pagination.nextPage
-                _comments.value = it.data
+                if (it.success()) {
+                    currentPage = it.pagination.currentPage
+                    nextPage = it.pagination.nextPage
+                    _comments.value = it.data
+                } else {
+                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                }
             }
         }
-
     }
 
     fun getMoreComment(videoName: String?) {
@@ -73,9 +80,13 @@ class CommentViewModel @Inject constructor(
             viewModelScope.launch {
                 Log.d("testing", "getMoreComment $currentPage")
                 mainRepository.getComment(videoName, currentPage + 1).collect {
-                    currentPage = it.pagination.currentPage
-                    nextPage = it.pagination.nextPage
-                    _moreComments.value = it.data
+                    if (it.success()) {
+                        currentPage = it.pagination.currentPage
+                        nextPage = it.pagination.nextPage
+                        _moreComments.value = it.data
+                    } else {
+                        Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
@@ -93,7 +104,11 @@ class CommentViewModel @Inject constructor(
                 userId = userIdBody,
                 image = imagePart
             ).collect {
-                emit(it)
+                if (it.success()) {
+                    emit(it)
+                } else {
+                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
@@ -108,7 +123,11 @@ class CommentViewModel @Inject constructor(
                     .toRequestBody("text/plain".toMediaType()),
                 image = imagePart
             ).collect {
-                emit(it)
+                if (it.success()) {
+                    emit(it)
+                } else {
+                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
@@ -116,10 +135,11 @@ class CommentViewModel @Inject constructor(
         mainRepository.getReply(
             video_id = video_id, comment_id = comment_id, page = page
         ).collect {
-            emit(it)
+            if (it.success()) {
+                emit(it)
+            } else {
+                Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+            }
         }
     }
-
-    val isLoggedIn: Flow<Boolean> = databaseManager.isLogin
-
 }

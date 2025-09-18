@@ -33,8 +33,7 @@ import java.util.TimeZone
 
 class CommentAdapter(
     val reduceBlock: Reducer.() -> Unit,
-    private val reply: (item: CommentItem) -> Unit,
-    private val loadMore: (item: CommentItem) -> Unit,
+    private val reply: (item: CommentItem, position: Int) -> Unit,
     private val loadMoreReply: (item: CommentItem) -> Unit,
 
     ) : ListAdapter<CommentItem, VH>(object : DiffUtil.ItemCallback<CommentItem>() {
@@ -75,7 +74,7 @@ class CommentAdapter(
             TYPE_LOADING -> LoadingVH(
                 ItemCommentLoadingBinding.inflate(
                     inflater, parent, false
-                ), reduceBlock, loadMore
+                ), reduceBlock
             )
 
             TYPE_FIRST_LOADING -> FirstLoadingVH(
@@ -158,7 +157,7 @@ abstract class VH(itemView: View, protected val reduceBlock: Reducer.() -> Unit)
 class Level1VH(
     val binding: ItemCommentLevel1Binding,
     reduceBlock: Reducer.() -> Unit,
-    val callBack: (CommentItem) -> Unit
+    val callBack: (item: CommentItem, position: Int) -> Unit
 ) : VH(binding.root, reduceBlock) {
 
 
@@ -220,10 +219,10 @@ class Level1VH(
 
         }
         binding.root.setOnClickListener {
-            callBack(item)
+            callBack(item, bindingAdapterPosition)
         }
         binding.reply.setOnClickListener {
-            callBack(item)
+            callBack(item, bindingAdapterPosition)
         }
     }
 }
@@ -232,7 +231,7 @@ class Level1VH(
 class Level2VH(
     val binding: ItemCommentLevel2Binding,
     reduceBlock: Reducer.() -> Unit,
-    val callBack: (CommentItem) -> Unit
+    val callBack: (item: CommentItem, position: Int) -> Unit
 ) : VH(binding.root, reduceBlock) {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBind(item: CommentItem) {
@@ -294,10 +293,10 @@ class Level2VH(
 
         }
         binding.root.setOnClickListener {
-            callBack(item)
+            callBack(item, bindingAdapterPosition)
         }
         binding.reply.setOnClickListener {
-            callBack(item)
+            callBack(item, bindingAdapterPosition)
         }
     }
 }
@@ -372,10 +371,8 @@ class FoldingVH(
 class LoadingVH(
     val binding: ItemCommentLoadingBinding,
     reduceBlock: Reducer.() -> Unit,
-    private val loadMore: (item: CommentItem) -> Unit,
 ) : VH(binding.root, reduceBlock) {
     override fun onBind(item: CommentItem) {
-        loadMore(item)
     }
 }
 
