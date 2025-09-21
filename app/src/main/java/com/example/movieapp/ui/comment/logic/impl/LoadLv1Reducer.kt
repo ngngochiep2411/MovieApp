@@ -22,7 +22,7 @@ class LoadLv1Reducer(comments: List<Comment>, userId: Int?, val nextPage: Boolea
                 )
             )
 
-            if (comment.replys.isNotEmpty()) {
+            if (!comment.replys.isNullOrEmpty()) {
                 for (reply in comment.replys) {
                     newList.add(
                         CommentItem.Level2(

@@ -79,11 +79,12 @@ sealed interface CommentItem {
         val pageSize: Int = 3,
         val state: State = State.IDLE,
         val count: Int,
-        val total: Int,
+        var total: Int,
         val current: Int,
-        //lưu các bình luận trả lời đã tải từ api
-        val replies: List<CommentItem> = emptyList()
+        var nextPage: Boolean = false,
+        val replies: MutableList<CommentItem> = mutableListOf()
     ) : CommentItem {
+
 
         override val id: Int
             get() = parentId

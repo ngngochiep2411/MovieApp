@@ -9,13 +9,13 @@ import com.example.movieapp.ui.comment.ui.CommentItem.Folding.State
 data class ExpandReducer(
     val folding: CommentItem.Folding,
     val replys: List<Reply> = emptyList(),
-    val pagination: PaginationV2? = null
+    val pagination: PaginationV2
 ) : Reducer {
 
     override val reduce: suspend List<CommentItem>.() -> List<CommentItem> = {
         val foldingIndex = indexOf(folding)
 
-        pagination?.nextPage =
+        pagination.nextPage =
             (getCurrentReply(folding.parentId, this) + replys.size < pagination.total)
 
         val loaded = mutableListOf<CommentItem>()
@@ -47,16 +47,17 @@ data class ExpandReducer(
         }.map {
             if (it is CommentItem.Folding && it == folding) {
                 val state =
-                    if (pagination?.nextPage != true
+                    if (pagination.nextPage != true
                     ) State.LOADED_ALL else State.IDLE
                 val count =
-                    (pagination?.total ?: 0) - getCurrentReply(folding.parentId, this) - replys.size
+                    pagination.total - getCurrentReply(folding.parentId, this) - replys.size
+               it.replies.addAll(replys.convertReply())
                 it.copy(
                     page = it.page + 1,
                     state = state,
                     count = count,
-                    replies = it.replies + replys.convertReply(),
-                    current = getCurrentReply(folding.parentId, this) + replys.size
+                    current = getCurrentReply(folding.parentId, this) + replys.size,
+                    nextPage = pagination.nextPage
                 )
             } else {
                 it

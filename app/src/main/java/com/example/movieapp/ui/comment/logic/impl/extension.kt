@@ -28,7 +28,7 @@ fun List<Comment>.convertComment(
             )
         )
 
-        if (comment.replys.isNotEmpty()) {
+        if (!comment.replys.isNullOrEmpty()) {
             for (reply in comment.replys) {
                 newList.add(
                     CommentItem.Level2(
@@ -48,21 +48,23 @@ fun List<Comment>.convertComment(
                 )
 
             }
-            if (comment.paginationReply.nextPage) {
-                newList.add(
-                    CommentItem.Folding(
-                        parentId = comment.id,
-                        page = comment.paginationReply.currentPage,
-                        state = State.IDLE,
-                        pageSize = 10,
-                        count = comment.paginationReply.total - comment.paginationReply.count,
-                        replies = comment.replys.convertReply(),
-                        total = comment.paginationReply.total,
-                        current = comment.paginationReply.count
-                    )
-                )
-            }
         }
+
+        val folding = CommentItem.Folding(
+            parentId = comment.id,
+            page = comment.paginationReply.currentPage,
+            state = State.IDLE,
+            pageSize = 10,
+            count = comment.paginationReply.total - comment.paginationReply.count,
+            total = comment.paginationReply.total,
+            current = comment.paginationReply.count,
+            nextPage = false
+        )
+        if (comment.paginationReply.nextPage) {
+            folding.nextPage = true
+            newList.add(folding)
+        }
+
     }
     if (nextPage) {
         newList.add(CommentItem.Loading())
@@ -70,8 +72,8 @@ fun List<Comment>.convertComment(
     return newList
 }
 
-fun List<Reply>.convertReply(): List<CommentItem> {
-    val list = mutableListOf<CommentItem>()
+fun List<Reply>.convertReply(): MutableList<CommentItem.Level2> {
+    val list = mutableListOf<CommentItem.Level2>()
     this.forEach { reply ->
         list.add(
             CommentItem.Level2(
@@ -85,7 +87,8 @@ fun List<Reply>.convertReply(): List<CommentItem> {
                 userReply = if (reply.user?.id == reply.user?.id || reply.user?.id == reply.reply_user?.id) null else reply.reply_user?.name,
                 time = reply.createdAt,
                 parentId = reply.commentId,
-                avatar_url = reply.user?.avatar_url
+                avatar_url = reply.user?.avatar_url,
+                image = reply.image
             )
         )
 

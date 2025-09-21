@@ -11,7 +11,7 @@ data class FoldReducer(val folding: CommentItem.Folding) : Reducer {
         val foldingIndex = indexOf(folding)
         (this - subList(parentIndex + 1, foldingIndex).toSet()).map {
             if (it is CommentItem.Folding && it == folding) {
-                it.copy(page = 1, state = CommentItem.Folding.State.COLLAPSE, current = 0)
+                it.copy(state = CommentItem.Folding.State.COLLAPSE, current = 0)
             } else {
                 it
             }

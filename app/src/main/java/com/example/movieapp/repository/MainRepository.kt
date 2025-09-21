@@ -306,6 +306,7 @@ class MainRepository @Inject constructor(
         )
         emit(response)
     }.catch { e ->
+        Log.d("tes","$e")
     }
 
 //    fun getWatchedEpisodes(string: String): Flow<List<Int>> {

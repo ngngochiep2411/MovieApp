@@ -11,7 +11,10 @@ import android.provider.MediaStore
 import android.util.DisplayMetrics
 import android.view.WindowManager
 import android.widget.ImageView
+import android.widget.TextView
+import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -76,4 +79,5 @@ class Utils {
             return displayMetrics.heightPixels
         }
     }
+
 }

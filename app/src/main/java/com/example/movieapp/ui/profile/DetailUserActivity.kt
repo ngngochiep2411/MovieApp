@@ -23,6 +23,7 @@ import com.example.movieapp.model.User
 import com.example.movieapp.database.DatabaseManager
 import com.example.movieapp.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
+import gun0912.tedimagepicker.builder.TedImagePicker
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -100,10 +101,13 @@ class DetailUserActivity : AppCompatActivity() {
 
     private fun setOnClick() {
         binding.avatar.setOnClickListener {
-            if (arePermissionsGranted()) {
-                galleryLauncher.launch("image/*")
-            } else {
-                requestPermissions()
+            TedImagePicker.with(this).start { uri ->
+                if (it != null) {
+                    this@DetailUserActivity.uri = uri
+                }
+                Glide.with(this).load(uri)
+                    .error(R.drawable.avatar_anonymous)
+                    .into(binding.avatar)
             }
         }
 

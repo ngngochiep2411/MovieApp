@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.TextView
@@ -38,7 +37,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlin.collections.forEach
+import java.util.Arrays
 
 
 @AndroidEntryPoint
@@ -208,6 +207,22 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
         binding.quality.text = "Quality : ${detailMovie.movie?.quality}"
         binding.type.text = "Lang: ${detailMovie.movie?.lang}"
         binding.actor.text = "${detailMovie.movie?.actor?.joinToString("\n") { "• $it" }}"
+
+        //Speed("Lồng tiếng", true), Speed("Việt sub", false)
+        val lang = detailMovie.movie?.lang
+        if (!lang.isNullOrEmpty()) {
+            val typeList = ArrayList<Speed>()
+            val langArr = lang.split("+")
+
+            if (langArr.isNotEmpty() && langArr[0].trim() == "VietSub") {
+                typeList.add(Speed("VietSub", false))
+            }
+
+            if (langArr.size > 1 && langArr[1].trim() == "Thuyết Minh") {
+                typeList.add(Speed("Thuyết Minh", false))
+            }
+            binding.playerView.setTypeList(typeList)
+        }
     }
 
     private fun getCategory(list: List<Category>?): String {

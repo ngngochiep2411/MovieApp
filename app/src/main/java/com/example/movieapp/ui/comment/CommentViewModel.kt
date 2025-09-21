@@ -38,7 +38,7 @@ class CommentViewModel @Inject constructor(
 
     private val _comments = MutableStateFlow<List<Comment>?>(null)
     val comments: StateFlow<List<Comment>?> = _comments
-    private val context = getApplication<Application>().applicationContext
+    internal val context = getApplication<Application>().applicationContext
 
     private val _moreComments = MutableStateFlow<List<Comment>?>(null)
     val moreComments: StateFlow<List<Comment>?> = _moreComments

@@ -192,6 +192,10 @@ class LIstVideoFragment : Fragment() {
                     }
 
                     DownloadService.DownloadState.IDLE -> {
+                        val dialog = Dialog(requireContext())
+                        dialog.setContentView(R.layout.layout_choose_type_download)
+                        dialog.show()
+
                         startService(
                             context = requireContext(),
                             act = DownloadService.ACTION_START,
@@ -384,8 +388,8 @@ class LIstVideoFragment : Fragment() {
     private fun getNewList() {
         val currentQueue = downloadService?.videoDownloader?.currentQueue()
         currentQueue?.forEach { task ->
-            list.getOrNull(task.position)?.apply {
-                downloadState = DownloadService.DownloadState.QUEUED
+            if (list[task.position].linkM3u8 == task.url) {
+                list[task.position].downloadState = DownloadService.DownloadState.QUEUED
             }
         }
     }

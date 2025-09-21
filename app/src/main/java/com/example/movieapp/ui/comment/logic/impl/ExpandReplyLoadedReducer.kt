@@ -13,7 +13,7 @@ data class ExpandReplyLoadedReducer(
         }.map {
             if (it is CommentItem.Folding && it == folding) {
                 it.copy(
-                    state = CommentItem.Folding.State.LOADED_ALL
+                    state = if (folding.nextPage) CommentItem.Folding.State.IDLE else CommentItem.Folding.State.LOADED_ALL
                 )
             } else {
                 it

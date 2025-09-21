@@ -84,6 +84,7 @@ class PlayVideoDownloadActivity : AppCompatActivity(), VideoAllCallBack {
     private fun initView() {
         binding.playerView.layoutParams.height =
             Resources.getSystem().displayMetrics.heightPixels / 4
+        binding.playerView.hideChooseTypeList()
         binding.playerView.setSharedViewModel(sharedViewModel)
         backupRendType = GSYVideoType.getRenderType()
         resolveNormalVideoUI()

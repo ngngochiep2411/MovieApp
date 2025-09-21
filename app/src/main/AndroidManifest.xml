@@ -28,6 +28,10 @@
         android:theme="@style/Theme.MovieApp"
         tools:targetApi="31">
         <activity
+            android:name=".ui.comment.ui.ImageViewerActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
             android:name=".ui.download.PlayVideoDownloadActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="false"
@@ -36,28 +40,37 @@
             tools:ignore="DiscouragedApi" />
         <activity
             android:name=".ui.download.VideoDownloadActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
 
         <service
             android:name=".service.DownloadService"
+            android:screenOrientation="portrait"
             android:foregroundServiceType="dataSync" />
 
         <activity
             android:name=".ui.authen.RegisterActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan|stateHidden"
             android:exported="false" />
         <activity
             android:name=".ui.authen.LoginActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan|stateHidden"
             android:exported="false" />
         <activity
             android:name=".ui.history.AllHistoryActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".ui.detailcategory.DetailCategoryActivity"
+
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi" />
         <activity
             android:name=".ui.profile.DetailUserActivity"
+
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi" />
@@ -71,7 +84,7 @@
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="false"
             android:screenOrientation="sensor"
-            android:windowSoftInputMode="adjustResize|stateHidden"
+            android:windowSoftInputMode="adjustPan|stateHidden"
             tools:ignore="DiscouragedApi" />
         <activity
             android:name=".ui.main.MainActivity"

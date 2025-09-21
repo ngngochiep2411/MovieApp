@@ -1,12 +1,14 @@
 package com.example.movieapp.widgets
 
 import android.content.Context
+import android.content.DialogInterface
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import com.bumptech.glide.Glide
 import com.example.movieapp.databinding.CommentDialogLayoutBinding
@@ -28,7 +30,7 @@ class ReplyDialog(
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-
+        window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         binding.dialogCommentEt.hint =
             if (userName.isEmpty()) "Thêm bình luận..." else "Trả lời $userName"
 
@@ -79,5 +81,11 @@ class ReplyDialog(
     fun clearAll() {
         binding.dialogCommentEt.text.clear()
         binding.imageview.visibility = View.GONE
+    }
+
+    override fun setOnDismissListener(listener: DialogInterface.OnDismissListener?) {
+        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.dialogCommentEt.windowToken, 0)
+        super.setOnDismissListener(listener)
     }
 }

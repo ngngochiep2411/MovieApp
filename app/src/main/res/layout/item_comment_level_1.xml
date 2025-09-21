@@ -20,7 +20,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
-        tools:background="@drawable/avatar"
         tools:text="S" />
 
     <TextView
@@ -180,6 +179,21 @@
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.amrdeveloper.reactbutton.ReactButton
+        android:visibility="gone"
+        android:id="@+id/reactButton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="20dp"
+        android:background="@android:color/transparent"
+        android:textAllCaps="false"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/content" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

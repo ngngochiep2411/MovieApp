@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView.VISIBLE
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import com.amrdeveloper.reactbutton.Reaction
 import com.example.movieapp.Constant
 import com.example.movieapp.R
 import com.example.movieapp.databinding.ItemCommentFoldingBinding
@@ -23,6 +24,8 @@ import com.example.movieapp.ui.comment.logic.Reducer
 import com.example.movieapp.ui.comment.logic.impl.ExpandReplyLoadedReducer
 import com.example.movieapp.ui.comment.logic.impl.FoldReducer
 import com.example.movieapp.ui.comment.ui.CommentItem.Folding.State
+import com.example.movieapp.util.FbReactions
+import com.example.movieapp.util.FbReactions.reactions
 import com.example.movieapp.util.Utils
 import org.ocpsoft.prettytime.PrettyTime
 import java.text.SimpleDateFormat
@@ -35,6 +38,8 @@ class CommentAdapter(
     val reduceBlock: Reducer.() -> Unit,
     private val reply: (item: CommentItem, position: Int) -> Unit,
     private val loadMoreReply: (item: CommentItem) -> Unit,
+    private val loadMore: (item: CommentItem) -> Unit,
+    val onImageClick: (item: CommentItem, position: Int) -> Unit,
 
     ) : ListAdapter<CommentItem, VH>(object : DiffUtil.ItemCallback<CommentItem>() {
 
@@ -62,19 +67,19 @@ class CommentAdapter(
             TYPE_LEVEL1 -> Level1VH(
                 ItemCommentLevel1Binding.inflate(
                     inflater, parent, false
-                ), reduceBlock, reply
+                ), reduceBlock, reply, onImageClick
             )
 
             TYPE_LEVEL2 -> Level2VH(
                 ItemCommentLevel2Binding.inflate(
                     inflater, parent, false
-                ), reduceBlock, reply
+                ), reduceBlock, reply, onImageClick
             )
 
             TYPE_LOADING -> LoadingVH(
                 ItemCommentLoadingBinding.inflate(
                     inflater, parent, false
-                ), reduceBlock
+                ), reduceBlock, loadMore
             )
 
             TYPE_FIRST_LOADING -> FirstLoadingVH(
@@ -157,8 +162,10 @@ abstract class VH(itemView: View, protected val reduceBlock: Reducer.() -> Unit)
 class Level1VH(
     val binding: ItemCommentLevel1Binding,
     reduceBlock: Reducer.() -> Unit,
-    val callBack: (item: CommentItem, position: Int) -> Unit
-) : VH(binding.root, reduceBlock) {
+    val callBack: (item: CommentItem, position: Int) -> Unit,
+    val onImageClick: (item: CommentItem, position: Int) -> Unit,
+
+    ) : VH(binding.root, reduceBlock) {
 
 
     override fun onBind(item: CommentItem) {
@@ -175,6 +182,9 @@ class Level1VH(
                 Constant.BASE_URL + "/" + data.image,
                 binding.imageview
             )
+            binding.cardView.setOnClickListener {
+                onImageClick(data, bindingAdapterPosition)
+            }
         } else {
             binding.cardView.visibility = GONE
         }
@@ -186,6 +196,9 @@ class Level1VH(
         binding.tvLike.visibility = if (data.likeCount == 0) INVISIBLE else VISIBLE
         binding.username.text = data.userName
         binding.content.text = data.content
+        binding.reactButton.setReactions(*reactions.toTypedArray())
+
+        binding.reactButton.setDefaultReaction(FbReactions.defaultReact)
         binding.lnLike.setOnClickListener {
             data.like = !data.like
             if (data.like) {
@@ -231,7 +244,8 @@ class Level1VH(
 class Level2VH(
     val binding: ItemCommentLevel2Binding,
     reduceBlock: Reducer.() -> Unit,
-    val callBack: (item: CommentItem, position: Int) -> Unit
+    val callBack: (item: CommentItem, position: Int) -> Unit,
+    val onImageClick: (item: CommentItem, position: Int) -> Unit,
 ) : VH(binding.root, reduceBlock) {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBind(item: CommentItem) {
@@ -249,6 +263,9 @@ class Level2VH(
                 Constant.BASE_URL + "/" + data.image,
                 binding.imageview
             )
+            binding.cardView.setOnClickListener {
+                onImageClick(data, bindingAdapterPosition)
+            }
         } else {
             binding.cardView.visibility = GONE
         }
@@ -308,19 +325,6 @@ class FoldingVH(
 ) :
     VH(binding.root, reduceBlock) {
     override fun onBind(item: CommentItem) {
-
-//        binding.lnExpand.visibility =
-//            if (folding.state == CommentItem.Folding.State.LOADED_ALL) GONE else VISIBLE
-//        binding.lnCollapse.visibility = if (folding.page == 1) GONE else VISIBLE
-//
-//        binding.lnExpand.setOnClickListener {
-//            reduceBlock.invoke(StartExpandReducer(folding))
-//            reduceBlock.invoke(ExpandReducer(folding))
-//        }
-//
-//        binding.lnCollapse.setOnClickListener {
-//            reduceBlock.invoke(FoldReducer(folding))
-//        }
         val folding = item as CommentItem.Folding
         binding.expand.text = folding.text
 
@@ -328,28 +332,34 @@ class FoldingVH(
             State.LOADING -> {
                 binding.lnCollapse.visibility = GONE
                 binding.lnExpand.visibility = GONE
-                binding.loadingView.visibility = VISIBLE
                 binding.view.visibility = GONE
+
+                binding.loadingView.visibility = VISIBLE
             }
 
             State.LOADED_ALL -> {
                 binding.lnExpand.visibility = GONE
-                binding.view.visibility = VISIBLE
                 binding.loadingView.visibility = GONE
+
+                binding.view.visibility = VISIBLE
                 binding.lnCollapse.visibility = VISIBLE
             }
 
             State.IDLE -> {
-                binding.lnCollapse.visibility = GONE
-                binding.lnExpand.visibility = VISIBLE
+
+                binding.lnCollapse.visibility = if (folding.page == 0) GONE else VISIBLE
+
                 binding.loadingView.visibility = GONE
+
+                binding.lnExpand.visibility = VISIBLE
                 binding.view.visibility = VISIBLE
             }
 
             State.COLLAPSE -> {
                 binding.lnCollapse.visibility = GONE
-                binding.lnExpand.visibility = VISIBLE
                 binding.loadingView.visibility = GONE
+
+                binding.lnExpand.visibility = VISIBLE
                 binding.view.visibility = VISIBLE
             }
         }
@@ -371,8 +381,10 @@ class FoldingVH(
 class LoadingVH(
     val binding: ItemCommentLoadingBinding,
     reduceBlock: Reducer.() -> Unit,
+    val loadMore: (CommentItem) -> Unit,
 ) : VH(binding.root, reduceBlock) {
     override fun onBind(item: CommentItem) {
+        loadMore(item)
     }
 }
 

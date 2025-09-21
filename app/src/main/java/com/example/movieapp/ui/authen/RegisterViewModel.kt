@@ -1,18 +1,17 @@
-package com.example.movieapp.ui.auth.login
+package com.example.movieapp.ui.authen
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.movieapp.repository.MainRepository
 import com.example.movieapp.database.DatabaseManager
-import com.google.gson.Gson
+import com.example.movieapp.repository.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(
+class RegisterViewModel @Inject constructor(
     private val mainRepository: MainRepository,
     private val databaseManager: DatabaseManager,
 ) : ViewModel() {
@@ -23,24 +22,16 @@ class LoginViewModel @Inject constructor(
     private val _login = MutableLiveData<Boolean>()
     val login: LiveData<Boolean> get() = _login
 
-    private val _loading = MutableLiveData<Boolean>()
-    val loading: LiveData<Boolean> get() = _loading
-
-    fun login(email: String, password: String) {
-        _loading.value = true
+    fun register(email: String, password: String, userName: String) {
         viewModelScope.launch {
-            mainRepository.login(email, password).collect {
-                _loading.value = false
+            mainRepository.register(email, password, userName).collect {
                 if (it.success()) {
-                    if (it != null && it.data != null && it.data.user != null) {
-                        databaseManager.saveUser(Gson().toJson(it.data.user))
-                        _login.value = true
-                    }
+                    _message.value = it.message
+                    _login.value = true
                 } else {
                     _message.value = it.message
                 }
             }
         }
-
     }
 }

@@ -75,25 +75,17 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
     private int mPreProgress = -2;
     private Dialog dialog;
     private SharedViewModel sharedViewModel;
-    SampleControlVideo sampleVideo;
+    private SampleControlVideo sampleVideo;
+    private Boolean chooseType = true;
 
     public void setSharedViewModel(SharedViewModel viewModel) {
         this.sharedViewModel = viewModel;
     }
 
-    List<Speed> speedList = Arrays.asList(
-            new Speed("0.5x", false),
-            new Speed("0.75x", false),
-            new Speed("1x", true),
-            new Speed("1.25x", false),
-            new Speed("1.5x", false),
-            new Speed("2x", false)
-    );
+    List<Speed> speedList = Arrays.asList(new Speed("0.5x", false), new Speed("0.75x", false), new Speed("1x", true), new Speed("1.25x", false), new Speed("1.5x", false), new Speed("2x", false));
 
-    List<Speed> typeList = Arrays.asList(
-            new Speed("Lồng tiếng", true),
-            new Speed("Việt sub", false)
-    );
+    List<Speed> typeList;
+
 
     public SampleControlVideo(Context context, Boolean fullFlag) {
         super(context, fullFlag);
@@ -124,6 +116,10 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
 
     }
 
+    public void setTypeList(List<Speed> typeList) {
+        this.typeList = typeList;
+    }
+
     private void initView() {
         imgForward = findViewById(R.id.forward);
         imgNext = findViewById(R.id.next);
@@ -150,6 +146,7 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
                     showDialogChooseType();
                 }
             });
+            dialog.findViewById(R.id.chooseType).setVisibility(chooseType ? View.VISIBLE : View.GONE);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
 
             Window window = dialog.getWindow();
@@ -278,7 +275,7 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
         super.onProgressChanged(seekBar, progress, fromUser);
         if (fromUser) {
             long duration = getDuration();
-            long newPos   = duration * progress / 100;
+            long newPos = duration * progress / 100;
             String currentStr = CommonUtil.stringForTime((int) newPos);
             seekTime.setText(currentStr);
         }
@@ -288,17 +285,9 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
     private void showPreView(String url, long time) {
         int width = CommonUtil.dip2px(getContext(), 150);
         int height = CommonUtil.dip2px(getContext(), 100);
-        Glide.with(getContext().getApplicationContext())
-                .setDefaultRequestOptions(
-                        new RequestOptions()
-                                //这里限制了只从缓存读取
-                                .onlyRetrieveFromCache(true)
-                                .frame(1000 * time)
-                                .override(width, height)
-                                .dontAnimate()
-                                .centerCrop())
-                .load(url)
-                .into(mPreView);
+        Glide.with(getContext().getApplicationContext()).setDefaultRequestOptions(new RequestOptions()
+                //这里限制了只从缓存读取
+                .onlyRetrieveFromCache(true).frame(1000 * time).override(width, height).dontAnimate().centerCrop()).load(url).into(mPreView);
     }
 
     @Override
@@ -431,6 +420,11 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
         }
         mTextureView.setRotation(mRotate);
         mTextureView.requestLayout();
+    }
+
+
+    public void hideChooseTypeList() {
+        chooseType = false;
     }
 
     public interface OnVideoControlListener {
