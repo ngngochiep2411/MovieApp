@@ -16,7 +16,8 @@ class SendBroadCast {
             url: String = "",
             slug: String? = "",
             movieName: String? = null,
-            position: Int = -1
+            position: Int = -1,
+            downloadMode: String = ""
         ) {
             val intent = Intent(context, DownloadService::class.java).apply {
                 setPackage(context.packageName)
@@ -29,6 +30,9 @@ class SendBroadCast {
                 }
                 if (!movieName.isNullOrEmpty()) {
                     putExtra(DownloadService.EXTRA_MOVIE_NAME, movieName)
+                }
+                if (downloadMode.isNotEmpty()) {
+                    putExtra(DownloadService.EXTRA_DOWNLOAD_MODE, downloadMode)
                 }
                 if (position != -1) {
                     putExtra(DownloadService.EXTRA_POSITION, position)

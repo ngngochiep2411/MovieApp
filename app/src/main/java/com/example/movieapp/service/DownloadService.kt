@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import com.example.movieapp.util.DownloadCallback
 import com.example.movieapp.util.DownloadTask
 import com.example.movieapp.util.Notification
@@ -44,9 +43,14 @@ class DownloadService : Service() {
             val slug = intent.getStringExtra(EXTRA_SLUG)
             val movieName = intent.getStringExtra(EXTRA_MOVIE_NAME)
             val position = intent.getIntExtra(EXTRA_POSITION, -1)
-            if (url != null && slug != null && movieName != null && position != -1) {
+            val downloadMode = intent.getStringExtra(EXTRA_DOWNLOAD_MODE)
+            if (url != null && slug != null && movieName != null && downloadMode != null && position != -1) {
                 val downloadTask = DownloadTask(
-                    url = url, position = position, movieName = movieName, slug = slug
+                    url = url,
+                    position = position,
+                    movieName = movieName,
+                    slug = slug,
+                    downloadMode = downloadMode
                 )
                 if (videoDownloader.isDownloading) {
                     videoDownloader.addQueue(
@@ -155,6 +159,7 @@ class DownloadService : Service() {
         const val EXTRA_URL = "EXTRA_URL"
         const val EXTRA_SLUG = "EXTRA_SLUG"
         const val EXTRA_MOVIE_NAME = "EXTRA_MOVIE_NAME"
+        const val EXTRA_DOWNLOAD_MODE = "EXTRA_DOWNLOAD_MODE"
         const val EXTRA_POSITION = "EXTRA_POSITION"
     }
 

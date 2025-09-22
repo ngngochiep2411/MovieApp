@@ -15,6 +15,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -30,11 +32,13 @@ import com.example.movieapp.model.ServerData
 import com.example.movieapp.model.VideoDownload
 import com.example.movieapp.service.DownloadService
 import com.example.movieapp.ui.detailmovie.DetailMovieActivity
+import com.example.movieapp.ui.detailmovie.Speed
 import com.example.movieapp.ui.listvideo.adapter.ListVideoAdapter
 import com.example.movieapp.util.SendBroadCast.Companion.sendBroadCast
 import com.example.movieapp.util.SendBroadCast.Companion.startService
 import com.example.movieapp.util.SharedViewModel
 import com.example.movieapp.util.VideoDownloader
+import com.example.movieapp.widgets.SampleControlVideo
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.File
@@ -53,12 +57,17 @@ class LIstVideoFragment : Fragment() {
     private lateinit var videoDownloader: VideoDownloader
 
     private var downloadService: DownloadService? = null
+    private var downloadModes = listOf<Speed>()
+
+    object DownloadMode {
+        const val VIETSUB = "VietSub"
+        const val THUYET_MINH = "ThuyetMinh"
+    }
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             downloadService = (service as DownloadService.LocalBinder).getService()
-            val currentQueue =
-                downloadService?.getQueue()
+            val currentQueue = downloadService?.getQueue()
             currentQueue?.forEach { task ->
                 adapter.list.getOrNull(task.position)?.apply {
                     downloadState = DownloadService.DownloadState.DOWNLOADING
@@ -84,9 +93,7 @@ class LIstVideoFragment : Fragment() {
                     if (slug != null && slug == this@LIstVideoFragment.slug) {
                         if (index >= 0) {
                             adapter.updateProgress(
-                                index,
-                                progress,
-                                DownloadService.DownloadState.DOWNLOADING.name
+                                index, progress, DownloadService.DownloadState.DOWNLOADING.name
                             )
                         }
                     }
@@ -192,18 +199,33 @@ class LIstVideoFragment : Fragment() {
                     }
 
                     DownloadService.DownloadState.IDLE -> {
-                        val dialog = Dialog(requireContext())
-                        dialog.setContentView(R.layout.layout_choose_type_download)
-                        dialog.show()
+                        if (getPlayerMode() > 1) {
+                            showChooseTypeDownloadDialog(
+                                onAccept = { downloadMode ->
+                                    startService(
+                                        context = requireContext(),
+                                        act = DownloadService.ACTION_START,
+                                        url = getUrlDownload(
+                                            type = downloadMode,
+                                            position = position
+                                        ),
+                                        slug = this.slug,
+                                        movieName = detailMovie?.movie?.name,
+                                        position = position,
+                                        downloadMode = downloadMode
 
-                        startService(
-                            context = requireContext(),
-                            act = DownloadService.ACTION_START,
-                            url = list[position].linkM3u8,
-                            slug = this.slug,
-                            movieName = detailMovie?.movie?.name,
-                            position = position
-                        )
+                                    )
+                                })
+                        } else {
+                            startService(
+                                context = requireContext(),
+                                act = DownloadService.ACTION_START,
+                                url = list[position].linkM3u8,
+                                slug = this.slug,
+                                movieName = detailMovie?.movie?.name,
+                                position = position
+                            )
+                        }
                     }
 
                     else -> {
@@ -223,11 +245,53 @@ class LIstVideoFragment : Fragment() {
 
     }
 
+    private fun getUrlDownload(type: String, position: Int): String {
+        val activity = activity as DetailMovieActivity
+        val videoUrl = activity.videoURL
+        return when (type) {
+            "VietSub" -> videoUrl?.videoVietSub?.getOrNull(position) ?: ""
+            "Thuyết minh" -> videoUrl?.videoLongTieng?.getOrNull(position) ?: ""
+            else -> ""
+        }
+    }
+
+    fun getPlayerMode(): Int {
+        return ((activity as DetailMovieActivity).findViewById<SampleControlVideo>(R.id.playerView) as SampleControlVideo).getTypeList().size
+    }
+
+    fun showChooseTypeDownloadDialog(onAccept: (type: String) -> Unit) {
+        val dialog = Dialog(requireContext())
+        dialog.setContentView(R.layout.layout_choose_type_download)
+        val accept = dialog.findViewById<TextView>(R.id.accept)
+        val cancel = dialog.findViewById<TextView>(R.id.cancel)
+        val radioGroup = dialog.findViewById<RadioGroup>(R.id.radioGroup)
+
+
+        accept.setOnClickListener {
+            val checkedId = radioGroup.checkedRadioButtonId
+            if (checkedId == -1) {
+                Toast.makeText(context, "Vui lòng chọn nội dung tải xuống", Toast.LENGTH_SHORT)
+                    .show()
+            } else {
+                val radioButton = radioGroup.findViewById<RadioButton>(checkedId)
+                dialog.dismiss()
+                onAccept(radioButton.text.toString())
+            }
+        }
+        cancel.setOnClickListener {
+            dialog.dismiss()
+        }
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
+    }
+
     private fun saveVideoDownload() {
         lifecycleScope.launch {
             viewModel.saveVideo(
                 download = VideoDownload(
-                    thumb = thumb ?: "", name = detailMovie?.movie?.name ?: "", slug = slug ?: "",
+                    thumb = thumb ?: "",
+                    name = detailMovie?.movie?.name ?: "",
+                    slug = slug ?: "",
                     detailMovie = detailMovie ?: DetailMovie()
                 )
             )
@@ -250,7 +314,8 @@ class LIstVideoFragment : Fragment() {
         }
         requireContext().bindService(
             Intent(requireContext(), DownloadService::class.java),
-            connection, Context.BIND_AUTO_CREATE
+            connection,
+            Context.BIND_AUTO_CREATE
         )
         super.onResume()
     }
@@ -283,8 +348,9 @@ class LIstVideoFragment : Fragment() {
                 ).show()
             }
         } else {
-            Toast.makeText(context, "Nội dung này không còn tồn tại trên máy", Toast.LENGTH_SHORT)
-                .show()
+            Toast.makeText(
+                context, "Nội dung này không còn tồn tại trên máy", Toast.LENGTH_SHORT
+            ).show()
         }
 
     }

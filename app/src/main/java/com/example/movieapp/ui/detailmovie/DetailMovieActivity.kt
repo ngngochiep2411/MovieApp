@@ -54,7 +54,7 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
     private var index = 0
     var typePlay: SharedViewModel.PlayType = SharedViewModel.PlayType.LONG_TIENG
     private var videos: List<String> = emptyList()
-    private var videoURL: VideoURL? = null
+    var videoURL: VideoURL? = null
 
     var backupRendType: Int = 0
     var orientationUtils: OrientationUtils? = null
@@ -214,7 +214,7 @@ class DetailMovieActivity() : AppCompatActivity(), VideoAllCallBack {
             val typeList = ArrayList<Speed>()
             val langArr = lang.split("+")
 
-            if (langArr.isNotEmpty() && langArr[0].trim() == "VietSub") {
+            if (langArr.isNotEmpty() && langArr[0].trim() == "Vietsub") {
                 typeList.add(Speed("VietSub", false))
             }
 

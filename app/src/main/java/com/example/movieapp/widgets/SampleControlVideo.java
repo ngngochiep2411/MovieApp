@@ -86,6 +86,9 @@ public class SampleControlVideo extends StandardGSYVideoPlayer {
 
     List<Speed> typeList;
 
+    public List<Speed> getTypeList() {
+        return typeList;
+    }
 
     public SampleControlVideo(Context context, Boolean fullFlag) {
         super(context, fullFlag);

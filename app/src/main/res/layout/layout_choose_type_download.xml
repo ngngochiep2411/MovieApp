@@ -13,27 +13,14 @@
         android:layout_height="wrap_content"
         android:background="#2e2e2e">
 
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginHorizontal="10dp"
-            android:layout_marginTop="15dp"
-            android:text="Chọn nội dung tải xuống"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/title"
             android:layout_centerHorizontal="true"
             android:layout_marginHorizontal="10dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
             android:text="Bạn hãy chọn nội dung muốn tải xuống"
             android:textAlignment="center"
             android:textColor="@color/white"
@@ -53,6 +40,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
+                android:buttonTint="@color/primaryColor"
                 android:text="VietSub"
                 android:textColor="@color/white" />
 
@@ -61,6 +49,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
+                android:buttonTint="@color/primaryColor"
                 android:text="Thuyết minh"
                 android:textColor="@color/white" />
 
@@ -71,7 +60,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_below="@id/radioGroup"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
             android:background="#9d9d9d" />
 
         <LinearLayout
@@ -85,7 +74,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:paddingVertical="15dp"
+                android:paddingVertical="10dp"
                 android:text="Đóng"
                 android:textAlignment="center"
                 android:textColor="#9d9d9d"
@@ -101,7 +90,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:paddingVertical="15dp"
+                android:paddingVertical="10dp"
                 android:text="Đồng ý"
                 android:textAlignment="center"
                 android:textColor="@color/primaryColor"

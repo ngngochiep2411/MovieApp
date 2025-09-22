@@ -9,6 +9,7 @@ import com.arthenica.ffmpegkit.ReturnCode
 import com.example.movieapp.service.DownloadService
 import com.example.movieapp.util.SendBroadCast.Companion.sendBroadCast
 import java.io.File
+import java.text.Normalizer
 
 class VideoDownloader(
     val context: Context,
@@ -102,11 +103,20 @@ class VideoDownloader(
                     slug = task.slug,
                     position = task.position,
                     duration = durationMs,
-                    downloadCallback = downloadCallBack
+                    downloadCallback = downloadCallBack,
+                    downloadMode = task.downloadMode
                 )
             }
         }, {
         })
+    }
+
+    fun sanitizeFileName(name: String): String {
+        var result = Normalizer.normalize(name, Normalizer.Form.NFD)
+        result = result.replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")
+        result = result.replace(Regex("[\\\\/:*?\"<>|]"), "")
+        result = result.replace(" ", "")
+        return result
     }
 
     private fun downloadVideo(
@@ -116,7 +126,8 @@ class VideoDownloader(
         duration: Double,
         slug: String,
         url: String?,
-        downloadCallback: DownloadCallback
+        downloadMode: String,
+        downloadCallback: DownloadCallback,
     ) {
         val movieDir = File(privateDir, slug)
         if (movieDir.exists()) {
@@ -125,7 +136,8 @@ class VideoDownloader(
         if (!movieDir.exists()) {
             movieDir.mkdirs()
         }
-        val outputFile = File(movieDir, "Tập${position.plus(1)}.mp4")
+        val outputFile =
+            File(movieDir, "Tập${position.plus(1)}_${sanitizeFileName(downloadMode)}.mp4")
         val cmd = "-i $downloadUrl -c copy -bsf:a aac_adtstoasc ${outputFile.absolutePath}"
         val session = FFmpegKit.executeAsync(cmd, { session ->
             val returnCode = session.returnCode
@@ -209,5 +221,9 @@ interface DownloadCallback {
 }
 
 data class DownloadTask(
-    val url: String, val position: Int, val movieName: String, val slug: String
+    val url: String,
+    val position: Int,
+    val movieName: String,
+    val slug: String,
+    val downloadMode: String
 )
