@@ -67,8 +67,8 @@ class Notification(val context: Context) {
         builder.mActions.clear()
         builder.setContentTitle("Tải xuống $movieName - Tập ${position?.plus(1)}").setSubText("")
             .setContentText(if (!success) "Có lỗi xảy ra" else "Đã tải xuống video")
-            .setProgress(0, 0, false).setOngoing(true)
-            .setSmallIcon(android.R.drawable.stat_sys_download_done)
+            .setProgress(0, 0, false)
+            .setOngoing(true)
         notificationManager.notify(notificationId, builder.build())
     }
 

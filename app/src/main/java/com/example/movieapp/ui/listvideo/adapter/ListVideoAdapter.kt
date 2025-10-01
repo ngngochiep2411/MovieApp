@@ -77,7 +77,7 @@ class ListVideoAdapter(
                     binding.imgDownload.visibility = View.VISIBLE
                     binding.progress.visibility = View.GONE
                     binding.imgDownload.setImageResource(R.drawable.ic_download_white)
-                    val exits = checkFileExits(binding.root.context, position)
+                    val exits = checkFileExits(binding.root.context, bindingAdapterPosition)
                     if (exits) {
                         item.downloadState = DownloadState.DOWNLOADED
                         binding.imgDownload.setImageResource(R.drawable.ic_success)
@@ -116,11 +116,18 @@ class ListVideoAdapter(
     }
 
 
+//    fun checkFileExits(context: Context, position: Int): Boolean {
+//        return File(
+//            context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
+//            "$slug/Tập${position + 1}.mp4"
+//        ).exists()
+//    }
+
     fun checkFileExits(context: Context, position: Int): Boolean {
-        return File(
-            context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
-            "$slug/Tập${position + 1}.mp4"
-        ).exists()
+        val folder = File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "$slug")
+        val prefix = "Tập${position + 1}"
+        val files = folder.listFiles() ?: return false
+        return files.any { it.name.contains(prefix) }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {

@@ -223,7 +223,8 @@ class LIstVideoFragment : Fragment() {
                                 url = list[position].linkM3u8,
                                 slug = this.slug,
                                 movieName = detailMovie?.movie?.name,
-                                position = position
+                                position = position,
+                                downloadMode = getDownloadMode()
                             )
                         }
                     }
@@ -243,6 +244,11 @@ class LIstVideoFragment : Fragment() {
             activity.showInfo()
         }
 
+    }
+
+    private fun getDownloadMode(): String {
+        val activity = activity as DetailMovieActivity
+        return activity.typePlay.name
     }
 
     private fun getUrlDownload(type: String, position: Int): String {
@@ -333,26 +339,33 @@ class LIstVideoFragment : Fragment() {
 
 
     private fun deleteFile(position: Int, onSuccess: () -> Unit) {
-        val privateDir = requireContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
-        val file = File(privateDir, "$slug/Tập${position + 1}.mp4")
-        if (file.exists()) {
-            val deleted = file.delete()
-            if (deleted) {
-                Toast.makeText(
-                    context, "Xóa thành công", Toast.LENGTH_SHORT
-                ).show()
+        val folder = File(
+            requireContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
+            "$slug"
+        )
+        val files = folder.listFiles()
+        val prefix = "Tập${position + 1}"
+        var deletedAny = false
+
+        if (files != null) {
+            for (file in files) {
+                if (file.name.contains(prefix)) {
+                    val deleted = file.delete()
+                    if (deleted) {
+                        deletedAny = true
+                    }
+                }
+            }
+
+            if (deletedAny) {
+                Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show()
                 onSuccess()
             } else {
-                Toast.makeText(
-                    context, "Xóa thất bại", Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(context, "Không tìm thấy file để xóa", Toast.LENGTH_SHORT).show()
             }
         } else {
-            Toast.makeText(
-                context, "Nội dung này không còn tồn tại trên máy", Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(context, "Thư mục trống", Toast.LENGTH_SHORT).show()
         }
-
     }
 
 
