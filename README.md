@@ -9,10 +9,10 @@
     width="400"/>
     
 <p>Màn hình thể loại</p>
-<img src="https://raw.githubusercontent.com/ngngochiep2411/MovieApp/refs/heads/master/assets/screenshots/theloai.jpg" 
-     width="400"/>
+<img src="https://github.com/ngngochiep2411/MovieApp/blob/master/assets/screenshots/theloai.jpg?raw=true" 
+    width="400"/>
      
 <p>Màn hình user</p>
-<img src="https://raw.githubusercontent.com/ngngochiep2411/MovieApp/refs/heads/master/assets/screenshots/thongtin.jpg" 
-     width="400"/>
+<img src="https://github.com/ngngochiep2411/MovieApp/blob/master/assets/screenshots/thongtin.jpg?raw=true" 
+    width="400"/>
 
