@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="4dp"
+    android:background="@color/black"
+    android:paddingHorizontal="4dp"
+    android:paddingVertical="4dp">
+
+
+    <ImageView
+        android:id="@+id/ic_history"
+        android:layout_width="13dp"
+        android:layout_height="13dp"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_history"
+        app:tint="@color/white" />
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="15dp"
+        android:layout_toEndOf="@id/ic_history"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:text="@string/app_name"
+        android:textColor="#A2A2A6"
+        android:textSize="12sp"
+        tools:layout_width="wrap_content" />
+
+    <ImageView
+        android:id="@+id/delete"
+        android:layout_width="13dp"
+        android:layout_height="13dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/baseline_clear_24"
+        app:tint="@color/white" />
+
+</RelativeLayout>

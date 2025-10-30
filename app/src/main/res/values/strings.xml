@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">KKPhim</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="web_client_id">437584420299-slln10uv7miv2nf1op8uakc6f5lliabc.apps.googleusercontent.com</string>
+    <string name="very_long_text"><![CDATA[<io.github.glailton.expandabletextview.ExpandableTextView\n        android:id=\"@+id/expand_tv_very_long\"\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:layout_margin=\"16dp\"\n        android:padding=\"8dp\"\n        expandableTextView:collapsedLines=\"3\"\n        expandableTextView:animDuration=\"500\"\n        expandableTextView:readMoreText=\"Leia mais\"\n        expandableTextView:readLessText=\"Leia menos\"\n        expandableTextView:textMode=\"line\"\n        app:expandType=\"layout\"\n        android:text=\"@string/very_long_text\"\n        app:layout_constraintEnd_toEndOf=\"parent\"\n        app:layout_constraintStart_toStartOf=\"parent\"\n        app:layout_constraintTop_toBottomOf=\"@id/expand_tv\"\n        app:layout_constraintVertical_bias=\"0.0\" />\n\n    <io.github.glailton.expandabletextview.ExpandableTextView\n        android:id=\"@+id/expand_popup_tv_very_long\"\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:layout_margin=\"16dp\"\n        android:padding=\"8dp\"\n        expandableTextView:collapsedLines=\"4\"\n        expandableTextView:animDuration=\"500\"\n        expandableTextView:readMoreText=\"Leia mais\"\n        expandableTextView:readLessText=\"Leia menos\"\n        expandableTextView:textMode=\"line\"\n        expandableTextView:expandType=\"popup\"\n        android:text=\"@string/very_long_text\"\n        app:layout_constraintEnd_toEndOf=\"parent\"\n        app:layout_constraintStart_toStartOf=\"parent\"\n        app:layout_constraintTop_toBottomOf=\"@id/expand_tv_very_long\"\n        app:layout_constraintVertical_bias=\"0.0\" />\n\n    <io.github.glailton.expandabletextview.ExpandableTextView\n        android:id=\"@+id/not_expand_tv\"\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:layout_margin=\"16dp\"\n        android:foreground=\"?android:attr/selectableItemBackground\"\n        android:maxLines=\"3\"\n        android:ellipsize=\"end\"\n        android:padding=\"8dp\"\n        android:text=\"@string/very_long_text\"\n        app:layout_constraintEnd_toEndOf=\"parent\"\n        app:layout_constraintStart_toStartOf=\"parent\"\n        app:layout_constraintTop_toBottomOf=\"@id/expand_popup_tv_very_long\"\n        app:layout_constraintVertical_bias=\"0.0\" />\n\n    <io.github.glailton.expandabletextview.ExpandableTextView\n        android:id=\"@+id/expand_tv_prog\"\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:layout_margin=\"16dp\"\n        android:padding=\"8dp\"\n        android:text=\"\"\n        app:layout_constraintEnd_toEndOf=\"parent\"\n        app:layout_constraintStart_toStartOf=\"parent\"\n        app:layout_constraintTop_toBottomOf=\"@id/not_expand_tv\"\n        app:layout_constraintVertical_bias=\"0.0\" />\n\n</androidx.constraintlayout.widget.ConstraintLayout>]]></string>
+
+
+    <string name="time_ago_prefix">Cách đây</string>
+    <string name="time_ago_suffix">trước</string>
+    <string name="time_ago_seconds">%1$d giây</string>
+    <string name="time_ago_minute">1 phút</string>
+    <string name="time_ago_minutes">%1$d phút</string>
+    <string name="time_ago_hour">1 giờ</string>
+    <string name="time_ago_hours">%1$d giờ</string>
+    <string name="time_ago_day">1 ngày</string>
+    <string name="time_ago_days">%1$d ngày</string>
+    <string name="time_ago_month">1 tháng</string>
+    <string name="time_ago_months">%1$d tháng</string>
+    <string name="time_ago_year">1 năm</string>
+    <string name="time_ago_years">%1$d năm</string>
+
+    <string name="dang_ky_text">Nếu chưa có tài khoản vui lòng <font color='#27c153'> Đăng ký</font></string>
+    <string name="server_client_id">784782539960-q96aqohhl75qr9k2ocbv8vnhlcfc9jcr.apps.googleusercontent.com</string>
+
+</resources>
