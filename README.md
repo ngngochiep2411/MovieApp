@@ -5,9 +5,8 @@
 <strong>Ảnh chụp màn hình</strong>
 
 <p>Màn hình trang chủ</p>
-<a href="https://raw.githubusercontent.com/ngngochiep2411/MovieApp/master/assets/screenshots/trangchu.jpg">
-  <img src="https://raw.githubusercontent.com/ngngochiep2411/MovieApp/master/assets/screenshots/trangchu.jpg" alt="Screenshot" width="400"/>
-</a>
+<img src="https://github.com/ngngochiep2411/MovieApp/blob/master/assets/screenshots/trangchu.jpg?raw=true" 
+     alt="Trang chủ" width="400"/>
 
 
 
