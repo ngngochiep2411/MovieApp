@@ -7,9 +7,12 @@
 <p>Màn hình trang chủ</p>
 <img src="https://github.com/ngngochiep2411/MovieApp/blob/master/assets/screenshots/trangchu.jpg?raw=true" 
     width="400"/>
-
+    
 <p>Màn hình thể loại</p>
-<img src="https://raw.githubusercontent.com/ngngochiep2411/MovieApp/refs/heads/master/assets/screenshots/the%20loai.jpg" 
+<img src="https://raw.githubusercontent.com/ngngochiep2411/MovieApp/refs/heads/master/assets/screenshots/theloai.jpg" 
      width="400"/>
-
+     
+<p>Màn hình user</p>
+<img src="https://raw.githubusercontent.com/ngngochiep2411/MovieApp/refs/heads/master/assets/screenshots/thongtin.jpg" 
+     width="400"/>
 
