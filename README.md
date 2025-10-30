@@ -6,7 +6,7 @@
 
 <p>Màn hình trang chủ</p>
 <img src="https://github.com/ngngochiep2411/MovieApp/blob/master/assets/screenshots/trangchu.jpg?raw=true" 
-     alt="Trang chủ" />
+     alt="Trang chủ" width="400"/>
 
 
 
