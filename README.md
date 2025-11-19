@@ -1,6 +1,6 @@
 <strong>Link apk</strong>
 
-<a href="https://drive.google.com/file/d/1h2Kq6O_wAQoeWLioAmPXa8oshggrrRvy/view?usp=sharing">Tải APK</a>
+<a href="[https://drive.google.com/file/d/1h2Kq6O_wAQoeWLioAmPXa8oshggrrRvy/view?usp=sharing](https://drive.google.com/file/d/1p60Brx6ZBKgngXOU7Qd1pdQooNKz6j7J/view?usp=drivesdk)">Tải APK</a>
 
 <strong>Ảnh chụp màn hình</strong>
 
